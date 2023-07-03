@@ -1,0 +1,39 @@
+:root {
+    --form-element-spacing-vertical: 0.4rem;
+    cursor: auto;
+}
+.no-full-width {
+    width: max-content !important;
+    max-width: 250px !important;
+    margin-right: 10px;
+    display: inline-block;
+    margin-bottom: 0 !important;
+}
+.positive {
+    background-color: green;
+}
+.negative {
+    background-color: brown;
+}
+.pointer {
+    cursor: pointer;
+}
+.flex-row {
+    display: flex;
+    flex-direction: row;
+}
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+.spacer {
+    flex-grow: 1;
+}
+.flex-header {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.flex-header > * {
+    height: fit-content;
+}

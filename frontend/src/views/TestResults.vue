@@ -1,0 +1,114 @@
+<template>
+    <article v-if="testResult === undefined" aria-busy="true"></article>
+    <template v-else>
+        <header class="flex-header">
+            <hgroup>
+                <h1>{{ testResult.TestMethod.MethodName }}</h1>
+                <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink></h3>
+            </hgroup>
+            <span class="spacer"></span>
+            <a role="button" href="">Re-Run</a>
+        </header>
+        <TestResultSummary :testMethod="testResult.TestMethod" :testResult="testResult"/>
+
+        <article>
+            <header class="grid">
+                <label><input type="checkbox" v-model="filter.succeeded"/>Succeeded</label>
+                <label><input type="checkbox" v-model="filter.conSucceeded"/>Conceptually Succeeded</label>
+                <label><input type="checkbox" v-model="filter.failed"/>Failed</label>
+            </header>
+            <figure>
+                <table role="grid">
+                <thead>
+                    <tr>
+                        <th v-for="(derivation, parameter) of testResult.States[0].DerivationContainer">{{ parameter }}</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template v-for="state of testResult.States">
+                        <tr v-if="filterState(state)" @click="openState = state">
+                            <td v-for="(derivation, parameter) of state.DerivationContainer">{{ derivation }}</td>
+                            <td>{{ getResultSymbol(state.Result) }}</td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </figure>
+        </article>
+
+        <StateModal :state="openState" @close="openState = undefined"/>
+    </template>
+</template>
+
+<script lang="ts">
+import { TestOutcome, type IState, type ITestResult } from '@/lib/data_types';
+import CircularProgress from '@/components/CircularProgress.vue';
+import StateModal from '@/components/StateModal.vue';
+import TestResultSummary from '@/components/TestResultSummary.vue';
+import { getResultSymbol } from '@/composables/visuals';
+
+export default {
+    name: "TestResults",
+    components: { CircularProgress, StateModal, TestResultSummary },
+    data() {
+        return {
+            testResult: undefined as ITestResult | undefined,
+            identifier: "",
+            openState: undefined as IState | undefined,
+            filter: {
+                succeeded: true,
+                conSucceeded: true,
+                failed: true
+            }
+        };
+    },
+    created() {
+        if (this.$route.params["identifier"] && this.$route.params["className"] && this.$route.params["methodName"]) {
+            let identifier = this.$route.params["identifier"] as string;
+            let className = this.$route.params["className"] as string;
+            let methodName = this.$route.params["methodName"] as string;
+            this.$api.getTestResult(identifier, className, methodName).then((testResult: ITestResult) => {
+                this.testResult = testResult;
+                this.identifier = identifier;
+            });
+        }
+    },
+    methods: {
+        getResultSymbol,
+        filterState(state: IState): boolean {
+            if (state.Result == TestOutcome.STRICTLY_SUCCEEDED) {
+                return this.filter.succeeded;
+            } else if (state.Result == TestOutcome.CONCEPTUALLY_SUCCEEDED) {
+                return this.filter.conSucceeded;
+            } else if (state.Result == TestOutcome.FULLY_FAILED) {
+                return this.filter.failed;
+            } else {
+                return true;
+            }
+        }
+    }
+}
+</script>
+
+<style scoped>
+tr {
+    cursor: pointer;
+}
+hgroup {
+    max-width: 80%;
+}
+h1 {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.result-summary {
+    display: flex;
+    flex-direction: column;
+}
+.summary-main-flex {
+    display: flex;
+    justify-content: space-between;
+}
+</style>
