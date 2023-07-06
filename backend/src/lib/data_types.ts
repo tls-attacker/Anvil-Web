@@ -156,3 +156,13 @@ export interface IAnvilWorker {
     name: string,
     id: string
 }
+
+export interface IAnvilJob {
+    id: string,
+    status: string,
+    progress: number,
+    //identifier: string,
+    config: any,
+    workerId: string,
+    workerName: string
+}
