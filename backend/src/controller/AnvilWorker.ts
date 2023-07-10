@@ -24,6 +24,7 @@ export class AnvilWorker {
         this.name = name;
         this.status = AnvilWorkerStatus.IDLE;
         this.commands = [];
+        this.jobs = [];
         this.keepAlive();
     }
 
@@ -46,7 +47,9 @@ export class AnvilWorker {
     public apiObject(): IAnvilWorker {
         return {
             id: this.id,
-            name: this.name
+            name: this.name,
+            status: this.status.toString(),
+            jobs: this.jobs.map(j => j.apiObject())
         }
     }
 

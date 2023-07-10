@@ -19,6 +19,7 @@ export const TestRunSchema = new Schema({
   FailedTests: Number,
   SucceededTests: Number,
   DisabledTests: Number,
+  TotalTests: Number,
   Score: ScoreMapSchmaObject,
   StatesCount: Number,
   TestEndpointType: String

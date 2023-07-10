@@ -1,6 +1,8 @@
 import { BadRequest } from '../errors';
 import { AC } from '../controller/AnvilController';
 import { NextFunction, Request, Response, Router } from 'express';
+import DB from '../database';
+import { IState, ITestResult } from '../lib/data_types';
 
 
 export namespace WorkerEndpoint {
@@ -12,8 +14,9 @@ export namespace WorkerEndpoint {
             this.router = router;
             router.post("/worker/register", this.registerWorker);
             router.post("/worker/fetch", this.fetch);
-            router.post("/worker/update/summary", this.updateSummary);
-            router.post("/worker/update/test", this.updateTest);
+            router.post("/worker/update/scan", this.updateScan);
+            router.post("/worker/update/testrun", this.updateTestRun);
+            router.post("/worker/update/testresult", this.updateTestResult);
             router.post("/worker/update/state", this.updateState);
 
         }
@@ -35,41 +38,72 @@ export namespace WorkerEndpoint {
             res.json(worker.fetchCommand(status));
         }
 
-        private async updateSummary(req: Request, res: Response, next: NextFunction) {
-            let jobId = req.query.jobId;
+        private async updateTestRun(req: Request, res: Response, next: NextFunction) {
+            let jobId = req.body.jobId;
             let job = AC.getJob(jobId as string);
             if (!job) {
                 return next(new BadRequest("id not valid"));
             }
-            let summary = req.body;
-            // update in db
+
+            let newTestRun = req.body.summary;
+            if (!job.testRun) {
+                job.testRun = await DB.TestRun.create(newTestRun);
+            } else {
+                job.testRun.overwrite(newTestRun);
+                await job.testRun.save();
+            }
+            
             res.json({status: "OK"});
         }
 
-        private async updateTest(req: Request, res: Response, next: NextFunction) {
-            let jobId = req.query.jobId;
+        private async updateTestResult(req: Request, res: Response, next: NextFunction) {
+            let jobId = req.body.jobId;
             let job = AC.getJob(jobId as string);
             if (!job) {
                 return next(new BadRequest("id not valid"));
             }
-            let className = req.query.className;
-            let methodName = req.query.methodName;
-            let test = req.body;
-            // update in db
+            if (!job.testRun) {
+                return next(new BadRequest("no associated testrun posted before"));
+            }
+            let newTestResult = req.body.testResult as ITestResult;
+            let className = newTestResult.TestMethod.ClassName;
+            let methodName = newTestResult.TestMethod.MethodName;
+            let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
+            if (!testResult) {
+                testResult = new DB.TestResult(newTestResult);
+            } else {
+                testResult.overwrite(newTestResult);
+            }
+            testResult.ContainerId = job.testRun._id;
+            await testResult.save();
+            
             res.json({status: "OK"});
         }
 
         private async updateState(req: Request, res: Response, next: NextFunction) {
-            let jobId = req.query.jobId;
+            let jobId = req.body.jobId;
             let job = AC.getJob(jobId as string);
             if (!job) {
                 return next(new BadRequest("id not valid"));
             }
-            let className = req.query.className;
-            let methodName = req.query.methodName;
-            let uuid = req.query.uuid;
-            let state = req.body;
-            // update in db
+            if (!job.testRun) {
+                return next(new BadRequest("no associated testrun posted before"));
+            }
+            let newTestState = req.body.state as IState;
+            let className = req.body.className;
+            let methodName = req.body.methodName;
+            let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
+            if (!testResult) {
+                return next(new BadRequest("no associated testresult posted before"));
+            }
+            testResult.States.push(newTestState);
+            await testResult.save();
+
+            res.json({status: "OK"});
+        }
+
+        private async updateScan(req: Request, res: Response, next: NextFunction) {
+
             res.json({status: "OK"});
         }
     }

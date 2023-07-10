@@ -1,5 +1,6 @@
 import { IAnvilJob, ITestRun } from "../lib/data_types";
 import { AnvilWorker } from "./AnvilWorker";
+import { HydratedDocument } from "mongoose";
 
 export enum AnvilJobStatus {
     RUNNING,
@@ -11,7 +12,7 @@ export class AnvilJob {
     public readonly id: string;
     public status: AnvilJobStatus;
     public progress: number;
-    public testRun: ITestRun;
+    public testRun: HydratedDocument<ITestRun>;
     public config: any;
     public worker: AnvilWorker;
 

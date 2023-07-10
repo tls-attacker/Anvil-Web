@@ -55,7 +55,7 @@ app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
 console.log(" - establishing database connection")
 DB.connect().then(() => {
   app.listen(5001, function () {
-    console.log('AnvilWeb started. Running on port 5000!')
+    console.log('AnvilWeb started. Running on port 5001!')
   })
 }).catch((e) => {
   console.error("Startup failed!", e)

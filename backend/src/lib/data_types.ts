@@ -89,6 +89,7 @@ export interface ITestRun extends ITimestamp {
     FailedTests: number,
     SucceededTests: number,
     DisabledTests: number,
+    TotalTests: number,
     StatesCount: number,
     Score: IScoreMap,
     TestEndpointType: string,
@@ -155,6 +156,8 @@ export interface IState {
 export interface IAnvilWorker {
     name: string,
     id: string
+    status: string,
+    jobs: IAnvilJob[]
 }
 
 export interface IAnvilJob {
