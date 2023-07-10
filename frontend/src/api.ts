@@ -1,24 +1,7 @@
-import type { IAnvilWorker, ITestResult, ITestRun } from './lib/data_types';
+import type { IAnvilJob, IAnvilWorker, ITestResult, ITestRun } from './lib/data_types';
 
 export module AnvilApi {
     const baseUrl = "http://localhost:5001/api/v2/";
-
-    function getApiObject(path: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            fetch(baseUrl + path)
-            .then((response) => {
-                if (!response.ok) {
-                    reject(response);
-                }
-                resolve(response.json());
-            })
-            .catch(error => {
-                console.error("Error while trying to access the api backend:");
-                console.error(error);
-                reject(error);
-            });
-        });
-    }
 
     export function getIdentifiers(): Promise<string[]> {
         return getApiObject("testRunIdentifiers");
@@ -56,10 +39,59 @@ export module AnvilApi {
         return getApiObject("/control/worker");
     }
 
+    export function getJobList(): Promise<IAnvilJob[]> {
+        return getApiObject("/control/job");
+    }
+
+    export function addJob(config: any, workerId?: string): Promise<IAnvilJob> {
+        let apiObject = workerId ? {config: config, workerId: workerId} : {config: config}
+        return postApiObject("/control/job", apiObject);
+    }
+
 
 
     /* ---- Internal ---- */
 
+    function getApiObject(path: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fetch(baseUrl + path)
+            .then((response) => {
+                if (!response.ok) {
+                    reject(response);
+                }
+                resolve(response.json());
+            })
+            .catch(error => {
+                console.error("Error while trying to access the api backend:");
+                console.error(error);
+                reject(error);
+            });
+        });
+    }
+
+    function postApiObject(path: string, requestObject: any): Promise<any> {
+        return new Promise((resolve, reject) => {
+            fetch(baseUrl + path, {
+                method: "post",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestObject)
+            })
+            .then((response) => {
+                if (!response.ok) {
+                    reject(response);
+                }
+                resolve(response.json());
+            })
+            .catch(error => {
+                console.error("Error while trying to access the api backend:");
+                console.error(error);
+                reject(error);
+            });
+        });
+    }
 
     function buildQueryString(queryObject: {[name: string]: string | string[] | undefined}): string {
         let result = "";
