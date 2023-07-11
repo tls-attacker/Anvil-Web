@@ -22,7 +22,8 @@ export const TestRunSchema = new Schema({
   TotalTests: Number,
   Score: ScoreMapSchmaObject,
   StatesCount: Number,
-  TestEndpointType: String
+  TestEndpointType: String,
+  Running: Boolean
 }, {
   statics: {
     async addTestResults(testRun: ITestRun & {_id: Types.ObjectId}) {

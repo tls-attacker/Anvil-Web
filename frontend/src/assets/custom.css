@@ -10,10 +10,20 @@
     margin-bottom: 0 !important;
 }
 .positive {
-    background-color: green;
+    --background-color: green;
 }
 .negative {
-    background-color: brown;
+    --background-color: brown;
+}
+.positive.outline {
+    --background-color: transparent;
+    --border-color: green;
+    --color: green !important;
+}
+.negative.outline {
+    --background-color: transparent;
+    --border-color: brown;
+    --color: brown !important;
 }
 .pointer {
     cursor: pointer;

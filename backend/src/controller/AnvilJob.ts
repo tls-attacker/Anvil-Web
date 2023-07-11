@@ -1,11 +1,11 @@
-import { IAnvilJob, ITestRun } from "../lib/data_types";
+import { IAnvilJob, ITestResult, ITestRun } from "../lib/data_types";
 import { AnvilWorker } from "./AnvilWorker";
 import { HydratedDocument } from "mongoose";
 
 export enum AnvilJobStatus {
-    RUNNING,
-    PAUSED,
-    QUEUED
+    RUNNING = "RUNNING",
+    PAUSED = "PAUSED",
+    QUEUED = "QUEUED"
 }
 
 export class AnvilJob {
@@ -13,6 +13,9 @@ export class AnvilJob {
     public status: AnvilJobStatus;
     public progress: number;
     public testRun: HydratedDocument<ITestRun>;
+    public testResults: {[classMethod: string]: HydratedDocument<ITestResult>};
+    public testResultTimeouts: {[classMethod: string]: NodeJS.Timeout};
+    public testrunTimeout: NodeJS.Timeout;
     public config: any;
     public worker: AnvilWorker;
 
@@ -22,6 +25,8 @@ export class AnvilJob {
         this.worker = worker;
         this.status = AnvilJobStatus.QUEUED;
         this.progress = 0;
+        this.testResults = {};
+        this.testResultTimeouts = {};
     }
 
     public apiObject(): IAnvilJob {
@@ -29,7 +34,7 @@ export class AnvilJob {
             id: this.id,
             status: this.status.toString(),
             progress: this.progress,
-            //identifier: this.testRun.Identifier,
+            identifier: this.testRun ? this.testRun.Identifier : "unset",
             config: this.config,
             workerId: this.worker ? this.worker.id : null,
             workerName: this.worker ? this.worker.name : null

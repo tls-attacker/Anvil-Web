@@ -1,6 +1,6 @@
 import { IAnvilWorker } from "../lib/data_types";
 import { AC, AnvilCommand, AnvilCommands } from "./AnvilController";
-import { AnvilJob } from "./AnvilJob";
+import { AnvilJob, AnvilJobStatus } from "./AnvilJob";
 
 const WORKER_TIMEOUT = 30;
 
@@ -65,6 +65,9 @@ export class AnvilWorker {
                 let job = AC.getNextQueuedJob();
                 if (job) {
                     job.worker = this;
+                    job.status = AnvilJobStatus.RUNNING;
+                    job.progress = 1;
+                    this.jobs.push(job);
                     return {
                         command: AnvilCommands.QUEUE_RUN,
                         job: job.apiObject()

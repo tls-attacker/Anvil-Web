@@ -2,7 +2,7 @@ import { BadRequest } from '../errors';
 import { AC } from '../controller/AnvilController';
 import { NextFunction, Request, Response, Router } from 'express';
 import DB from '../database';
-import { IState, ITestResult } from '../lib/data_types';
+import { IState, ITestResult, TestOutcome } from '../lib/data_types';
 
 
 export namespace WorkerEndpoint {
@@ -68,14 +68,36 @@ export namespace WorkerEndpoint {
             let newTestResult = req.body.testResult as ITestResult;
             let className = newTestResult.TestMethod.ClassName;
             let methodName = newTestResult.TestMethod.MethodName;
-            let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
+            let testResult = job.testResults[className+":"+methodName];
             if (!testResult) {
-                testResult = new DB.TestResult(newTestResult);
+                job.testResults[className+":"+methodName] = new DB.TestResult(newTestResult);
+                testResult = job.testResults[className+":"+methodName];
             } else {
                 testResult.overwrite(newTestResult);
             }
             testResult.ContainerId = job.testRun._id;
-            await testResult.save();
+            
+            if (req.body.finished) {
+                switch (testResult.Result) {
+                    case TestOutcome.STRICTLY_SUCCEEDED:
+                    case TestOutcome.CONCEPTUALLY_SUCCEEDED:
+                        job.testRun.SucceededTests++;
+                        break;
+                    case TestOutcome.FULLY_FAILED:
+                    case TestOutcome.PARTIALLY_FAILED:
+                        job.testRun.FailedTests++;
+                        break;
+                    case TestOutcome.DISABLED:
+                    case TestOutcome.PARSER_ERROR:
+                    case TestOutcome.NOT_SPECIFIED:
+                    default:
+                        job.testRun.DisabledTests++;
+                }
+                clearTimeout(job.testrunTimeout);
+                job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
+            }
+            clearTimeout(job.testResultTimeouts[className+":"+methodName])
+            job.testResultTimeouts[className+":"+methodName] = setTimeout(() => testResult.save(), 3000);
             
             res.json({status: "OK"});
         }
@@ -92,12 +114,21 @@ export namespace WorkerEndpoint {
             let newTestState = req.body.state as IState;
             let className = req.body.className;
             let methodName = req.body.methodName;
-            let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
+            //let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
+            //if (!testResult) {
+            //    return next(new BadRequest("no associated testresult posted before"));
+            //}
+            let testResult = job.testResults[className+":"+methodName];
             if (!testResult) {
                 return next(new BadRequest("no associated testresult posted before"));
             }
             testResult.States.push(newTestState);
-            await testResult.save();
+            clearTimeout(job.testResultTimeouts[className+":"+methodName])
+            job.testResultTimeouts[className+":"+methodName] = setTimeout(() => testResult.save(), 3000);
+
+            job.testRun.StatesCount++;
+            clearTimeout(job.testrunTimeout);
+            job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
 
             res.json({status: "OK"});
         }

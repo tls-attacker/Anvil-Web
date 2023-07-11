@@ -1,23 +1,66 @@
 <template>
     <dialog open>
         <article>
-            <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')">
-            </a>
-            <h3>Create new Job</h3>
-            <p>
-                Start a TLS-Anvil-Testrun with the desired configuration. The job will be run by the first worker, that is idle, unless you specify a worker that should take the job.
-            </p>
-            <br/>
-            <form>
-                <input type="text" v-model="config">
-            </form>
+            <header>
+                <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')">
+                </a>
+                <h3>Create new Job</h3>
+            </header>
+            <main>
+                <p>
+                    Start a TLS-Anvil-Testrun with the desired configuration. The job will be run by the first worker, that
+                    is idle, unless you specify a worker that should take the job.
+                </p>
+                <br />
+                <form>
+                    <label>Worker: {{ selectedWorker }}</label>
+                    <select v-model="selectedWorker">
+                        <option :value="undefined">Auto select</option>
+                        <option v-for="worker of workers" :value="worker.id">{{ worker.name }}</option>
+                    </select>
+
+                    <label>Identifier:
+                        <input type="text" placeholder="example-test" v-model="identifier">
+                    </label>
+                    <label>Testmode:
+                        <select v-model="testmode">
+                            <option value="server">Server</option>
+                            <option value="client">Client</option>
+                        </select>
+                    </label>
+                    <template v-if="testmode=='server'">
+                        <label>Server:
+                            <input type="text" placeholder="testserver:443" v-model="serverHost">
+                        </label>
+                        <label>
+                            <input type="checkbox" v-model="sendSNI">
+                            Send SNI Extension
+                        </label>
+                        <label v-if="sendSNI">Server Name (SNI):
+                            <input type="text" v-model="sniName">
+                        </label>
+                    </template>
+                    <template v-else>
+                        <label>Port:
+                            <input type="number" v-model="clientPort">
+                        </label>
+                        <label>Trigger Script:
+                            <input type="text" v-model="triggerScript">
+                        </label>
+                    </template>
+                    <label>Strength:
+                        <input type="number" value="1">
+                    </label>
+                    <label>Additional config:
+                        <input type="text" v-model="config">
+                    </label>
+                </form>
+            </main>
             <footer>
                 <a href="" role="button" class="secondary" @click.prevent="$emit('close')">
                     Cancel
                 </a>
-                <a href="" role="button"
-                    @click.prevent="createJob"
-                    :aria-busy="waiting">
+                <a href="" role="button" @click.prevent="createJob" :aria-busy="waiting">
                     Create
                 </a>
             </footer>
@@ -28,32 +71,65 @@
 <script lang="ts">
 export default {
     name: "NewJobDialog",
-    props: ["open", "identifiers"],
+    props: ["open", "workers"],
     emits: ["close"],
     data() {
         return {
             waiting: false,
             error: false,
-            config: ""
+            config: "",
+            testmode: "server",
+            sendSNI: false,
+            sniName: "",
+            selectedWorker: undefined,
+            serverHost: "",
+            clientPort: 443,
+            triggerScript: "",
+            identifier: ""
         }
     },
     methods: {
         createJob() {
             this.waiting = true;
             this.error = false;
-            
-            this.$api.addJob(this.config)
-            .then(() => {
-                this.waiting = false;
-                this.$emit("close");
-            })
-            .catch(() => {
-                this.error = true;
-                this.waiting = false;
-            });
+
+            let command = this.config;
+            if (this.identifier.length>0) {
+                command += ` -identifier ${this.identifier}`;
+            }
+            command += ` ${this.testmode}`;
+            if (this.testmode == 'server') {
+                command += ` -connect ${this.serverHost}`;
+                if (this.sendSNI) {
+                    if (this.sniName.length>0) {
+                        command += ` -server_name ${this.sniName}`;
+                    }
+                } else {
+                    command += " -doNotSendSNIExtension";
+                }
+            } else {
+                command += ` -port ${this.clientPort}`;
+                if (this.triggerScript.length>0) {
+                    command += ` -triggerScript ${this.triggerScript}`;
+                }
+            }
+
+            this.$api.addJob(command.trim(), this.selectedWorker)
+                .then(() => {
+                    this.waiting = false;
+                    this.$emit("close");
+                })
+                .catch(() => {
+                    this.error = true;
+                    this.waiting = false;
+                });
         }
     }
 }
 </script>
 
-<style></style>
+<style scoped>
+h3 {
+    margin-bottom: 0;
+}
+</style>

@@ -37,13 +37,14 @@ export default {
             selectedRuns: {} as {[identifier: string]: boolean},
             filter: "",
             upload: false,
-            deleteIdentifiers: [] as string[]
+            deleteIdentifiers: [] as string[],
+            timer: 0
         }
     },
     methods: {
         refreshTestRuns() {
-            this.selectedRuns = {};
-            this.deleteIdentifiers = [];
+            //this.selectedRuns = {};
+            //this.deleteIdentifiers = [];
             this.$api.getTestRuns().then((runs) => {
                 this.testRuns = runs;
             });
@@ -58,9 +59,13 @@ export default {
             this.deleteIdentifiers = Object.keys(this.selectedRuns).filter((i,) => this.selectedRuns[i]);
         }
     },
-    mounted() {
-      this.refreshTestRuns();
+    created() {
+        this.timer = setInterval(() => this.refreshTestRuns(), 10000);
+        this.refreshTestRuns();
     },
+    unmounted() {
+        clearInterval(this.timer);
+    }
 }
 </script>
 

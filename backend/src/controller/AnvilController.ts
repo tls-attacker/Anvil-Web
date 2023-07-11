@@ -42,6 +42,17 @@ class AnvilController {
     }
     
     removeWorker(worker: AnvilWorker) {
+        for (let job of worker.jobs) {
+            if (job.testRun) {
+                job.testRun.Running = false;
+                job.testRun.save();
+            }
+            if (job.status == AnvilJobStatus.QUEUED) {
+                job.worker = undefined;
+            } else {
+                this.removeJob(job.id);
+            }
+        }
         delete this.workerList[worker.id];
     }
 

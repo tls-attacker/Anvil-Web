@@ -7,23 +7,20 @@
                         <h4>{{ testRun.Identifier }}</h4>
                         <div class="grid" style="margin-bottom: 10px;">
                             <span>Date: {{ $api.formatDate(testRun.Date+"") }}</span>
-                            <span>Elapsed Time: {{ $api.millisecondsToTime(testRun.ElapsedTime) }}</span>
+                            <span>Elapsed Time: {{ elapsedTime }}</span>
                             <span>States: {{ testRun.StatesCount }}</span>
                         </div>
                         <TestBar :disabledTests="testRun.DisabledTests" :succeededTests="testRun.SucceededTests" :failedTests="testRun.FailedTests"/>
+                        <progress v-if="testRun.Running"></progress>
                         <div class="buttons" style="margin-top: 10px;">
                             <RouterLink :to="`tests/${testRun.Identifier}`" role="button" class="outline">Details</RouterLink>
                             <a href="" role="button" class="outline">Re-Run</a>
                             <a href="" role="button" v-if="testRun.Running" class="outline">Pause</a>
                             <a href="" role="button" v-if="testRun.Running" class="outline">Stop</a>
                         </div>
-                        <div>
-
-                        </div>
                     </div>
-                    <CircularProgress :progress="calculateOverallScore(testRun)" name="Score"/>
+                    <CircularProgress :progress="calculateOverallScore(testRun)" name="Score" v-if="!testRun.Running"/>
                 </div>
-                <progress v-if="testRun.Running"></progress>
             </article>
 </template>
 
@@ -37,6 +34,11 @@ export default {
     components: {CircularProgress, TestBar},
     props: ["testRun", "selected"],
     emits: ["update:selected"],
+    data() {
+        return {
+            currentTime: Date.now()
+        }
+    },
     methods: {
         calculateOverallScore(testRun: ITestRun) {
             let count = 0;
@@ -47,7 +49,28 @@ export default {
                 count += 1;
             }
             return score/count;
+        },
+        getElapesTime() {
+            if (this.testRun.Running) {
+                return this.$api.millisecondsToTime(Date.now()-new Date(this.testRun.Date+"").getTime());
+            } else {
+                return this.$api.millisecondsToTime(this.testRun.ElapsedTime);
+            }
         }
+    },
+    computed: {
+        startedTime() {
+            return new Date(this.testRun.Date+"").getTime();
+        },
+        elapsedTime() {
+            return this.$api.millisecondsToTime(this.currentTime-this.startedTime);
+        }
+    },
+    created() {
+        setInterval(() => this.currentTime+=1000, 1000);
+    },
+    unmounted() {
+
     }
 }
 </script>
@@ -70,4 +93,5 @@ h4 {
 .buttons>* {
     margin-right: 10px;
 }
+progress {margin-top: 20px;}
 </style>

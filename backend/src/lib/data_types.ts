@@ -164,7 +164,7 @@ export interface IAnvilJob {
     id: string,
     status: string,
     progress: number,
-    //identifier: string,
+    identifier: string,
     config: any,
     workerId: string,
     workerName: string

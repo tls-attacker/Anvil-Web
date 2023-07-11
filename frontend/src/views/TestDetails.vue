@@ -19,13 +19,15 @@
                 <span><strong>Elapsed Time:</strong> {{ $api.millisecondsToTime(testRun.ElapsedTime) }}</span>
             </header>
             <main>
-                <strong>Scores:</strong>
-                <div class="score-container">
-                    <CircularProgress name="Security" :progress="testRun.Score.SECURITY.Percentage"/>
-                    <CircularProgress name="Crypto" :progress="testRun.Score.CRYPTO.Percentage"/>
-                    <CircularProgress name="Compliance" :progress="testRun.Score.COMPLIANCE.Percentage"/>
-                    <CircularProgress name="Certificate" :progress="testRun.Score.CERTIFICATE.Percentage"/>
-                </div>
+                <template v-if="!testRun.Running">
+                    <strong>Scores:</strong>
+                    <div class="score-container">
+                        <CircularProgress name="Security" :progress="testRun.Score.SECURITY.Percentage"/>
+                        <CircularProgress name="Crypto" :progress="testRun.Score.CRYPTO.Percentage"/>
+                        <CircularProgress name="Compliance" :progress="testRun.Score.COMPLIANCE.Percentage"/>
+                        <CircularProgress name="Certificate" :progress="testRun.Score.CERTIFICATE.Percentage"/>
+                    </div>
+                </template>
                 <TestBar :failedTests="testRun.FailedTests" :succeededTests="testRun.SucceededTests" :disabledTests="testRun.DisabledTests"/>
             </main>
             <footer>
