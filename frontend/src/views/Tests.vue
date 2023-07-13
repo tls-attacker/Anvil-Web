@@ -8,6 +8,7 @@
         <a href="" role="button" :disabled="Object.values(selectedRuns).includes(true)?undefined:''">Re-Run</a>
         <span style="flex: 1;"></span>
         <a href="" role="button" class="positive" @click.prevent="upload = true">Upload Test</a>
+        <a href="" role="button" @click.prevent="newJob = true">Start Test</a>
     </div>
     <span :class="{invisible: !Object.values(selectedRuns).includes(true)}">{{ Object.values(selectedRuns).reduce((p,c)=>{return c?p+1:p}, 0) }} selected</span>
     <div id="testrun-list">
@@ -17,20 +18,22 @@
         </template>
     </div>
     <UploadDialog :open="upload" @close="upload = false; refreshTestRuns()"/>
-    <DeleteDialog v-if="deleteIdentifiers.length>0" @close="deleteIdentifiers = []; refreshTestRuns()" :identifiers="deleteIdentifiers"/>
+    <DeleteTestDialog v-if="deleteIdentifiers.length>0" @close="deleteIdentifiers = []" @deleted="deleteIdentifiers = []; refreshTestRuns()" :identifiers="deleteIdentifiers"/>
+    <NewJobDialog v-if="newJob" @close="newJob=false" />
 </template>
 
 <script lang="ts">
 import type { ITestRun } from '@/lib/data_types';
 import TestBar from '@/components/TestBar.vue'
 import UploadDialog from '@/components/UploadDialog.vue';
-import DeleteDialog from '@/components/DeleteDialog.vue';
+import DeleteTestDialog from '@/components/DeleteTestDialog.vue';
 import CircularProgress from '@/components/CircularProgress.vue';
 import TestRunOverview from '@/components/TestRunOverview.vue';
+import NewJobDialog from '@/components/NewJobDialog.vue';
 
 export default {
     name: "Tests",
-    components: { TestBar, UploadDialog, CircularProgress, TestRunOverview, DeleteDialog },
+    components: { TestBar, UploadDialog, CircularProgress, TestRunOverview, DeleteTestDialog, NewJobDialog },
     data() {
         return {
             testRuns: [] as ITestRun[],
@@ -38,7 +41,8 @@ export default {
             filter: "",
             upload: false,
             deleteIdentifiers: [] as string[],
-            timer: 0
+            timer: 0,
+            newJob: false
         }
     },
     methods: {

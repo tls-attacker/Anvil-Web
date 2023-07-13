@@ -9,14 +9,14 @@
             <span class="spacer"></span>
             <a v-if="testRun.Running" role="button" href="">Pause</a>
             <a v-if="testRun.Running" role="button" href="">Stop</a>
-            <a v-if="!testRun.Running" role="button" class="negative" href="">Delete</a>
+            <a v-if="!testRun.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
             <a v-if="!testRun.Running" role="button" href="">Re-Run</a>
         </header>
         <article>
             <header class="test-summary">
                 <span><strong>Test started:</strong> {{ $api.formatDate(testRun.Date+"") }}</span>
                 <span><strong>States:</strong> {{ testRun.StatesCount }}</span>
-                <span><strong>Elapsed Time:</strong> {{ $api.millisecondsToTime(testRun.ElapsedTime) }}</span>
+                <span><strong>Elapsed Time:</strong> <template v-if="testRun.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(testRun.ElapsedTime) }}</template></span>
             </header>
             <main>
                 <template v-if="!testRun.Running">
@@ -67,12 +67,14 @@
                 </template>
             </main>
         </article>
+        <DeleteTestDialog v-if="showDelete" @close="showDelete = false" :identifiers="[testRun.Identifier]" @deleted="$router.push('/')"/>
     </template>
 </template>
 
 <script lang="ts">
 import { TestOutcome, type ITestResult, type ITestRun, ScoreCategories } from '@/lib/data_types';
 import TestRunOverview from '@/components/TestRunOverview.vue';
+import DeleteTestDialog from '@/components/DeleteTestDialog.vue'
 import TestBar from '@/components/TestBar.vue';
 import CircularProgress from '@/components/CircularProgress.vue';
 import { formatEnum, getResultDisplay, getResultToolTip } from '@/composables/visuals';
@@ -80,13 +82,14 @@ import MethodFilter from '@/components/MethodFilter.vue';
 
 export default {
     name: "TestDetails",
-    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter },
+    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter, DeleteTestDialog },
     data() {
         return {
             testRun: undefined as ITestRun | undefined,
             filterText: "",
             filteredCategories: {},
-            filteredOutcomes: {}
+            filteredOutcomes: {},
+            showDelete: false
         }
     },
     methods: {
@@ -122,6 +125,16 @@ export default {
                 this.testRun = testRun;
                 //this.testRun.Running = true;
             })
+        }
+    },
+    computed: {
+        startedTime() {
+            if (!this.testRun) return 0;
+            return new Date(this.testRun.Date+"").getTime();
+        },
+        elapsedTime() {
+            if (!this.testRun) return null;
+            return this.$api.millisecondsToTime(this.$time.value-this.startedTime);
         }
     }
 }

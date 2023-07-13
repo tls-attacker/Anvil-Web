@@ -3,9 +3,11 @@ import { AnvilWorker } from "./AnvilWorker";
 import { HydratedDocument } from "mongoose";
 
 export enum AnvilJobStatus {
-    RUNNING = "RUNNING",
+    SCANNING = "SCANNING",
+    TESTING = "TESTING",
     PAUSED = "PAUSED",
-    QUEUED = "QUEUED"
+    QUEUED = "QUEUED",
+    CANCELD = "CANCELD"
 }
 
 export class AnvilJob {

@@ -28,9 +28,9 @@
 
 <script lang="ts">
 export default {
-    name: "DeleteDialog",
+    name: "DeleteTestDialog",
     props: ["open", "identifiers"],
-    emits: ["close"],
+    emits: ["close", "deleted"],
     data() {
         return {
             waiting: false,
@@ -49,7 +49,7 @@ export default {
             Promise.all(promised)
             .then(() => {
                 this.waiting = false;
-                this.$emit("close");
+                this.$emit("deleted");
             })
             .catch(() => {
                 this.error = true;

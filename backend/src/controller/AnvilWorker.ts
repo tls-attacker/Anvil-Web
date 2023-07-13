@@ -65,7 +65,7 @@ export class AnvilWorker {
                 let job = AC.getNextQueuedJob();
                 if (job) {
                     job.worker = this;
-                    job.status = AnvilJobStatus.RUNNING;
+                    job.status = AnvilJobStatus.SCANNING;
                     job.progress = 1;
                     this.jobs.push(job);
                     return {

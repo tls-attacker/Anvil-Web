@@ -29,7 +29,10 @@
                 </main>
                 <footer class="buttons">
                     <span v-if="worker.status == 'WORKING'" :aria-busy="true"></span>
-                    <a href="" role="button" class="outline">New Job</a>
+                    <a href="" role="button" class="outline" @click.prevent="selectedWorker = worker.id; newJobOpen = true">
+                        <template v-if="worker.status == 'WORKING'">Queue Job</template>
+                        <template v-else>New Job</template>
+                    </a>
                     <a href="" role="button" class="outline negative">Shutdown</a>
                 </footer>
             </article>
@@ -43,7 +46,7 @@
         <template v-for="job of jobList">
             <article>
                 <header>
-                    <h3>{{ job.identifier }}</h3>
+                    <h3 v-if="job.identifier!='unset'">{{ job.identifier }}</h3>
                 </header>
                 <main>
                     ID: {{ job.id }} <br>
@@ -55,31 +58,36 @@
                 <footer>
                     <progress :value="job.progress" max="100"></progress>
                     <div class="buttons">
-                        <span v-if="job.status == 'RUNNING'" :aria-busy="true"></span>
-                        <RouterLink :to="`/tests/${job.identifier}`" role="button" class="outline">Test Details</RouterLink>
-                        <a href="" role="button" class="outline">Pause</a>
-                        <a href="" role="button" class="outline negative">Cancel</a>
+                        <span v-if="job.status != 'QUEUED'" :aria-busy="true"></span>
+                        <RouterLink v-if="job.identifier!='unset'" :to="`/tests/${job.identifier}`" role="button" class="outline">Test Details</RouterLink>
+                        <a href="" v-if="job.status!='CANCELD'" role="button" class="outline">Pause</a>
+                        <a href="" role="button" class="outline negative" @click.prevent="cancelJob = true; selectedJob = job">Cancel</a>
                     </div>
                 </footer>
             </article>
         </template>
     </main>
-    <NewJobDialog v-if="newJobOpen" @close="newJobOpen = false" :workers="workerList"/>
+    <NewJobDialog v-if="newJobOpen" @close="newJobOpen = false; selectedWorker = ''; refreshWorkerJobs()" :workers="workerList" :workerId="selectedWorker"/>
+    <CancelJobDialog v-if="cancelJob" :job="selectedJob" @close="cancelJob = false; refreshWorkerJobs()"/>
 </template>
 
 <script lang="ts">
 import { type IAnvilJob, type IAnvilWorker } from '@/lib/data_types'
 import NewJobDialog from '@/components/NewJobDialog.vue';
+import CancelJobDialog from '@/components/CancelJobDialog.vue';
 
 export default {
     name: "Controller",
-    components: { NewJobDialog },
+    components: { NewJobDialog, CancelJobDialog },
     data() {
         return {
             workerList: [] as IAnvilWorker[],
             jobList: [] as IAnvilJob[],
             newJobOpen: false,
-            timer: 0
+            selectedWorker: "",
+            timer: 0,
+            selectedJob: {} as IAnvilJob,
+            cancelJob: false
         };
     },
     methods: {

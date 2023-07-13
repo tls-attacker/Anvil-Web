@@ -104,9 +104,11 @@ export default {
                 && testRun.TestResults[className][methodName] !== undefined;
         },
         filterMethod(method: ITestMethod) {
-            if (!(<ITestRun[]>this.testRuns).some((tR => this.filteredOutcomes[tR.TestResults[method.ClassName][method.MethodName].Result]))) return false;
+            let relevantTestRuns = this.testRuns.filter(tR => this.hasTestResultFor(tR, method.ClassName, method.MethodName));
+            if (relevantTestRuns.length==0) return false;
+            if (!(<ITestRun[]>relevantTestRuns).some((tR => this.filteredOutcomes[tR.TestResults[method.ClassName][method.MethodName].Result]))) return false;
             // TODO put categories in testmethod, better in metadata
-            if (!(<ITestRun[]>this.testRuns).some(tR => {
+            if (!(<ITestRun[]>relevantTestRuns).some(tR => {
                 let score = tR.TestResults[method.ClassName][method.MethodName].Score;
                 if (score != undefined) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);

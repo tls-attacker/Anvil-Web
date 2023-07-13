@@ -7,7 +7,7 @@
                         <h4>{{ testRun.Identifier }}</h4>
                         <div class="grid" style="margin-bottom: 10px;">
                             <span>Date: {{ $api.formatDate(testRun.Date+"") }}</span>
-                            <span>Elapsed Time: {{ elapsedTime }}</span>
+                            <span>Elapsed Time: <template v-if="testRun.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(testRun.ElapsedTime) }}</template></span>
                             <span>States: {{ testRun.StatesCount }}</span>
                         </div>
                         <TestBar :disabledTests="testRun.DisabledTests" :succeededTests="testRun.SucceededTests" :failedTests="testRun.FailedTests"/>
@@ -63,7 +63,7 @@ export default {
             return new Date(this.testRun.Date+"").getTime();
         },
         elapsedTime() {
-            return this.$api.millisecondsToTime(this.currentTime-this.startedTime);
+            return this.$api.millisecondsToTime(this.$time.value-this.startedTime);
         }
     },
     created() {

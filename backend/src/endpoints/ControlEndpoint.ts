@@ -1,6 +1,8 @@
 import { BadRequest } from '../errors';
 import { AC } from '../controller/AnvilController';
-import { NextFunction, Request, Response, Router } from 'express';
+import { NextFunction, Request, Response, Router, json } from 'express';
+import { AnvilCommands } from '../controller/AnvilController';
+import { AnvilJobStatus } from '../controller/AnvilJob';
 
 
 export namespace ControllerEndpoint {
@@ -12,10 +14,13 @@ export namespace ControllerEndpoint {
             this.router = router
             router.get("/control/worker", this.getWorkerList);
             router.get("/control/worker/:id", this.getWorker);
+            router.post("/control/worker/:id/shutdown", this.shutdownWorker);
             router.route("/control/job")
                 .post(this.addJob)
                 .get(this.getJobList);
             router.get("/control/job/:id", this.getJob);
+            router.post("/control/job/:id/cancel", this.cancelJob);
+            router.post("/control/job/:id/pause", this.pauseJob);
 
         }
 
@@ -35,7 +40,7 @@ export namespace ControllerEndpoint {
             if (workerId) {
                 worker  = AC.getWorker(workerId);
                 if (!worker) {
-                    next(new BadRequest("workerId not found"));
+                    return next(new BadRequest("workerId not found"));
                 }
             }
             let job = AC.addJob(config, worker)
@@ -49,6 +54,48 @@ export namespace ControllerEndpoint {
 
         private async getJobList(req: Request, res: Response, next: NextFunction) {
             res.json(AC.getAllJobs().map(j => j.apiObject()));
+        }
+
+        private async shutdownWorker(req: Request, res: Response, next: NextFunction) {
+            let workerId = req.params.id;
+            let worker  = AC.getWorker(workerId);
+            if (!worker) {
+                return next(new BadRequest("workerId not found"));
+            }
+            worker.queueAction({command: AnvilCommands.SHUTDOWN});
+            res.json({success: true});
+        }
+
+        private async cancelJob(req: Request, res: Response, next: NextFunction) {
+            let jobId = req.params.id;
+            let job = AC.getJob(jobId);
+            if (!job) {
+                return next(new BadRequest("jobId not found"));
+            }
+            if (job.worker) {
+                job.worker.queueAction({command: AnvilCommands.STOP_RUN, jobId: jobId});
+                job.worker.jobs.splice(job.worker.jobs.indexOf(job), 1);
+            }
+            if (job.testRun) {
+                job.testRun.Running = false;
+                job.testRun.save();
+            }
+            job.status = AnvilJobStatus.CANCELD;
+            setTimeout(() => AC.removeJob(jobId), 20000);
+            res.json({sucess: true});
+        }
+
+        private async pauseJob(req: Request, res: Response, next: NextFunction) {
+            let jobId = req.params.id;
+            let job = AC.getJob(jobId);
+            if (!job) {
+                return next(new BadRequest("jobId not found"));
+            }
+            if (!job.worker || job.status == AnvilJobStatus.QUEUED || job.status == AnvilJobStatus.PAUSED) {
+                return res.json({error: "job cannt be paused"});
+            }
+            job.worker.queueAction({command: AnvilCommands.PAUSE_RUN, jobId: jobId});
+            res.json({success: true});
         }
     }
 }

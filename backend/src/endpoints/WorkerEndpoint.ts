@@ -3,6 +3,7 @@ import { AC } from '../controller/AnvilController';
 import { NextFunction, Request, Response, Router } from 'express';
 import DB from '../database';
 import { IState, ITestResult, TestOutcome } from '../lib/data_types';
+import { AnvilJobStatus } from '../controller/AnvilJob';
 
 
 export namespace WorkerEndpoint {
@@ -93,6 +94,7 @@ export namespace WorkerEndpoint {
                     default:
                         job.testRun.DisabledTests++;
                 }
+                job.progress = Math.round(100*(job.testRun.SucceededTests+job.testRun.FailedTests+job.testRun.DisabledTests)/job.testRun.TotalTests);
                 clearTimeout(job.testrunTimeout);
                 job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
             }
@@ -134,7 +136,12 @@ export namespace WorkerEndpoint {
         }
 
         private async updateScan(req: Request, res: Response, next: NextFunction) {
-
+            let jobId = req.body.jobId;
+            let job = AC.getJob(jobId as string);
+            if (!job) {
+                return next(new BadRequest("id not valid"));
+            }
+            job.status = AnvilJobStatus.TESTING;
             res.json({status: "OK"});
         }
     }

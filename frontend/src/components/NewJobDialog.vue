@@ -16,7 +16,7 @@
                     <label>Worker: {{ selectedWorker }}</label>
                     <select v-model="selectedWorker">
                         <option :value="undefined">Auto select</option>
-                        <option v-for="worker of workers" :value="worker.id">{{ worker.name }}</option>
+                        <option v-for="worker of getWorkers" :value="worker.id">{{ worker.name }}</option>
                     </select>
 
                     <label>Identifier:
@@ -69,9 +69,11 @@
 </template>
 
 <script lang="ts">
+import type { IAnvilWorker } from '@/lib/data_types';
+
 export default {
     name: "NewJobDialog",
-    props: ["open", "workers"],
+    props: ["open", "workers", "workerId"],
     emits: ["close"],
     data() {
         return {
@@ -81,11 +83,12 @@ export default {
             testmode: "server",
             sendSNI: false,
             sniName: "",
-            selectedWorker: undefined,
+            selectedWorker: this.workerId ? this.workerId : undefined,
             serverHost: "",
             clientPort: 443,
             triggerScript: "",
-            identifier: ""
+            identifier: "",
+            dlWorkers: [] as IAnvilWorker[]
         }
     },
     methods: {
@@ -123,6 +126,16 @@ export default {
                     this.error = true;
                     this.waiting = false;
                 });
+        }
+    },
+    created() {
+        if (!this.workers) {
+            this.$api.getWorkerList().then(workerList => this.dlWorkers = workerList);
+        }
+    },
+    computed: {
+        getWorkers() {
+            return this.workers ? this.workers : this.dlWorkers;
         }
     }
 }

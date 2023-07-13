@@ -19,6 +19,7 @@ export enum AnvilCommands {
     RESTART_RUN = "RESTART_RUN",
     RESTART_TEST = "RESTART_TEST",
     RESTART_STATE = "RESTART_STATE",
+    SHUTDOWN = "SHUTDOWN",
     OK = "OK"
 }
 
@@ -76,7 +77,7 @@ class AnvilController {
             worker.queueAction({
                 command: AnvilCommands.QUEUE_RUN,
                 job: this.jobList[id].apiObject()
-            })
+            });
         }
         return this.jobList[id];
     }
