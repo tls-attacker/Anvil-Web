@@ -52,10 +52,6 @@ export module AnvilApi {
         return postApiObject(`/control/job/${jobId}/cancel`, {});
     }
 
-    export function pauseJob(jobId: string): Promise<IAnvilJob> {
-        return postApiObject(`/control/job/${jobId}/cancel`, {});
-    }
-
     export function shutdownWorker(workerId: string): Promise<IAnvilJob> {
         return postApiObject(`/control/worker/${workerId}/shutdown`, {});
     }

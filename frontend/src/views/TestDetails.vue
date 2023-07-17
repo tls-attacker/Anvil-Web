@@ -7,8 +7,7 @@
                 <h2>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink></h2>
             </hgroup>
             <span class="spacer"></span>
-            <a v-if="testRun.Running" role="button" href="">Pause</a>
-            <a v-if="testRun.Running" role="button" href="">Stop</a>
+            <a v-if="testRun.Running" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
             <a v-if="!testRun.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
             <a v-if="!testRun.Running" role="button" href="">Re-Run</a>
         </header>
@@ -38,10 +37,11 @@
         <article>
             <header>
                 <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-outcomes="filteredOutcomes"/>
+                <a href="" @click.prevent="allOpen = !allOpen"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
             </header>
             <main>
                 <template v-for="(testResults, className) of testRun.TestResults">
-                    <details v-show="filterClass(className as string)">
+                    <details v-show="filterClass(className as string)" :open="allOpen">
                         <summary>
                             <strong>{{ makeCategoryName(className as string)[0] }}</strong>
                             &nbsp;
@@ -68,6 +68,7 @@
             </main>
         </article>
         <DeleteTestDialog v-if="showDelete" @close="showDelete = false" :identifiers="[testRun.Identifier]" @deleted="$router.push('/')"/>
+        <CancelJobDialog v-if="showCancel" @close="showCancel = false" :identifier="testRun.Identifier" />
     </template>
 </template>
 
@@ -79,17 +80,20 @@ import TestBar from '@/components/TestBar.vue';
 import CircularProgress from '@/components/CircularProgress.vue';
 import { formatEnum, getResultDisplay, getResultToolTip } from '@/composables/visuals';
 import MethodFilter from '@/components/MethodFilter.vue';
+import CancelJobDialog from '@/components/CancelJobDialog.vue';
 
 export default {
     name: "TestDetails",
-    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter, DeleteTestDialog },
+    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter, DeleteTestDialog, CancelJobDialog },
     data() {
         return {
             testRun: undefined as ITestRun | undefined,
             filterText: "",
             filteredCategories: {},
             filteredOutcomes: {},
-            showDelete: false
+            showDelete: false,
+            allOpen: false,
+            showCancel: false
         }
     },
     methods: {

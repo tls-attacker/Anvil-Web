@@ -15,8 +15,7 @@
                         <div class="buttons" style="margin-top: 10px;">
                             <RouterLink :to="`tests/${testRun.Identifier}`" role="button" class="outline">Details</RouterLink>
                             <a href="" role="button" class="outline">Re-Run</a>
-                            <a href="" role="button" v-if="testRun.Running" class="outline">Pause</a>
-                            <a href="" role="button" v-if="testRun.Running" class="outline">Stop</a>
+                            <a href="" role="button" v-if="testRun.Running" class="outline negative">Stop</a>
                         </div>
                     </div>
                     <CircularProgress :progress="calculateOverallScore(testRun)" name="Score" v-if="!testRun.Running"/>

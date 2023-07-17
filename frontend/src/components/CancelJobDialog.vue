@@ -8,18 +8,25 @@
                 Are you sure, that you want to cancel the following job? It will be stopped and deleted from the job queue.
                 Any test-data that is already stored in the database will <strong>not</strong> be deleted.
             </p>
-            <br/>
-            {{ job.identifier }} (ID: {{ job.id }})
-            <template v-if="job.status == 'QUEUED'">
-                This job is still queued. It will be deleted, and no test-data will be saved to the database.
+            <br>
+            <ul>
+                <template v-if="job">
+                    <li><strong>{{ job.identifier }}</strong> (ID: {{ job.id }})</li>
+                </template>
+                <template v-else>
+                    <li><strong>{{ identifier }}</strong></li>
+                </template>
+            </ul>
+            <template v-if="!job || job.status == 'TESTING'">
+                This job has already started testing. The test will be stopped and the job will be deleted.
+                All testdata that is already saved to the database will remain.
             </template>
             <template v-else-if="job.status == 'SCANNING'">
                 This job is currently scanning, but has not started testing. The scan will be stopped and the job will be deleted.
                 No data will be saved to the database.
             </template>
             <template v-else>
-                This job has already started testing. The test will be stopped and the job will be deleted.
-                All testdata that is already saved to the database will remain.
+                This job is still queued. It will be deleted, and no test-data will be saved to the database.
             </template>
             <p v-if="error">Error canceling job.</p>
             <footer>
@@ -39,7 +46,7 @@
 <script lang="ts">
 export default {
     name: "CancelJobDialog",
-    props: ["open", "job"],
+    props: ["open", "job", "identifier"],
     emits: ["close"],
     data() {
         return {

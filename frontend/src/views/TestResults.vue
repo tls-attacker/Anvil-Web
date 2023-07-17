@@ -17,7 +17,7 @@
                 <label><input type="checkbox" v-model="filter.conSucceeded"/>Conceptually Succeeded</label>
                 <label><input type="checkbox" v-model="filter.failed"/>Failed</label>
             </header>
-            <figure>
+            <figure v-if="testResult.States.length>0">
                 <table role="grid">
                 <thead>
                     <tr>

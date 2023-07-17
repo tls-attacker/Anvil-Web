@@ -111,10 +111,10 @@ export namespace TestRunEnpoint {
         ContainerId: testRun._id.toString(), 
         'TestMethod.ClassName': className, 
         'TestMethod.MethodName': methodName
-      }).populate('States').lean().exec()
+      }).lean().exec()
 
-      if (!result || result.Result === TestOutcome.DISABLED) {
-        return result
+      if (!result) {
+        return next(new BadRequest("testresult not found"));
       }
 
       await DB.TestResult.overlayEdits(result);

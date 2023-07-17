@@ -15,7 +15,6 @@ export interface AnvilCommand {
 export enum AnvilCommands {
     QUEUE_RUN = "QUEUE_RUN",
     STOP_RUN = "STOP_RUN",
-    PAUSE_RUN = "PAUSE_RUN",
     RESTART_RUN = "RESTART_RUN",
     RESTART_TEST = "RESTART_TEST",
     RESTART_STATE = "RESTART_STATE",

@@ -3,6 +3,7 @@ import { AC } from '../controller/AnvilController';
 import { NextFunction, Request, Response, Router, json } from 'express';
 import { AnvilCommands } from '../controller/AnvilController';
 import { AnvilJobStatus } from '../controller/AnvilJob';
+import DB from '../database';
 
 
 export namespace ControllerEndpoint {
@@ -20,7 +21,7 @@ export namespace ControllerEndpoint {
                 .get(this.getJobList);
             router.get("/control/job/:id", this.getJob);
             router.post("/control/job/:id/cancel", this.cancelJob);
-            router.post("/control/job/:id/pause", this.pauseJob);
+            router.post("/control/testrun/:identifier/cancel", this.cancelTestrun);
 
         }
 
@@ -85,17 +86,32 @@ export namespace ControllerEndpoint {
             res.json({sucess: true});
         }
 
-        private async pauseJob(req: Request, res: Response, next: NextFunction) {
-            let jobId = req.params.id;
-            let job = AC.getJob(jobId);
+        private async cancelTestrun(req: Request, res: Response, next: NextFunction) {
+            let identifier = req.params.identifier;
+            let job = AC.getAllJobs().find(j => j.testRun && j.testRun.Identifier==identifier);
             if (!job) {
-                return next(new BadRequest("jobId not found"));
+                let testRun = await DB.TestRun.findOne({Identifier: identifier});
+                if (!testRun) {
+                    return next(new BadRequest("no job found matching the identifier"));
+                } else {
+                    // if no job matches and test is found in database, it might just be stuck in running mode
+                    // set running to false and exit
+                    testRun.Running = false;
+                    await testRun.save();
+                    return res.json({success: true});
+                }
             }
-            if (!job.worker || job.status == AnvilJobStatus.QUEUED || job.status == AnvilJobStatus.PAUSED) {
-                return res.json({error: "job cannt be paused"});
+            if (job.worker) {
+                job.worker.queueAction({command: AnvilCommands.STOP_RUN, jobId: job.id});
+                job.worker.jobs.splice(job.worker.jobs.indexOf(job), 1);
             }
-            job.worker.queueAction({command: AnvilCommands.PAUSE_RUN, jobId: jobId});
-            res.json({success: true});
+            if (job.testRun) {
+                job.testRun.Running = false;
+                job.testRun.save();
+            }
+            job.status = AnvilJobStatus.CANCELD;
+            setTimeout(() => AC.removeJob(job.id), 20000);
+            res.json({sucess: true});
         }
     }
 }

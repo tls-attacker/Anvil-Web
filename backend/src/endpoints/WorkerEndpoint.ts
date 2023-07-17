@@ -79,22 +79,27 @@ export namespace WorkerEndpoint {
             testResult.ContainerId = job.testRun._id;
             
             if (req.body.finished) {
-                switch (testResult.Result) {
-                    case TestOutcome.STRICTLY_SUCCEEDED:
-                    case TestOutcome.CONCEPTUALLY_SUCCEEDED:
-                        job.testRun.SucceededTests++;
-                        break;
-                    case TestOutcome.FULLY_FAILED:
-                    case TestOutcome.PARTIALLY_FAILED:
-                        job.testRun.FailedTests++;
-                        break;
-                    case TestOutcome.DISABLED:
-                    case TestOutcome.PARSER_ERROR:
-                    case TestOutcome.NOT_SPECIFIED:
-                    default:
-                        job.testRun.DisabledTests++;
+                job.testRun.FinishedTests++;
+                job.progress = Math.round(100*(job.testRun.FinishedTests)/job.testRun.TotalTests);
+
+                if (testResult.States.length == 0) { // test has no states, count result
+                    switch (testResult.Result) {
+                        case TestOutcome.STRICTLY_SUCCEEDED:
+                        case TestOutcome.CONCEPTUALLY_SUCCEEDED:
+                            job.testRun.SucceededTests++;
+                            break;
+                        case TestOutcome.FULLY_FAILED:
+                        case TestOutcome.PARTIALLY_FAILED:
+                            job.testRun.FailedTests++;
+                            break;
+                        case TestOutcome.DISABLED:
+                        case TestOutcome.PARSER_ERROR:
+                        case TestOutcome.NOT_SPECIFIED:
+                        default:
+                            job.testRun.DisabledTests++;
+                    }
                 }
-                job.progress = Math.round(100*(job.testRun.SucceededTests+job.testRun.FailedTests+job.testRun.DisabledTests)/job.testRun.TotalTests);
+
                 clearTimeout(job.testrunTimeout);
                 job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
             }
@@ -116,19 +121,31 @@ export namespace WorkerEndpoint {
             let newTestState = req.body.state as IState;
             let className = req.body.className;
             let methodName = req.body.methodName;
-            //let testResult = await DB.TestResult.findOne({ContainerId: job.testRun._id, "TestMethod.ClassName": className, "TestMethod.MethodName": methodName});
-            //if (!testResult) {
-            //    return next(new BadRequest("no associated testresult posted before"));
-            //}
             let testResult = job.testResults[className+":"+methodName];
             if (!testResult) {
                 return next(new BadRequest("no associated testresult posted before"));
             }
             testResult.States.push(newTestState);
+            testResult.StatesCount++;
             clearTimeout(job.testResultTimeouts[className+":"+methodName])
             job.testResultTimeouts[className+":"+methodName] = setTimeout(() => testResult.save(), 3000);
 
             job.testRun.StatesCount++;
+            switch (newTestState.Result) {
+                case TestOutcome.STRICTLY_SUCCEEDED:
+                case TestOutcome.CONCEPTUALLY_SUCCEEDED:
+                    job.testRun.SucceededTests++;
+                    break;
+                case TestOutcome.FULLY_FAILED:
+                case TestOutcome.PARTIALLY_FAILED:
+                    job.testRun.FailedTests++;
+                    break;
+                case TestOutcome.DISABLED:
+                case TestOutcome.PARSER_ERROR:
+                case TestOutcome.NOT_SPECIFIED:
+                default:
+                    job.testRun.DisabledTests++;
+            }
             clearTimeout(job.testrunTimeout);
             job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
 

@@ -10,21 +10,14 @@
     margin-bottom: 0 !important;
 }
 .positive {
-    --background-color: green;
+    --primary: green;
+    --primary-hover: rgb(0, 97, 0);
 }
 .negative {
-    --background-color: brown;
+    --primary: brown;
+    --primary-hover: rgb(130, 34, 34);
 }
-.positive.outline {
-    --background-color: transparent;
-    --border-color: green;
-    --color: green !important;
-}
-.negative.outline {
-    --background-color: transparent;
-    --border-color: brown;
-    --color: brown !important;
-}
+
 .pointer {
     cursor: pointer;
 }

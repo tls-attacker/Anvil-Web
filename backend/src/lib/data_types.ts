@@ -76,7 +76,8 @@ export enum TestOutcome {
     CONCEPTUALLY_SUCCEEDED = "CONCEPTUALLY_SUCCEEDED",
     DISABLED = "DISABLED",
     PARSER_ERROR = "PARSER_ERROR",
-    NOT_SPECIFIED = "NOT_SPECIFIED"
+    NOT_SPECIFIED = "NOT_SPECIFIED",
+    INCOMPLETE = "INCOMPLETE"
 }
 
 
@@ -90,6 +91,7 @@ export interface ITestRun extends ITimestamp {
     SucceededTests: number,
     DisabledTests: number,
     TotalTests: number,
+    FinishedTests: number,
     StatesCount: number,
     Score: IScoreMap,
     TestEndpointType: string,

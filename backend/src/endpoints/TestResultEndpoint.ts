@@ -48,7 +48,7 @@ export namespace TestResultEndpoint {
         {ContainerId: {"$in": testRuns.map(i => i._id)},
         "TestMethod.ClassName": className,
         "TestMethod.MethodName": methodName
-      }).populate("States").lean().exec();
+      }).lean().exec();
 
       if (testResults.length == 0) {
         next(new BadRequest("No result found for the given identifiers."))

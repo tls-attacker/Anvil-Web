@@ -9,15 +9,14 @@
         <article v-if="workerList.length==0">
             No worker available. Please start TLS-Anvil in worker mode.
         </article>
+        <div class="worker-container">
         <template v-for="worker of workerList">
             <article>
-                <header>
-                    <h3>{{ worker.name }}</h3>
-                </header>
                 <main>
-                    ID: {{ worker.id }} <br>
-                    Status: {{ worker.status }} <br>
-                    Jobs:
+                    <h3>{{ worker.name }}</h3>
+                    <strong>ID:</strong> {{ worker.id }} <br>
+                    <strong>Status:</strong> {{ worker.status }} <br>
+                    <strong>Jobs:</strong>
                     <ul v-if="worker.jobs.length>0">
                         <li v-for="job of worker.jobs">
                             {{ job.identifier }}
@@ -37,6 +36,7 @@
                 </footer>
             </article>
         </template>
+        </div>
         <h2>Jobs</h2>
         <article v-if="jobList.length==0">
             No jobs created.
@@ -45,14 +45,12 @@
         </article>
         <template v-for="job of jobList">
             <article>
-                <header>
-                    <h3 v-if="job.identifier!='unset'">{{ job.identifier }}</h3>
-                </header>
                 <main>
-                    ID: {{ job.id }} <br>
-                    Status: {{ job.status }} <br>
-                    Worker: {{ job.workerName }} <br>
-                    Config: <br>
+                    <h3 v-if="job.identifier!='unset'">{{ job.identifier }}</h3>
+                    <strong>ID:</strong> {{ job.id }} <br>
+                    <strong>Status:</strong> {{ job.status }} <br>
+                    <strong>Worker:</strong> {{ job.workerName }} <br>
+                    <strong>Config:</strong> <br>
                     <code>{{ job.config }}</code>
                 </main>
                 <footer>
@@ -60,7 +58,6 @@
                     <div class="buttons">
                         <span v-if="job.status != 'QUEUED'" :aria-busy="true"></span>
                         <RouterLink v-if="job.identifier!='unset'" :to="`/tests/${job.identifier}`" role="button" class="outline">Test Details</RouterLink>
-                        <a href="" v-if="job.status!='CANCELD'" role="button" class="outline">Pause</a>
                         <a href="" role="button" class="outline negative" @click.prevent="cancelJob = true; selectedJob = job">Cancel</a>
                     </div>
                 </footer>
@@ -115,6 +112,22 @@ export default {
     margin-right: 10px;
 }
 h3 {
+    margin-bottom: 5px;
+}
+h2 {
+    margin-bottom: 10px;
+}
+.worker-container {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+.worker-container > *{
+    width: calc(50% - 10px);
+}
+article {
+    margin-top: 10px;
     margin-bottom: 0;
 }
 </style>

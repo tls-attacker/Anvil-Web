@@ -10,21 +10,21 @@
                     <div>
                         <div v-if="testMethod.RFC">
                             <span><strong>RFC:</strong> {{ testMethod.RFC.number || "not set" }}</span>
-                            <span><strong>Setion:</strong> {{ testMethod.RFC.Section }}</span>
+                            <span><strong> Setion:</strong> {{ testMethod.RFC.Section }}</span>
                         </div>
-                        <blockquote><samp>{{ testMethod.Description }}</samp></blockquote>
+                        <blockquote><samp>{{ testMethod.Description }} {{ testMethod.TestDescription }}</samp></blockquote>
                         <div v-if="testResult && testResult.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
                             <li v-for="combination of testResult.FailureInducingCombinations.slice(0, 3)">
-                                <span v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}</span>
+                                <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
                             </li>
                         </ul>
                         </div>
                     </div>
                     <CircularProgress v-if="testResult"
-                        :progress="(testResult.SucceededStates + testResult.ConSucceededStates) * 100 / testResult.StatesCount"
-                        :name="`${testResult.SucceededStates + testResult.ConSucceededStates}/${testResult.StatesCount}`"/>
+                        :progress="(testResult.SucceededStates + testResult.ConSucceededStates) * 100 / testResult.States.length"
+                        :name="`${testResult.SucceededStates + testResult.ConSucceededStates}/${testResult.States.length}`"/>
                 </div>
                 </main>
             <footer>

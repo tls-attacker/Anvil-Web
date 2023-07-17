@@ -13,10 +13,10 @@
                 </p>
                 <br />
                 <form>
-                    <label>Worker: {{ selectedWorker }}</label>
+                    <label>Worker:</label>
                     <select v-model="selectedWorker">
                         <option :value="undefined">Auto select</option>
-                        <option v-for="worker of getWorkers" :value="worker.id">{{ worker.name }}</option>
+                        <option v-for="worker of getWorkers" :value="worker.id">{{ worker.name }} ({{ worker.id }})</option>
                     </select>
 
                     <label>Identifier:
@@ -49,7 +49,7 @@
                         </label>
                     </template>
                     <label>Strength:
-                        <input type="number" value="1">
+                        <input type="number" v-model="strength">
                     </label>
                     <label>Additional config:
                         <input type="text" v-model="config">
@@ -88,7 +88,8 @@ export default {
             clientPort: 443,
             triggerScript: "",
             identifier: "",
-            dlWorkers: [] as IAnvilWorker[]
+            dlWorkers: [] as IAnvilWorker[],
+            strength: "1"
         }
     },
     methods: {
@@ -100,7 +101,7 @@ export default {
             if (this.identifier.length>0) {
                 command += ` -identifier ${this.identifier}`;
             }
-            command += ` ${this.testmode}`;
+            command += ` -strength ${this.strength} ${this.testmode}`;
             if (this.testmode == 'server') {
                 command += ` -connect ${this.serverHost}`;
                 if (this.sendSNI) {
