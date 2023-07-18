@@ -92,8 +92,10 @@ export default {
 </script>
 
 <style scoped>
-tr {
+tbody > tr:hover {
     cursor: pointer;
+    --table-row-stripped-background-color: rgb(227, 227, 227);
+    background-color: rgb(227, 227, 227);
 }
 hgroup {
     max-width: 80%;

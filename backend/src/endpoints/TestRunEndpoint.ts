@@ -4,6 +4,8 @@ import DB, { FileType } from '../database';
 import { CategoriesStrings, IScoreDeltaMap, ITestResult, TestOutcome } from '../lib/data_types';
 import { calculateScoreDelta } from '../database/models/score';
 import { ObjectId } from 'mongoose';
+import { AC } from '../controller/AnvilController';
+import { AnvilJob } from '../controller/AnvilJob';
 
 
 export namespace TestRunEnpoint {
@@ -63,10 +65,17 @@ export namespace TestRunEnpoint {
 
     private async getTestRun(req: Request, res: Response, next: NextFunction) {
       const start = new Date().getTime()
-      const identifier = req.params.identifier
-      const testRun = await DB.TestRun.findOne({Identifier: identifier}).lean().exec()
-      if (!testRun) {
-        return next(new BadRequest("invalid identifier"))
+      const identifier = req.params.identifier;
+      let job = AC.getAllJobs().find(j => j.testRun && AnvilJob.testRun.Identifier == identifier);
+      let testRun;
+      if (job) {
+        testRun = structuredClone(job.testRun);
+        testRun.Job = job.apiObject();
+      } else {
+        testRun = await DB.TestRun.findOne({Identifier: identifier}).lean().exec();
+        if (!testRun) {
+          return next(new BadRequest("invalid identifier"))
+        }
       }
 
       // add test results

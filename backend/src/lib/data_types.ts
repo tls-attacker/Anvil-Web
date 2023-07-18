@@ -95,7 +95,9 @@ export interface ITestRun extends ITimestamp {
     StatesCount: number,
     Score: IScoreMap,
     TestEndpointType: string,
-    TestResults?: {[key: string]: {[key: string]: ITestResult}}
+    TestResults?: {[key: string]: {[key: string]: ITestResult}},
+    Job?: IAnvilJob,
+    Config: string
 }
 
 export interface ITestResultEdit {

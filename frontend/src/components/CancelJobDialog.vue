@@ -10,14 +10,9 @@
             </p>
             <br>
             <ul>
-                <template v-if="job">
-                    <li><strong>{{ job.identifier }}</strong> (ID: {{ job.id }})</li>
-                </template>
-                <template v-else>
-                    <li><strong>{{ identifier }}</strong></li>
-                </template>
+                <li><strong>{{ job.identifier }}</strong></li>
             </ul>
-            <template v-if="!job || job.status == 'TESTING'">
+            <template v-if="job.status == 'TESTING'">
                 This job has already started testing. The test will be stopped and the job will be deleted.
                 All testdata that is already saved to the database will remain.
             </template>
@@ -46,7 +41,7 @@
 <script lang="ts">
 export default {
     name: "CancelJobDialog",
-    props: ["open", "job", "identifier"],
+    props: ["open", "job"],
     emits: ["close"],
     data() {
         return {

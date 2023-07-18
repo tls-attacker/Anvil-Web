@@ -9,7 +9,7 @@
             <span class="spacer"></span>
             <a v-if="testRun.Running" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
             <a v-if="!testRun.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
-            <a v-if="!testRun.Running" role="button" href="">Re-Run</a>
+            <a v-if="!testRun.Running" role="button" href="" @click.prevent="showRerun = true">Re-Run</a>
         </header>
         <article>
             <header class="test-summary">
@@ -68,7 +68,8 @@
             </main>
         </article>
         <DeleteTestDialog v-if="showDelete" @close="showDelete = false" :identifiers="[testRun.Identifier]" @deleted="$router.push('/')"/>
-        <CancelJobDialog v-if="showCancel" @close="showCancel = false" :identifier="testRun.Identifier" />
+        <CancelJobDialog v-if="showCancel" @close="showCancel = false" :job="testRun.Job" />
+        <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="testRun.Config"/>
     </template>
 </template>
 
@@ -81,10 +82,11 @@ import CircularProgress from '@/components/CircularProgress.vue';
 import { formatEnum, getResultDisplay, getResultToolTip } from '@/composables/visuals';
 import MethodFilter from '@/components/MethodFilter.vue';
 import CancelJobDialog from '@/components/CancelJobDialog.vue';
+import NewJobDialog from '@/components/NewJobDialog.vue';
 
 export default {
     name: "TestDetails",
-    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter, DeleteTestDialog, CancelJobDialog },
+    components: { TestRunOverview, TestBar, CircularProgress, MethodFilter, DeleteTestDialog, CancelJobDialog, NewJobDialog },
     data() {
         return {
             testRun: undefined as ITestRun | undefined,
@@ -93,7 +95,9 @@ export default {
             filteredOutcomes: {},
             showDelete: false,
             allOpen: false,
-            showCancel: false
+            showCancel: false,
+            showRerun: false,
+            timer: 0
         }
     },
     methods: {
@@ -118,18 +122,26 @@ export default {
             }
             return testResult.TestMethod.MethodName.toLowerCase().includes(this.filterText.toLowerCase());
         },
+        refreshTestrun() {
+            if (this.$route.params["identifier"]) {
+                let identifier = this.$route.params["identifier"] as string
+                this.$api.getTestRun(identifier).then((testRun: ITestRun) => {
+                    this.testRun = testRun;
+                    if (testRun.Running) {
+                        this.timer = setTimeout(() => this.refreshTestrun(), 10000);
+                    }
+                })
+            }
+        },
         getResultDisplay,
         getResultToolTip,
         formatEnum
     },
     created() {
-        if (this.$route.params["identifier"]) {
-            let identifier = this.$route.params["identifier"] as string
-            this.$api.getTestRun(identifier).then((testRun: ITestRun) => {
-                this.testRun = testRun;
-                //this.testRun.Running = true;
-            })
-        }
+        this.refreshTestrun();
+    },
+    unmounted() {
+        clearTimeout(this.timer);
     },
     computed: {
         startedTime() {

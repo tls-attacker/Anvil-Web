@@ -21,7 +21,6 @@ export namespace ControllerEndpoint {
                 .get(this.getJobList);
             router.get("/control/job/:id", this.getJob);
             router.post("/control/job/:id/cancel", this.cancelJob);
-            router.post("/control/testrun/:identifier/cancel", this.cancelTestrun);
 
         }
 
@@ -83,34 +82,6 @@ export namespace ControllerEndpoint {
             }
             job.status = AnvilJobStatus.CANCELD;
             setTimeout(() => AC.removeJob(jobId), 20000);
-            res.json({sucess: true});
-        }
-
-        private async cancelTestrun(req: Request, res: Response, next: NextFunction) {
-            let identifier = req.params.identifier;
-            let job = AC.getAllJobs().find(j => j.testRun && j.testRun.Identifier==identifier);
-            if (!job) {
-                let testRun = await DB.TestRun.findOne({Identifier: identifier});
-                if (!testRun) {
-                    return next(new BadRequest("no job found matching the identifier"));
-                } else {
-                    // if no job matches and test is found in database, it might just be stuck in running mode
-                    // set running to false and exit
-                    testRun.Running = false;
-                    await testRun.save();
-                    return res.json({success: true});
-                }
-            }
-            if (job.worker) {
-                job.worker.queueAction({command: AnvilCommands.STOP_RUN, jobId: job.id});
-                job.worker.jobs.splice(job.worker.jobs.indexOf(job), 1);
-            }
-            if (job.testRun) {
-                job.testRun.Running = false;
-                job.testRun.save();
-            }
-            job.status = AnvilJobStatus.CANCELD;
-            setTimeout(() => AC.removeJob(job.id), 20000);
             res.json({sucess: true});
         }
     }

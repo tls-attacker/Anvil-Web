@@ -51,7 +51,12 @@ export namespace WorkerEndpoint {
                 job.testRun = await DB.TestRun.create(newTestRun);
             } else {
                 job.testRun.overwrite(newTestRun);
-                await job.testRun.save();
+                clearTimeout(job.testrunTimeout);
+                job.testrunTimeout = setTimeout(() => job.testRun.save(), 3000);
+            }
+
+            if (req.body.finished) {
+                AC.removeJob(jobId);
             }
             
             res.json({status: "OK"});
