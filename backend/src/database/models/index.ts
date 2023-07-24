@@ -1,6 +1,6 @@
 
-export * from "./testResult"
 export * from "./testRun"
-export * from "./state"
+export * from "./report"
+export * from "./testCase"
 export * from "./testMethod"
-export * from "./testResultEdit"
+export * from "./testRunEdit"

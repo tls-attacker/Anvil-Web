@@ -1,80 +1,65 @@
 <template>
-    <div>
-        <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-outcomes="filteredOutcomes" />
-        <table v-if="testRuns.length > 0" role="grid">
-            <thead>
-                <th>Testcase</th>
-                <th v-for="(testRun, index) in testRuns">
-                    <RouterLink :to="`/tests/${testRun.Identifier}`">{{ testRun.Identifier.substring(0,8) }}</RouterLink>
-                </th>
-            </thead>
-            <tbody>
-                <tr v-for="score in Object.keys(testRuns[0].Score).sort()">
-                    <td>Score {{ score }}</td>
-                    <td v-for="testRun in testRuns">{{ formatScore(testRun.Score[score]) }}</td>
-                </tr>
-                <tr>
-                    <td>Succeeded tests</td>
-                    <td v-for="testRun in testRuns">{{ testRun.SucceededTests }}</td>
-                </tr>
-                <tr>
-                    <td>Failed tests</td>
-                    <td v-for="testRun in testRuns">{{ testRun.FailedTests }}</td>
-                </tr>
-                <tr>
-                    <td>Disabled tests</td>
-                    <td v-for="testRun in testRuns">{{ testRun.DisabledTests }}</td>
-                </tr>
-                <tr>
-                    <td># TLS Handshakes</td>
-                    <td v-for="testRun in testRuns">{{ testRun.StatesCount }}</td>
-                </tr>
-                <tr>
-                    <td>Execution time</td>
-                    <td v-for="testRun in testRuns">{{ formatTime(testRun.ElapsedTime/1000) }}</td>
-                </tr>
-                <template v-for="testClass in Object.keys(testClasses)">
-                    <tr class="header">
-                        <td :colspan="numReports+1">{{ testClass.substring(31) }}</td>
-                    </tr>
-                    <template v-for="testMethod in Object.keys(testClasses[testClass])">
-                        <tr v-if="filterMethod(testClasses[testClass][testMethod])">
-                            <td @click="showResults(testClass, testMethod)" class="pointer">{{ testMethod }}</td>
-                            <td v-for="testRun in testRuns">
-                                <span v-if="hasTestResultFor(testRun, testClass, testMethod)"
-                                :data-tooltip="getResultToolTip(testRun.TestResults[testClass][testMethod])"
-                                @click="$router.push(`/tests/${testRun.Identifier}/${testClass}/${testMethod}`)"
-                                class="pointer">
-                                    {{ getResultDisplay(testRun.TestResults[testClass][testMethod]) }}
-                                </span>
-                            </td>
-                        </tr>
-                    </template>
-                </template>
-            </tbody>
-        </table>
-    </div>
+    <template v-if="testRuns && Object.values(testRuns).length>0">
+    <TestRunSummary :testMethod="Object.values(testRuns)[0].TestMethod"/>
+    <table role="grid">
+        <thead>
+            <th>Testcase</th>
+            <th v-for="identifier in identifiers">
+                <RouterLink :to="`/tests/${identifier}/${Object.values(testRuns)[0].TestMethod.ClassName}/${Object.values(testRuns)[0].TestMethod.MethodName}`">{{ identifier.substring(0,8) }}</RouterLink>
+            </th>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Strictly Succeeded</td>
+                <td v-for="identifier in identifiers">{{ testRuns[identifier].SucceededCases }}</td>
+            </tr>
+            <tr>
+                <td>Conceptually Succeeded</td>
+                <td v-for="identifier in identifiers">{{ testRuns[identifier].ConSucceededCases }}</td>
+            </tr>
+            <tr>
+                <td>Fully Failed</td>
+                <td v-for="identifier in identifiers">{{ testRuns[identifier].FailedCases }}</td>
+            </tr>
+            <tr>
+                <td>Overall Result</td>
+                <td v-for="identifier in identifiers">{{ getResultSymbol(testRuns[identifier].Result) }}</td>
+            </tr>
+            <tr class="header">
+                <td :colspan="identifiers.length+1">States</td>
+            </tr>
+            <tr v-for="(derivation, uuid) in derivations">
+                <td>{{ uuid }}</td>
+                <td v-for="identifier in identifiers">
+                    <span @click="openCase = testRuns[identifier].TestCases.find(c => c.uuid == uuid)" class="pointer">
+                        {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</template>
+<TestCaseModal :testCase="openCase" @close="openCase = undefined"/>
 </template>
 
 <script lang="ts">
-import { getResultDisplay, getResultToolTip } from '@/composables/visuals'
-import { ScoreCategories, TestOutcome, type IScore, type ITestResult, type ITestRun, type ITestMethod } from '@/lib/data_types'
-import MethodFilter from './MethodFilter.vue'
-import TestResults from '@/views/TestResults.vue';
+import { type IScore, type ITestCase, type IReport, type ITestRun } from '@/lib/data_types'
+import TestRunSummary from './TestRunSummary.vue'
+import TestCaseModal from './TestCaseModal.vue';
+import { getResultSymbol } from '@/composables/visuals';
 
 export default {
     name: "CompareTableRuns",
-    components: { MethodFilter },
-    props: ["testRuns", "numReports"],
-    emits: ["removeReport"],
+    props: ["testRuns", "identifiers"],
+    components: {TestRunSummary, TestCaseModal},
     data() {
         return {
-            testClasses: {} as {
-                [testClass: string]: {[testMethod: string]: ITestMethod};
+            derivations: {} as {
+                [uuid: string]: {
+                    [identifier: string]: string;
+                };
             },
-            filterText: "",
-            filteredCategories: [],
-            filteredOutcomes: []
+            openCase: undefined as ITestCase | undefined
         };
     },
     methods: {
@@ -98,59 +83,34 @@ export default {
                 }
             }
         },
-        hasTestResultFor(testRun: ITestRun, className: string, methodName: string) {
-            return testRun.TestResults !== undefined
-                && testRun.TestResults[className] !== undefined
-                && testRun.TestResults[className][methodName] !== undefined;
+        getSymboldForUuid(testRun: ITestRun, uuid: string) {
+            if (testRun.TestCases === undefined) {
+                return "";
+            }
+            let result = testRun.TestCases.find((s) => s.uuid == uuid);
+            if (result === undefined) {
+                return "";
+            }
+            return this.getResultSymbol(result.Result);
         },
-        filterMethod(method: ITestMethod) {
-            let relevantTestRuns = this.testRuns.filter(tR => this.hasTestResultFor(tR, method.ClassName, method.MethodName));
-            if (relevantTestRuns.length==0) return false;
-            if (!(<ITestRun[]>relevantTestRuns).some((tR => this.filteredOutcomes[tR.TestResults[method.ClassName][method.MethodName].Result]))) return false;
-            // TODO put categories in testmethod, better in metadata
-            if (!(<ITestRun[]>relevantTestRuns).some(tR => {
-                let score = tR.TestResults[method.ClassName][method.MethodName].Score;
-                if (score != undefined) {
-                    return Object.keys(score).some((k) => this.filteredCategories[k]);
-                }
-            })) return false;
-            
-            return method.MethodName.toLowerCase().includes(this.filterText.toLowerCase());
-        },
-        getResultDisplay,
-        getResultToolTip,
-        mergeTestClasses() {
-            this.testClasses = {};
-            for (let testRun of this.testRuns) {
-                for (let testClass of Object.keys(testRun.TestResults)) {
-                    let testMethods = this.testClasses[testClass];
-                    if (testMethods === undefined) {
-                        this.testClasses[testClass] = {};
-                        testMethods = this.testClasses[testClass];
-                    }
-                    for (let testMethod of Object.keys(testRun.TestResults[testClass])) {
-                        if (!Object.keys(testMethods).includes(testMethod) && testRun.TestResults[testClass][testMethod].Result != "DISABLED") {
-                            testMethods[testMethod] = testRun.TestResults[testClass][testMethod].TestMethod;
-                        }
+        getResultSymbol,
+        mergeCases() {
+            this.derivations = {};
+            for (let testRun of Object.values(this.testRuns) as ITestRun[]) {
+                for (let testCase of testRun.TestCases) {
+                    if (!this.derivations[testCase.uuid]) {
+                        this.derivations[testCase.uuid] = testCase.DerivationContainer;
                     }
                 }
             }
-            // console.log({...this.testClasses})
         },
-        showResults(className: string, methodName: string) {
-            this.$router.push({ query: { className: className, methodName: methodName } });
-        },
-        formatEnum(upper: string): string {
-            let parts = upper.split("_");
-            return parts.map((p) => p[0] + p.substring(1).toLowerCase()).join(" ");
-        }
     },
-    mounted() {
-        this.mergeTestClasses();
+    created() {
+        this.mergeCases();
     },
     watch: {
-        numReports() {
-            this.mergeTestClasses();
+        identifiers() {
+            this.mergeCases();
         }
     }
 }
@@ -169,8 +129,5 @@ export default {
     }
     td:first-child, th:first-child {
         text-align: start;
-    }
-    .header + .header {
-        display: none;
     }
 </style>

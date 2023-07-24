@@ -3,15 +3,15 @@
         <article>
             <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')">
             </a>
-            <h3>Delete Test Results</h3>
+            <h3>Delete Test Report</h3>
             <p>
-                Are you sure, that you want to delete the following test runs from the database?
+                Are you sure, that you want to delete the following test reports from the database?
             </p>
             <br/>
             <ul>
                 <li v-for="identifier in identifiers">{{ identifier }}</li>
             </ul>
-            <p v-if="error">Error deleting testrun.</p>
+            <p v-if="error">Error deleting report(s).</p>
             <footer>
                 <a href="" role="button" class="secondary" @click.prevent="$emit('close')">
                     Cancel
@@ -28,7 +28,7 @@
 
 <script lang="ts">
 export default {
-    name: "DeleteTestDialog",
+    name: "DeleteReportDialog",
     props: ["open", "identifiers"],
     emits: ["close", "deleted"],
     data() {
@@ -44,7 +44,7 @@ export default {
             
             let promised = [];
             for (let identifier of this.identifiers) {
-                promised.push(this.$api.deleteTestRun(identifier));
+                promised.push(this.$api.deleteReport(identifier));
             }
             Promise.all(promised)
             .then(() => {

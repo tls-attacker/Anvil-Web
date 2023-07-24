@@ -1,19 +1,19 @@
-import type { ITestResult } from "@/lib/data_types";
+import type { ITestRun } from "@/lib/data_types";
 
-export function getResultDisplay(testResult: ITestResult) {
-    let resultSymbol = getResultSymbol(testResult.Result);
-    if (testResult.HasVaryingAdditionalResultInformation) {
+export function getResultDisplay(testRun: ITestRun) {
+    let resultSymbol = getResultSymbol(testRun.Result);
+    if (testRun.HasVaryingAdditionalResultInformation) {
         resultSymbol += "⁉️";
-    } else if (testResult.HasStateWithAdditionalResultInformation) {
+    } else if (testRun.HasStateWithAdditionalResultInformation) {
         resultSymbol += "❗️";
     }
     return resultSymbol;
 }
 
-export function getResultToolTip(testResult: ITestResult) {
-    let tooltip = `${testResult.StatesCount} states`;
-    if (testResult.FailedReason != null) {
-        tooltip += "\n" + testResult.FailedReason;
+export function getResultToolTip(testRun: ITestRun) {
+    let tooltip = `${testRun.CaseCount} cases`;
+    if (testRun.FailedReason != null) {
+        tooltip += "\n" + testRun.FailedReason;
     }
     return tooltip;
 }

@@ -26,11 +26,11 @@
                     </thead>
                     <tbody>
                         <tr v-for="job in jobList" :class="{ 'job-clickable': job.identifier != 'unset' }">
-                            <td :aria-busy="job.status != 'QUEUED'" @click.prevent="gotoTestResult(job)"></td>
-                            <td @click.prevent="gotoTestResult(job)">{{ job.identifier }}</td>
-                            <td @click.prevent="gotoTestResult(job)">{{ job.id }}</td>
-                            <td @click.prevent="gotoTestResult(job)">{{ job.workerName }}</td>
-                            <td @click.prevent="gotoTestResult(job)">{{ job.status }}</td>
+                            <td :aria-busy="job.status != 'QUEUED'" @click.prevent="gotoReport(job)"></td>
+                            <td @click.prevent="gotoReport(job)">{{ job.identifier }}</td>
+                            <td @click.prevent="gotoReport(job)">{{ job.id }}</td>
+                            <td @click.prevent="gotoReport(job)">{{ job.workerName }}</td>
+                            <td @click.prevent="gotoReport(job)">{{ job.status }}</td>
                             <td><a href="" role="button" class="outline negative"
                                     @click.prevent="cancelJob = true; selectedJob = job">Cancel</a></td>
                         </tr>
@@ -83,7 +83,7 @@ import NewJobDialog from '@/components/NewJobDialog.vue';
 import CancelJobDialog from '@/components/CancelJobDialog.vue';
 
 export default {
-    name: "Controller",
+    name: "ControllerView",
     components: { NewJobDialog, CancelJobDialog },
     data() {
         return {
@@ -105,7 +105,7 @@ export default {
                 this.jobList = jobList;
             });
         },
-        gotoTestResult(job: IAnvilJob) {
+        gotoReport(job: IAnvilJob) {
             if (!job.identifier || job.identifier == 'unset') {
                 return;
             }

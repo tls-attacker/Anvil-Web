@@ -1,14 +1,9 @@
-import { BadRequest } from '../errors';
-import { NextFunction, Request, Response, Router } from 'express'
-import DB, { FileType } from '../database';
-import { CategoriesStrings, IScoreDeltaMap, ITestResult, TestOutcome } from '../lib/data_types';
-import { calculateScoreDelta } from '../database/models/score';
-import { ObjectId } from 'mongoose';
-import { AC } from '../controller/AnvilController';
-import { AnvilJob } from '../controller/AnvilJob';
+import { NextFunction, Request, Response, Router } from 'express';
+import DB from '../database';
+import { BadRequest, InternalServerError } from '../errors';
+import { EditMode, ITestRun, ITestRunEdit, TestResult } from '../lib/data_types';
 
-
-export namespace TestRunEnpoint {
+export namespace TestRunEndpoint {
 
 
   export class Controller {
@@ -18,117 +13,106 @@ export namespace TestRunEnpoint {
     constructor(aRouter: Router) {
       this.router = aRouter
 
-      // get all identifiers
-      this.router.get("/testRunIdentifiers", this.getIdentifiers.bind(this))
       // get multiple testruns
-      this.router.get("/testRuns", this.getTestRuns.bind(this))
-      // show or delete single test run
-      this.router.route("/testRuns/:identifier")
-        .get(this.getTestRun.bind(this))
-        .delete(this.deleteTestRun.bind(this))
-      // get single test result from this run
-      this.router.get("/testRuns/:identifier/testResults/:className/:methodName", this.getTestResultForTestRun.bind(this))
-    }
-
-
-    private async getIdentifiers(req: Request, res: Response, next: NextFunction) {
-      const results = await DB.TestRun.find().select({Identifier: 1}).lean().exec()
-      const identifiers = results.map((i: any) => i.Identifier)
-      identifiers.sort()
-      res.send(identifiers)
+      this.router.get("/testRun/:className/:methodName", this.getTestRuns.bind(this))
+      // edit one testrun
+      this.router.post("/testRun/edit", this.submitEdit.bind(this))
     }
 
     private async getTestRuns(req: Request, res: Response, next: NextFunction) {
-      const identifiers = req.query.identifiers as string[];
-      let testRuns
-      if (identifiers === undefined) {
-        testRuns = await DB.TestRun.find().lean().exec();
-      } else {
-        testRuns = await DB.TestRun.find({Identifier: {"$in": identifiers}}).lean().exec();
-      }
-      const detailed = req.query.detailed || false;
-      
-      let promised = []
-      if (detailed) {
-        for (const testRun of testRuns) {
-            promised.push(DB.TestRun.addTestResults(testRun))
-        }
-        await Promise.all(promised);
-      }
-      promised = []
-      for (const testRun of testRuns) {
-        promised.push(DB.TestRun.overlayEdits(testRun))
-      }
-      await Promise.all(promised);
-      res.json(testRuns)
-    } 
-
-    private async getTestRun(req: Request, res: Response, next: NextFunction) {
-      const start = new Date().getTime()
-      const identifier = req.params.identifier;
-      let job = AC.getAllJobs().find(j => j.testRun && AnvilJob.testRun.Identifier == identifier);
-      let testRun;
-      if (job) {
-        testRun = structuredClone(job.testRun);
-        testRun.Job = job.apiObject();
-      } else {
-        testRun = await DB.TestRun.findOne({Identifier: identifier}).lean().exec();
-        if (!testRun) {
-          return next(new BadRequest("invalid identifier"))
-        }
-      }
-
-      // add test results
-      await DB.TestRun.addTestResults(testRun);
-
-      // overlay edits
-      await DB.TestRun.overlayEdits(testRun);
-
-      res.send(testRun);
-    }
-
-
-    private async deleteTestRun(req: Request, res: Response, next: NextFunction) {
-      const doc = await DB.TestRun.findOne({ Identifier: req.params.identifier });
-      if (!doc) {
-        next(new BadRequest("Invalid identifier"))
-      }
-      // delete all associated data
-      await Promise.all([
-        DB.TestResult.deleteMany({ ContainerId: doc._id }).exec(),
-        DB.TestResultState.deleteMany({ ContainerId: doc._id }).exec(),
-        //DB.pcapBucket.delete(doc.PcapStorageId),
-        //DB.keylogfileBucket.delete(doc.KeylogfileStorageId),
-        doc.deleteOne()
-      ]).then(() => {
-        res.json({sucess: true})
-      }).catch((e) => {
-        next(e)
-      })
-    }
-
-    private async getTestResultForTestRun(req: Request, res: Response, next: NextFunction) {
-      const identifier = req.params.identifier
+      const identifiers = <string[]>req.query.identifiers
       const className = req.params.className
       const methodName = req.params.methodName
+
+      if (!identifiers) {
+        return next(new BadRequest("Parameter identifiers is missing"))
+      }
+
+      const reports = await DB.Report
+        .find({Identifier: {"$in": identifiers}})
+        .select({
+          Identifier: 1,
+          ShortIdentifier: 1,
+          "_id": 1,
+        }).lean().exec();
     
-      const testRun = await DB.TestRun.findOne({ Identifier: identifier }).select({_id: 1}).lean().exec()
-      if (!testRun) {
-        return next(new BadRequest("identifier not found"));
-      }
-      const result = await DB.TestResult.findOne({
-        ContainerId: testRun._id.toString(), 
-        'TestMethod.ClassName': className, 
-        'TestMethod.MethodName': methodName
-      }).lean().exec()
+      const testRuns = await DB.TestRun.find(
+        {ContainerId: {"$in": reports.map(i => i._id)},
+        "TestMethod.ClassName": className,
+        "TestMethod.MethodName": methodName
+      }).lean().exec();
 
-      if (!result) {
-        return next(new BadRequest("testresult not found"));
+      if (testRuns.length == 0) {
+        next(new BadRequest("No result found for the given identifiers."))
+        return
       }
 
-      await DB.TestResult.overlayEdits(result);
-      DB.TestResult.countStateResults(result);
-      res.send(result)
+      const promised = []
+      for (let testRun of testRuns) {
+        promised.push(DB.TestRun.overlayEdits(testRun))
+        promised.push(DB.TestRun.countTestCases(testRun))
+      }
+      await Promise.all(promised)
+
+      let runMap = testRuns.reduce(
+        (runMap: {[identifier: string]: ITestRun}, testRun: ITestRun) => {
+          runMap[reports.find((r) => r._id.equals(testRun.ContainerId)).Identifier] = testRun;
+          return runMap;
+        }, {});
+      res.json(runMap);
+      
+    }
+
+    private async submitEdit(req: Request, res: Response, next: NextFunction) {
+      interface Payload {
+        editMode: EditMode,
+        identifiers: string[],
+        description: string,
+        title: string,
+        newResult: TestResult
+        MethodName: string,
+        ClassName: string
+      }
+
+      const data: Payload = req.body
+      
+      const doc: ITestRunEdit = {
+        description: data.description,
+        newResult: data.newResult,
+        title: data.title,
+        editMode: data.editMode,
+        ClassName:  data.ClassName,
+        MethodName: data.MethodName,
+        Containers: null,
+        Results: null,
+      }
+      
+      const containerIds = await DB.Report.find({
+        Identifier: {$in: data.identifiers}
+      }).lean().select({_id: 1, "Identifier": 1}).exec().then((docs) => {
+        return docs.map(i => i._id)
+      })
+
+      const runIds = await DB.TestRun.find({
+        ContainerId: {$in: containerIds}, 
+        "TestMethod.ClassName": data.ClassName, 
+        "TestMethod.MethodName": data.MethodName
+      }).lean().exec().then((docs) => {
+        return docs.map(i => i._id)
+      })
+
+      if (data.editMode !== EditMode.allAll) {
+        doc.Containers = containerIds
+        doc.Results = runIds
+      }
+
+      new DB.TestRunEdit(doc).save().then(() => {
+        res.send({'success': true})
+      }).catch((e) => {
+        next(new InternalServerError(e))
+      })
     }
   }
 }
+
+

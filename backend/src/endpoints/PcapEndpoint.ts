@@ -24,7 +24,7 @@ export namespace PcapEndpoint {
       const methodName = req.params.methodName
       const uuid = req.params.uuid
     
-      const container = await DB.TestRun.findOne({_id: containerId}).exec()
+      const container = await DB.Report.findOne({_id: containerId}).exec()
       await this.downloadFiles(container)
       const doc = await DB.getTestResult(container.Identifier, className, methodName)
     

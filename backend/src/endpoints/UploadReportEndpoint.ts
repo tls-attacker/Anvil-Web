@@ -23,19 +23,25 @@ export namespace UploadReportEndpoint {
         return
       }
       let summary = JSON.parse(summaryEntry.getData().toString())
-      let exists = await DB.TestRun.findOne({Identifier: summary.Identifier}, {Identifier: 1}).lean().exec();
+      let exists = await DB.Report.findOne({Identifier: summary.Identifier}, {Identifier: 1}).lean().exec();
       if (exists != null) {
         res.send("Already exists")
         return
       }
       summary.Date = new Date(summary.Date)
-      let testRun = new DB.TestRun(summary)
+      let testRun = new DB.Report(summary)
       await testRun.save()
       const entries = zipFile.getEntries()
       for (let entry of entries) {
         if (entry.entryName.endsWith("_containerResult.json")) {
           let containerResult = JSON.parse(entry.getData().toString())
-          let testResult = new DB.TestResult(containerResult)
+          if (containerResult.States) { // backwards compatibillity
+            containerResult.TestCases = containerResult.States;
+            containerResult.CaseCount = containerResult.StatesCount;
+            delete containerResult.States;
+            delete containerResult.StatesCount;
+          }
+          let testResult = new DB.TestRun(containerResult)
           testResult.ContainerId = testRun._id
           testResult.save()
         }

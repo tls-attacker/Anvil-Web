@@ -1,18 +1,18 @@
 <template>
-    <dialog open v-if="state">
+    <dialog open v-if="testCase">
             <article>
                 <header>
                 <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')"></a>
-                {{ state.uuid }}
+                {{ testCase.uuid }}
                 </header>
                 <main>
-                    <p><strong>Result: </strong>{{ state.Result }}</p>
-                    <p><strong>SrcPort: </strong>{{ state.SrcPort }}</p>
-                    <p><strong>DstPort: </strong>{{ state.DstPort }}</p>
-                    <p><strong>Start: </strong>{{ state.StartTimestamp }}</p>
-                    <p><strong>End: </strong>{{ state.EndTimestamp }}</p>
-                    <p v-if="state.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>{{ state.AdditionalResultInformation }}</p>
-                    <p v-if="state.AdditionalTestInformation"><strong>AdditionalTestInformation: </strong>{{ state.AdditionalTestInformation }}</p>
+                    <p><strong>Result: </strong>{{ testCase.Result }}</p>
+                    <p><strong>SrcPort: </strong>{{ testCase.SrcPort }}</p>
+                    <p><strong>DstPort: </strong>{{ testCase.DstPort }}</p>
+                    <p><strong>Start: </strong>{{ testCase.StartTimestamp }}</p>
+                    <p><strong>End: </strong>{{ testCase.EndTimestamp }}</p>
+                    <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>{{ testCase.AdditionalResultInformation }}</p>
+                    <p v-if="testCase.AdditionalTestInformation"><strong>AdditionalTestInformation: </strong>{{ testCase.AdditionalTestInformation }}</p>
                     <p><strong>Derivations:</strong>
                     <table role="grid">
                         <thead>
@@ -22,7 +22,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(derivation, parameter) of state.DerivationContainer">
+                            <tr v-for="(derivation, parameter) of testCase.DerivationContainer">
                                 <td>{{ parameter }}</td>
                                 <td>{{ derivation }}</td>
                             </tr>
@@ -36,8 +36,8 @@
 
 <script lang="ts">
 export default {
-    name: "StateModal",
-    props: ["state"],
+    name: "TestCaseModal",
+    props: ["testCase"],
     emits: ["close"]
 }
 </script>

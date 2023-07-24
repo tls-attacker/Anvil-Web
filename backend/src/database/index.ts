@@ -1,22 +1,22 @@
 import mongodb from 'mongodb';
 import mongoose from "mongoose";
-import { IState, ITestResult, ITestResultEdit, ITestRun } from '../lib/data_types';
-import { StateSchema, TestResultEditSchema, TestResultModel, TestResultSchema, TestRunModel, TestRunSchema } from './models';
+import { IReport, ITestCase, ITestRun, ITestRunEdit } from '../lib/data_types';
+import { TestCaseSchema, TestRunEditSchema, TestRunModel, TestRunSchema, ReportModel, ReportSchema } from './models';
 
 export enum FileType {
   pcap,
   keylog
 }
 class Database {
+  Report = mongoose.model<IReport, ReportModel>("Report", ReportSchema)
+  TestRunEdit = mongoose.model<ITestRunEdit>("TestRunEdit", TestRunEditSchema)
   TestRun = mongoose.model<ITestRun, TestRunModel>("TestRun", TestRunSchema)
-  TestResultEdit = mongoose.model<ITestResultEdit>("TestResultEdit", TestResultEditSchema)
-  TestResult = mongoose.model<ITestResult, TestResultModel>("TestResult", TestResultSchema)
-  TestResultState = mongoose.model<IState>("TestResultState", StateSchema)
+  TestCase = mongoose.model<ITestCase>("TestCase", TestCaseSchema)
   private rawDb: mongodb.Db;
   //pcapBucket: mongodb.GridFSBucket
   //keylogfileBucket: mongodb.GridFSBucket
 
-  private rawDb_testResults: mongodb.Collection
+  //private rawDb_testResults: mongodb.Collection
 
   constructor() {
     console.log("DB object created")
@@ -28,9 +28,9 @@ class Database {
       if (process.env.PRODUCTION) {
         conHost = 'mongo'
       }
-      mongoose.connect(`mongodb://${conHost}:27017/reportAnalyzerNew`).then((m) => {
+      mongoose.connect(`mongodb://${conHost}:27017/anvilWebTls`).then((m) => {
         this.rawDb = m.connection.db
-        this.rawDb_testResults = this.rawDb.collection("testresults")
+        //this.rawDb_testResults = this.rawDb.collection("testresults")
         //this.pcapBucket = new mongodb.GridFSBucket(this.rawDb, {
         //  bucketName: "pcap"
         //})

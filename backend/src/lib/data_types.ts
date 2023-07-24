@@ -3,7 +3,7 @@ interface ITimestamp {
     updatedAt: Date
 }
 
-export interface IState {
+export interface ITestCase {
     TestResultId: string
     ContainerId: string
     DerivationContainer: { [identifier: string]: string }
@@ -69,7 +69,7 @@ export enum EditMode {
     allAvailable = "allAvailable"
 }
 
-export enum TestOutcome {
+export enum TestResult {
     STRICTLY_SUCCEEDED = "STRICTLY_SUCCEEDED",
     FULLY_FAILED = "FULLY_FAILED",
     PARTIALLY_FAILED = "PARTIALLY_FAILED",
@@ -81,7 +81,7 @@ export enum TestOutcome {
 }
 
 
-export interface ITestRun extends ITimestamp {
+export interface IReport extends ITimestamp {
     Identifier: string,
     Date: Date,
     DisplayName: string,
@@ -95,37 +95,37 @@ export interface ITestRun extends ITimestamp {
     StatesCount: number,
     Score: IScoreMap,
     TestEndpointType: string,
-    TestResults?: {[key: string]: {[key: string]: ITestResult}},
+    TestRuns?: {[key: string]: {[key: string]: ITestRun}},
     Job?: IAnvilJob,
     Config: string
 }
 
-export interface ITestResultEdit {
+export interface ITestRunEdit {
     Results?: (string|any)[],
     Containers?: (string|any)[],
     description: string,
     title: string,
     editMode: EditMode,
-    newOutcome: TestOutcome,
+    newResult: TestResult,
     MethodName: string,
     ClassName: string,
 }
 
-export interface ITestResult {
+export interface ITestRun {
     ContainerId: string | any,
     TestMethod: ITestMethod,
-    Result: TestOutcome,
+    Result: TestResult,
     HasStateWithAdditionalResultInformation: boolean,
     HasVaryingAdditionalResultInformation: boolean,
     DisabledReason?: string,
     FailedReason?: string,
     FailedStacktrace?: string,
     ElapsedTime: number,
-    States: IState[],
-    StatesCount: number,
-    SucceededStates: number,
-    ConSucceededStates: number,
-    FailedStates: number,
+    TestCases: ITestCase[],
+    CaseCount: number,
+    SucceededCases: number,
+    ConSucceededCases: number,
+    FailedCases: number,
     Score: IScoreMap,
     FailureInducingCombinations: { [key: string]: string }[]
 }
@@ -143,7 +143,7 @@ export interface ITestMethod {
     ClassName: string
 }
 
-export interface IState {
+export interface ITestCase {
     DerivationContainer: { [identifier: string]: string }
     DisplayName: string
     Result: string

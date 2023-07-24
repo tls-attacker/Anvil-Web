@@ -1,87 +1,90 @@
-import { Model, Schema, Types } from "mongoose";
+import { TestMethodSchemaObject } from "./testMethod";
+import { Model, ObjectId, Schema, Types } from 'mongoose';
 import { ScoreMapSchmaObject, calculateScoreDelta } from './score';
-import { CategoriesStrings, IScoreDeltaMap, ITestResult, ITestRun } from "../../lib/data_types";
+import { ITestRun, TestResult } from "../../lib/data_types";
 import DB from "../index"
+import { TestCaseSchema } from "./testCase";
 
 export interface TestRunModel extends Model<ITestRun> {
-  addTestResults(testRun: ITestRun & {_id: Types.ObjectId}): Promise<ITestRun & {_id: Types.ObjectId}>;
   overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}): Promise<ITestRun & {_id: Types.ObjectId}>;
+  countTestCases(testRun: ITestRun & {_id: Types.ObjectId}): Promise<ITestRun & {_id: Types.ObjectId}>;
 }
 
 export const TestRunSchema = new Schema({
-  Identifier: {
-    type: String,
-    required: true,
+  ContainerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Report',
+    required: true
   },
-  Date: Date,
-  DispalyName: String,
+  TestMethod: TestMethodSchemaObject,
+  Result: String,
+  HasStateWithAdditionalResultInformation: Boolean,
+  HasVaryingAdditionalResultInformation: Boolean,
+  DisabledReason: String,
+  FailedReason: String,
+  FailedStacktrace: String,
   ElapsedTime: Number,
-  FailedTests: Number,
-  SucceededTests: Number,
-  DisabledTests: Number,
-  TotalTests: Number,
-  FinishedTests: Number,
+  TestCases: [TestCaseSchema],
+  CaseCount: Number,
   Score: ScoreMapSchmaObject,
-  StatesCount: Number,
-  TestEndpointType: String,
-  Running: Boolean,
-  Config: String
-}, {
+  FailureInducingCombinations: [{
+    type: Schema.Types.Map,
+    of: String,
+    default: new Map()
+  }]
+},
+{
   statics: {
-    async addTestResults(testRun: ITestRun & {_id: Types.ObjectId}) {
-      const results = await DB.TestResult.aggregate([
-        { $project: {States: 0}},
-        { $match: {ContainerId: testRun._id} },
-        { $group: {_id: "$TestMethod.ClassName", result: {$addToSet: "$$ROOT"}} }
-      ]).exec();
-      // reduce test results into object by id as key (classname -> methodname -> result)
-      let resultMap = results.reduce(
-          (classMap: {[id: string]: any}, resultArray: any) => {
-              classMap[resultArray._id] = resultArray.result.reduce(
-                (methodMap: {[id: string]: ITestResult}, resultObject: ITestResult) => {
-                  methodMap[resultObject.TestMethod.MethodName] = resultObject;
-                  return methodMap;
-                }, {});
-              return classMap;
-          }, {});
-      testRun.TestResults = resultMap;
+    async overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}) {
+      const edits = await DB.TestRunEdit.find({
+        "$or": [
+          {Containers: {"$in": [testRun.ContainerId.toString()]}},
+          {Containers: null},
+        ],
+        MethodName: testRun.TestMethod.MethodName,
+        ClassName: testRun.TestMethod.ClassName
+      }).sort({createdAt: 'desc'}).lean().exec()
+
+      if (edits.length > 1) {
+        //console.warn(`Multiple edits were found targeting ${testResult.TestMethod.ClassName.replace("de.rub.nds.tlstest.suite.tests.", "")}.${testResult.TestMethod.MethodName}@${identifier}`)
+        console.warn("Only evaluating the newest one")
+      }
+
+      if (edits.length > 0) {
+        testRun.Result = edits[0].newResult
+        //result.edited = true
+        //result.appliedEdit = <any>edits[0]
+        //result.matchingEdits = <any>edits
+
+        // updates result.Score inplace
+        calculateScoreDelta(testRun.Score, edits[0].newResult)
+      }
+
       return testRun;
     },
-    async overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}) {
-      const edits = DB.TestResultEdit.find({
-        "$or": [
-          {Containers: {"$in": [testRun._id.toString()]}},
-          {Containers: null},
-        ]
-      }).sort({"createdAt": "asc"}).lean().exec()
-      let resultScoreDelta: IScoreDeltaMap = {}
-      if (testRun.TestResults) {
-        for (let edit of (await edits)) {
-          const result = testRun.TestResults[edit.ClassName][edit.MethodName]
-    
-          const scoreDelta = calculateScoreDelta(result.Score, edit.newOutcome)
-          resultScoreDelta = {...resultScoreDelta, ...scoreDelta}
-    
-          result.Result = edit.newOutcome
-          //result.edited = true
-          //result.appliedEdit = <any>edit
-          //result.matchingEdits = <any>edits
+    countTestCases(testRun: ITestRun & {_id: Types.ObjectId}) {
+      let sucCases = 0;
+      let conSucCases = 0;
+      let failedCases = 0;
+      for (let testCase of testRun.TestCases) {
+        switch (testCase.Result) {
+          case TestResult.STRICTLY_SUCCEEDED: sucCases++; break;
+          case TestResult.CONCEPTUALLY_SUCCEEDED: conSucCases++; break;
+          case TestResult.FULLY_FAILED: failedCases++; break;
         }
       }
-  
-      for (const key of Object.keys(resultScoreDelta)) {
-        const v = resultScoreDelta[<CategoriesStrings>key]
-        const score = testRun.Score[<CategoriesStrings>key]
-        score.Reached += v.ReachedDelta
-        score.Total   += v.TotalDelta
-        score.Percentage = (score.Reached / score.Total * 100)
-      }
+      testRun.SucceededCases = sucCases;
+      testRun.ConSucceededCases = conSucCases;
+      testRun.FailedCases = failedCases;
+
       return testRun;
     }
-  },
-  timestamps: true
+  }
 })
 
-TestRunSchema.index({Identifier: 1})
-TestRunSchema.index({PcapStorageId: 1})
-TestRunSchema.index({KeylogfileStorageId: 1})
+
+TestRunSchema.index({Result: 1})
+
+// This index also helps with searches just for ContainerId
+// https://docs.mongodb.com/manual/core/index-compound/
+TestRunSchema.index({ContainerId: 1, "TestMethod.ClassName": 1, "TestMethod.MethodName": 1})

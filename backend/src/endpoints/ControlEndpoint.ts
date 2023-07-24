@@ -76,9 +76,9 @@ export namespace ControllerEndpoint {
                 job.worker.queueAction({command: AnvilCommands.STOP_RUN, jobId: jobId});
                 job.worker.jobs.splice(job.worker.jobs.indexOf(job), 1);
             }
-            if (job.testRun) {
-                job.testRun.Running = false;
-                job.testRun.save();
+            if (job.report) {
+                job.report.Running = false;
+                job.report.save();
             }
             job.status = AnvilJobStatus.CANCELD;
             setTimeout(() => AC.removeJob(jobId), 20000);

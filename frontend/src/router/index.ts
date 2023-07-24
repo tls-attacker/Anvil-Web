@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Compare from '../views/Compare.vue'
-import Controller from '../views/Controller.vue'
-import Tests from '../views/Tests.vue'
-import TestDetails from '../views/TestDetails.vue'
-import TestResults from '../views/TestResults.vue'
+import CompareView from '../views/CompareView.vue'
+import ControllerView from '../views/ControllerView.vue'
+import ReportList from '../views/ReportList.vue'
+import ReportView from '../views/ReportView.vue'
+import TestRunView from '../views/TestRunView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -11,27 +11,27 @@ const router = createRouter({
     {
       path: '/compare/:identifiers*',
       name: 'compare',
-      component: Compare
+      component: CompareView
     },
     {
       path: '/controller',
-      name: 'controller',
-      component: Controller
+      name: 'Controller',
+      component: ControllerView
     },
     {
       path: '/',
-      name: 'tests',
-      component: Tests
+      name: 'ReportList',
+      component: ReportList
     },
     {
       path: '/tests/:identifier',
-      name: 'testdetails',
-      component: TestDetails
+      name: 'ReportView',
+      component: ReportView
     },
     {
       path: '/tests/:identifier/:className/:methodName',
-      name: 'TestResults',
-      component: TestResults
+      name: 'TestRunView',
+      component: TestRunView
     }
   ]
 })

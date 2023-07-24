@@ -1,6 +1,6 @@
 <template>
     <article>
-            <header class="result-summary">
+            <header class="run-summary">
                 <span><strong>TLS Version:</strong> {{ testMethod.TlsVersion }}</span>
                 <span><strong>Test Class:</strong> {{ testMethod.ClassName.substring(31) }}</span>
                 <span><strong>Test Method:</strong> {{ testMethod.MethodName }}</span>
@@ -13,18 +13,18 @@
                             <span><strong> Setion:</strong> {{ testMethod.RFC.Section }}</span>
                         </div>
                         <blockquote><samp>{{ testMethod.Description }} {{ testMethod.TestDescription }}</samp></blockquote>
-                        <div v-if="testResult && testResult.FailureInducingCombinations">
+                        <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
-                            <li v-for="combination of testResult.FailureInducingCombinations.slice(0, 3)">
+                            <li v-for="combination of testRun.FailureInducingCombinations.slice(0, 3)">
                                 <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
                             </li>
                         </ul>
                         </div>
                     </div>
-                    <CircularProgress v-if="testResult"
-                        :progress="(testResult.SucceededStates + testResult.ConSucceededStates) * 100 / testResult.States.length"
-                        :name="`${testResult.SucceededStates + testResult.ConSucceededStates}/${testResult.States.length}`"/>
+                    <CircularProgress v-if="testRun"
+                        :progress="(testRun.SucceededStates + testRun.ConSucceededStates) * 100 / testRun.TestCases.length"
+                        :name="`${testRun.SucceededStates + testRun.ConSucceededStates}/${testRun.TestCases.length}`"/>
                 </div>
                 </main>
             <footer>
@@ -37,14 +37,14 @@
 import CircularProgress from '@/components/CircularProgress.vue';
 
 export default {
-    name: "TestResultSummary",
-    props: ["testMethod", "testResult"],
+    name: "TestRunSummary",
+    props: ["testMethod", "testRun"],
     components: { CircularProgress }
 }
 </script>
 
 <style scoped>
-.result-summary {
+.run-summary {
     display: flex;
     flex-direction: column;
 }

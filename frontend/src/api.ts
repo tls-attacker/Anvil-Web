@@ -1,23 +1,23 @@
-import type { IAnvilJob, IAnvilWorker, ITestResult, ITestRun } from './lib/data_types';
+import type { IAnvilJob, IAnvilWorker, IReport, ITestRun } from './lib/data_types';
 
 export module AnvilApi {
     const baseUrl = "http://localhost:5001/api/v2/";
 
     export function getIdentifiers(): Promise<string[]> {
-        return getApiObject("testRunIdentifiers");
+        return getApiObject("reportIdentifiers");
     }
 
-    export function getTestRuns(identifiers?: string[], detailed?: boolean): Promise<ITestRun[]> {
-        return getApiObject("testRuns" + buildQueryString({identifiers: identifiers, detailed: detailed+""}));
+    export function getReports(identifiers?: string[], detailed?: boolean): Promise<IReport[]> {
+        return getApiObject("report" + buildQueryString({identifiers: identifiers, detailed: detailed+""}));
     }
 
-    export function getTestRun(identifier: string): Promise<ITestRun> {
-        return getApiObject("testRuns/" + identifier);
+    export function getReport(identifier: string): Promise<IReport> {
+        return getApiObject("report/" + identifier);
     }
 
-    export function deleteTestRun(identifier: string): Promise<{success: boolean}> {
+    export function deleteReport(identifier: string): Promise<{success: boolean}> {
         return new Promise((resolve, reject) => {
-            fetch(baseUrl + "testRuns/" + identifier, {method: "DELETE"})
+            fetch(baseUrl + "report/" + identifier, {method: "DELETE"})
             .then((response) => {
                 if (!response.ok) {
                     reject(response);
@@ -27,12 +27,12 @@ export module AnvilApi {
         });
     }
 
-    export function getTestResult(identifier: string, className: string, methodName: string): Promise<ITestResult> {
-        return getApiObject(`testRuns/${identifier}/testResults/${className}/${methodName}`);
+    export function getTestRun(identifier: string, className: string, methodName: string): Promise<ITestRun> {
+        return getApiObject(`report/${identifier}/testRuns/${className}/${methodName}`);
     }
 
-    export function getTestResults(identifiers: string[], className: string, methodName: string): Promise<ITestResult[]> {
-        return getApiObject(`testResult/${className}/${methodName}` + buildQueryString({identifiers: identifiers}));
+    export function getTestRuns(identifiers: string[], className: string, methodName: string): Promise<{[identifier: string]: ITestRun}> {
+        return getApiObject(`testRun/${className}/${methodName}` + buildQueryString({identifiers: identifiers}));
     }
 
     export function getWorkerList(): Promise<IAnvilWorker[]> {

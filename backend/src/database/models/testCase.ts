@@ -1,7 +1,7 @@
 import { Schema } from "mongoose";
 
 
-export const StateSchema = new Schema({
+export const TestCaseSchema = new Schema({
   DerivationContainer: {
     type: Schema.Types.Map,
     of: String,
@@ -19,6 +19,6 @@ export const StateSchema = new Schema({
   Stacktrace: String
 })
 
-StateSchema.index({Result: 1})
-StateSchema.index({AdditionalResultInformation: 1})
-StateSchema.index({Stacktrace: 1})
+TestCaseSchema.index({Result: 1})
+TestCaseSchema.index({AdditionalResultInformation: 1})
+TestCaseSchema.index({Stacktrace: 1})

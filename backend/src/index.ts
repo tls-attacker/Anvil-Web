@@ -3,8 +3,8 @@ import express, { NextFunction, Request, Response } from "express";
 import fileUpload from "express-fileupload";
 import DB from './database';
 import { UploadReportEndpoint } from './endpoints';
-import { TestResultEndpoint } from './endpoints/TestResultEndpoint';
-import { TestRunEnpoint } from './endpoints/TestRunEndpoint';
+import { ReportEnpoint } from './endpoints/ReportEndpoint';
+import { TestRunEndpoint } from './endpoints/TestRunEndpoint';
 import { WorkerEndpoint } from './endpoints/WorkerEndpoint';
 import { BadRequest, InternalServerError } from './errors';
 import { ControllerEndpoint } from './endpoints/ControlEndpoint';
@@ -27,8 +27,8 @@ app.use('/api/v2', router)
 new UploadReportEndpoint.Controller(router)
 //new KeylogFileEndpoint.Controller(router)
 //new PcapEndpoint.Controller(router)
-new TestRunEnpoint.Controller(router)
-new TestResultEndpoint.Controller(router)
+new ReportEnpoint.Controller(router)
+new TestRunEndpoint.Controller(router)
 new WorkerEndpoint.Controller(router)
 new ControllerEndpoint.Controller(router)
 

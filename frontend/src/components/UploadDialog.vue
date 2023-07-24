@@ -3,13 +3,13 @@
         <article>
             <a href="" aria-label="Close" class="close" data-target="modal-example" @click.prevent="$emit('close')">
             </a>
-            <h3>Upload Test Results</h3>
+            <h3>Upload Test Report</h3>
             <p>
-                To upload a single test result, zip your result folder (containing the summary.json) and upload it here.
+                To upload a single test report, zip your result folder (containing the summary.json) and upload it here.
             </p>
             <br/>
             <label>
-                TestRun:
+                Report:
                 <input type="file" accept=".zip" v-on:change="(e) => files = (<HTMLInputElement>e.target).files">
             </label>
             <p v-if="error">Error uploading file.</p>

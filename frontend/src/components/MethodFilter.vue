@@ -3,11 +3,11 @@
         <input type="text" placeholder="Filter..." :value="filterText" @input="$emit('update:filterText', (<HTMLInputElement>$event.target).value)"/>
         <details>
             <summary role="button">Test Result</summary>
-            <label v-for="outcome of Object.keys(filteredOutcomes)">
-                <input type="checkbox" :checked="filteredOutcomes[outcome]" @change="updateOutcomes(outcome, (<HTMLInputElement>$event.target).checked)"/>
-                    {{ formatEnum(outcome) }}
+            <label v-for="result of Object.keys(filteredResults)">
+                <input type="checkbox" :checked="filteredResults[result]" @change="updateResults(result, (<HTMLInputElement>$event.target).checked)"/>
+                    {{ formatEnum(result) }}
             </label>
-            <a href="" @click.prevent="resetOutcomes()">Reset</a>
+            <a href="" @click.prevent="resetResults()">Reset</a>
         </details>
         <details>
             <summary role="button">Category</summary>
@@ -22,12 +22,12 @@
 
 <script lang="ts">
 import { formatEnum } from '@/composables/visuals';
-import { ScoreCategories, TestOutcome } from '@/lib/data_types';
+import { ScoreCategories, TestResult } from '@/lib/data_types';
 
 export default {
     name: 'MethodFilter',
-    props: ['filterText', 'filteredCategories', 'filteredOutcomes'],
-    emits: ['update:filterText', 'update:filteredCategories', 'update:filteredOutcomes'],
+    props: ['filterText', 'filteredCategories', 'filteredResults'],
+    emits: ['update:filterText', 'update:filteredCategories', 'update:filteredResults'],
     methods: {
         formatEnum,
         updateCategories(key: string, value) {
@@ -35,21 +35,21 @@ export default {
             categories[key] = value;
             this.$emit('update:filteredCategories', categories);
         },
-        updateOutcomes(key: string, value) {
-            let outcomes = this.filteredOutcomes
-            outcomes[key] = value;
-            this.$emit('update:filteredOutcomes', outcomes);
+        updateResults(key: string, value) {
+            let results = this.filteredResults
+            results[key] = value;
+            this.$emit('update:filteredResults', results);
         },
         resetCategories() {
             this.$emit('update:filteredCategories', Object.fromEntries(Object.keys(ScoreCategories).map(k => [k, true])));
         },
-        resetOutcomes() {
-            this.$emit('update:filteredOutcomes', Object.fromEntries(Object.keys(TestOutcome).map(k => [k, true])));
+        resetResults() {
+            this.$emit('update:filteredResults', Object.fromEntries(Object.keys(TestResult).map(k => [k, true])));
         }
     },
     created() {
         this.resetCategories();
-        this.resetOutcomes();
+        this.resetResults();
     }
 
 }
