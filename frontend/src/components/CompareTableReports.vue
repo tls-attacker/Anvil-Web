@@ -73,8 +73,8 @@ export default {
                 [testClass: string]: {[testMethod: string]: ITestMethod};
             },
             filterText: "",
-            filteredCategories: [],
-            filteredResults: []
+            filteredCategories: {} as {[category: string]: boolean},
+            filteredResults: {} as {[result: string]: boolean}
         };
     },
     methods: {
@@ -104,11 +104,12 @@ export default {
                 && report.TestRuns[className][methodName] !== undefined;
         },
         filterMethod(method: ITestMethod) {
-            let relevantReports = this.reports.filter(r => this.hasTestResultFor(r, method.ClassName, method.MethodName));
+            let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, method.ClassName, method.MethodName));
             if (relevantReports.length==0) return false;
-            if (!(<IReport[]>relevantReports).some((r => this.filteredResults[r.TestRuns[method.ClassName][method.MethodName].Result]))) return false;
+            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns[method.ClassName][method.MethodName].Result]))) return false;
             // TODO put categories in testmethod, better in metadata
-            if (!(<IReport[]>relevantReports).some(r => {
+            if (!relevantReports.some(r => {
+                if (!r.TestRuns) return false;
                 let score = r.TestRuns[method.ClassName][method.MethodName].Score;
                 if (score != undefined) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);

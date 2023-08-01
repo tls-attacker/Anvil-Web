@@ -1,11 +1,11 @@
 <template>
     <template v-if="testRuns && Object.values(testRuns).length>0">
-    <TestRunSummary :testMethod="Object.values(testRuns)[0].TestMethod"/>
+    <TestRunSummary :testMethod="(<ITestRun>Object.values(testRuns)[0]).TestMethod"/>
     <table role="grid">
         <thead>
             <th>Testcase</th>
             <th v-for="identifier in identifiers">
-                <RouterLink :to="`/tests/${identifier}/${Object.values(testRuns)[0].TestMethod.ClassName}/${Object.values(testRuns)[0].TestMethod.MethodName}`">{{ identifier.substring(0,8) }}</RouterLink>
+                <RouterLink :to="`/tests/${identifier}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod.ClassName}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod.MethodName}`">{{ identifier.substring(0,8) }}</RouterLink>
             </th>
         </thead>
         <tbody>
@@ -31,7 +31,7 @@
             <tr v-for="(derivation, uuid) in derivations">
                 <td>{{ uuid }}</td>
                 <td v-for="identifier in identifiers">
-                    <span @click="openCase = testRuns[identifier].TestCases.find(c => c.uuid == uuid)" class="pointer">
+                    <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid)" class="pointer">
                         {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
                     </span>
                 </td>

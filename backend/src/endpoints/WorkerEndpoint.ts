@@ -46,7 +46,7 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("id not valid"));
             }
 
-            let newReport = req.body.summary;
+            let newReport = req.body.report;
             if (!job.report) {
                 job.report = await DB.Report.create(newReport);
             } else {
@@ -123,7 +123,7 @@ export namespace WorkerEndpoint {
             if (!job.report) {
                 return next(new BadRequest("no associated report posted before"));
             }
-            let newTestCase = req.body.state as ITestCase;
+            let newTestCase = req.body.testCase as ITestCase;
             let className = req.body.className;
             let methodName = req.body.methodName;
             let testRun = job.testRuns[className+":"+methodName];

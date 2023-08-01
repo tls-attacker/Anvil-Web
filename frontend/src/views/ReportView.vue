@@ -90,8 +90,8 @@ export default {
         return {
             report: undefined as IReport | undefined,
             filterText: "",
-            filteredCategories: {},
-            filteredResults: {},
+            filteredCategories: {} as {[category: string]: boolean},
+            filteredResults: {} as {[result: string]: boolean},
             showDelete: false,
             allOpen: false,
             showCancel: false,

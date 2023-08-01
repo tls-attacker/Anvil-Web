@@ -51,6 +51,9 @@
                     <label>Strength:
                         <input type="number" v-model="strength">
                     </label>
+                    <label>Parallel Testcases:
+                        <input type="number" v-model="parallelTestcases">
+                    </label>
                     <label>Additional config:
                         <input type="text" v-model="config">
                     </label>
@@ -89,7 +92,8 @@ export default {
             triggerScript: "",
             identifier: "",
             dlWorkers: [] as IAnvilWorker[],
-            strength: "1"
+            strength: "1",
+            parallelTestcases: "1"
         }
     },
     methods: {
@@ -101,7 +105,7 @@ export default {
             if (this.identifier.length>0) {
                 command += ` -identifier ${this.identifier}`;
             }
-            command += ` -strength ${this.strength} ${this.testmode}`;
+            command += ` -strength ${this.strength} -parallelHandshakes ${this.parallelTestcases} ${this.testmode}`;
             if (this.testmode == 'server') {
                 command += ` -connect ${this.serverHost}`;
                 if (this.sendSNI) {

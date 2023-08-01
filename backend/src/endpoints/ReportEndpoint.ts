@@ -92,7 +92,7 @@ export namespace ReportEnpoint {
     private async deleteReport(req: Request, res: Response, next: NextFunction) {
       const doc = await DB.Report.findOne({ Identifier: req.params.identifier });
       if (!doc) {
-        next(new BadRequest("Invalid identifier"))
+        return next(new BadRequest("Invalid identifier"));
       }
       // delete all associated data
       await Promise.all([

@@ -4,8 +4,6 @@ interface ITimestamp {
 }
 
 export interface ITestCase {
-    TestResultId: string
-    ContainerId: string
     DerivationContainer: { [identifier: string]: string }
     DisplayName: string
     Result: string
@@ -159,7 +157,7 @@ export interface ITestCase {
 
 export interface IAnvilWorker {
     name: string,
-    id: string
+    id: string,
     status: string,
     jobs: IAnvilJob[]
 }

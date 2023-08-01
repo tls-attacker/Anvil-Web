@@ -30,12 +30,12 @@ export default {
     emits: ['update:filterText', 'update:filteredCategories', 'update:filteredResults'],
     methods: {
         formatEnum,
-        updateCategories(key: string, value) {
+        updateCategories(key: string, value: boolean) {
             let categories = this.filteredCategories
             categories[key] = value;
             this.$emit('update:filteredCategories', categories);
         },
-        updateResults(key: string, value) {
+        updateResults(key: string, value: boolean) {
             let results = this.filteredResults
             results[key] = value;
             this.$emit('update:filteredResults', results);
