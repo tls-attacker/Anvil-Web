@@ -1,0 +1,37 @@
+version: '3.7'
+
+volumes:
+  mongodb_DB:
+  mongodb_conf:
+
+networks: 
+  app:
+
+services:
+  mongo:
+    image: mongo:5.0.6
+    restart: always
+    volumes:
+      - mongodb_DB:/data/db
+      - mongodb_conf:/data/configdb
+    networks: 
+      - app
+
+  app:
+    # image: ghcr.io/tls-attacker/anvil-web
+    image: testo
+    restart: always
+    environment:
+      - PRODUCTION=1
+    ports:
+      - 5001:5001
+    networks:
+      - app
+
+  worker:
+    # image: ghcr.io/tls-attacker/tlsanvil:web
+    image: tls-anvil
+    restart: always
+    networks:
+      - app
+    command: ["worker", "-controller", "app:5001", "-name", "Docker Compose bundeled Worker"]

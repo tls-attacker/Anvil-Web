@@ -13,7 +13,9 @@ console.log("AnvilWeb starting...")
 const app = express()
 
 console.log(" - configuring frontend interface")
-//app.use(express.static('dist'))
+if (process.env.PRODUCTION) {
+  app.use(express.static('static'))
+}
 
 console.log(" - configuriong backend api")
 let router = express.Router()
