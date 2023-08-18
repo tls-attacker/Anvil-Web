@@ -96,8 +96,7 @@ export namespace ReportEnpoint {
       }
       // delete all associated data
       await Promise.all([
-        DB.Report.deleteMany({ ContainerId: doc._id }).exec(),
-        DB.TestCase.deleteMany({ ContainerId: doc._id }).exec(),
+        DB.TestRun.deleteMany({ ContainerId: doc._id }).exec(),
         //DB.pcapBucket.delete(doc.PcapStorageId),
         //DB.keylogfileBucket.delete(doc.KeylogfileStorageId),
         doc.deleteOne()
@@ -119,8 +118,8 @@ export namespace ReportEnpoint {
       }
       const testRun = await DB.TestRun.findOne({
         ContainerId: report._id.toString(), 
-        'TestMethod.ClassName': className, 
-        'TestMethod.MethodName': methodName
+        'TestClass': className, 
+        'TestMethod': methodName
       }).lean().exec()
 
       if (!testRun) {

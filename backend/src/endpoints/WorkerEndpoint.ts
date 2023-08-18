@@ -72,8 +72,8 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("no associated report posted before"));
             }
             let newTestRun = req.body.testRun as ITestRun;
-            let className = newTestRun.TestMethod.ClassName;
-            let methodName = newTestRun.TestMethod.MethodName;
+            let className = newTestRun.TestMethod;
+            let methodName = newTestRun.TestClass;
             let testRun = job.testRuns[className+":"+methodName];
             if (!testRun) {
                 job.testRuns[className+":"+methodName] = new DB.TestRun(newTestRun);
@@ -90,12 +90,16 @@ export namespace WorkerEndpoint {
                 if (testRun.TestCases.length == 0) { // test has no cases, count testrun
                     switch (testRun.Result) {
                         case TestResult.STRICTLY_SUCCEEDED:
+                            job.report.StrictlySucceededTests++;
+                            break;
                         case TestResult.CONCEPTUALLY_SUCCEEDED:
-                            job.report.SucceededTests++;
+                            job.report.ConceptuallySucceededTests++;
                             break;
                         case TestResult.FULLY_FAILED:
+                            job.report.FullyFailedTests++;
+                            break;
                         case TestResult.PARTIALLY_FAILED:
-                            job.report.FailedTests++;
+                            job.report.PartiallyFailedTests++;
                             break;
                         case TestResult.DISABLED:
                         case TestResult.PARSER_ERROR:
@@ -135,15 +139,19 @@ export namespace WorkerEndpoint {
             clearTimeout(job.testRunTimeouts[className+":"+methodName])
             job.testRunTimeouts[className+":"+methodName] = setTimeout(() => testRun.save(), 3000);
 
-            job.report.StatesCount++;
+            job.report.TestCaseCount++;
             switch (newTestCase.Result) {
                 case TestResult.STRICTLY_SUCCEEDED:
+                    job.report.StrictlySucceededTests++;
+                    break;
                 case TestResult.CONCEPTUALLY_SUCCEEDED:
-                    job.report.SucceededTests++;
+                    job.report.ConceptuallySucceededTests++;
                     break;
                 case TestResult.FULLY_FAILED:
+                    job.report.FullyFailedTests++;
+                    break;
                 case TestResult.PARTIALLY_FAILED:
-                    job.report.FailedTests++;
+                    job.report.PartiallyFailedTests++;
                     break;
                 case TestResult.DISABLED:
                 case TestResult.PARSER_ERROR:

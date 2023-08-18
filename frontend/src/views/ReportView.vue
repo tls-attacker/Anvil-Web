@@ -14,20 +14,20 @@
         <article>
             <header class="report-summary">
                 <span><strong>Test started:</strong> {{ $api.formatDate(report.Date+"") }}</span>
-                <span><strong>States:</strong> {{ report.StatesCount }}</span>
+                <span><strong>TestCases:</strong> {{ report.TestCaseCount }}</span>
                 <span><strong>Elapsed Time:</strong> <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
             </header>
             <main>
                 <template v-if="!report.Running">
                     <strong>Scores:</strong>
-                    <div class="score-container">
+                    <div class="score-container" v-if="false">
                         <CircularProgress name="Security" :progress="report.Score.SECURITY.Percentage"/>
                         <CircularProgress name="Crypto" :progress="report.Score.CRYPTO.Percentage"/>
                         <CircularProgress name="Compliance" :progress="report.Score.COMPLIANCE.Percentage"/>
                         <CircularProgress name="Certificate" :progress="report.Score.CERTIFICATE.Percentage"/>
                     </div>
                 </template>
-                <TestBar :failedTests="report.FailedTests" :succeededTests="report.SucceededTests" :disabledTests="report.DisabledTests"/>
+                <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :disabledTests="report.DisabledTests"/>
             </main>
             <footer>
                 <progress v-if="report.Running"></progress>
@@ -52,8 +52,8 @@
                                 <template v-for="testRun in testRuns">
                                     <tr v-if="filterMethod(testRun)">
                                         <td>
-                                            <RouterLink :to="`/tests/${report.Identifier}/${className}/${testRun.TestMethod.MethodName}`" class="contrast">
-                                            {{ testRun.TestMethod.MethodName }}
+                                            <RouterLink :to="`/tests/${report.Identifier}/${className}/${testRun.TestMethod}`" class="contrast">
+                                            {{ testRun.TestMethod }}
                                             </RouterLink>
                                         </td>
                                         <td :data-tooltip="getResultToolTip(testRun)">
@@ -69,7 +69,7 @@
         </article>
         <DeleteReportDialog v-if="showDelete" @close="showDelete = false" :identifiers="[report.Identifier]" @deleted="$router.push('/')"/>
         <CancelJobDialog v-if="showCancel" @close="showCancel = false" :job="report.Job" />
-        <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.Config"/>
+        <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.AnvilConfig"/>
     </template>
 </template>
 
@@ -119,7 +119,7 @@ export default {
             if (testRun.Score != undefined) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
-            return testRun.TestMethod.MethodName.toLowerCase().includes(this.filterText.toLowerCase());
+            return testRun.TestMethod.toLowerCase().includes(this.filterText.toLowerCase());
         },
         refreshReport() {
             if (this.$route.params["identifier"]) {

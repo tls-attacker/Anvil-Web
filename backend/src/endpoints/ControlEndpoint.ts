@@ -35,6 +35,7 @@ export namespace ControllerEndpoint {
 
         private async addJob(req: Request, res: Response, next: NextFunction) {
             let config = req.body.config;
+            let additionalConfig = req.body.additionalConfig;
             let workerId = req.body.workerId;
             let worker;
             if (workerId) {
@@ -43,7 +44,7 @@ export namespace ControllerEndpoint {
                     return next(new BadRequest("workerId not found"));
                 }
             }
-            let job = AC.addJob(config, worker)
+            let job = AC.addJob(config, additionalConfig, worker)
             res.send(job.apiObject());
         }
 

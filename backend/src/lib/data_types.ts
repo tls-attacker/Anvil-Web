@@ -3,20 +3,6 @@ interface ITimestamp {
     updatedAt: Date
 }
 
-export interface ITestCase {
-    DerivationContainer: { [identifier: string]: string }
-    DisplayName: string
-    Result: string
-    AdditionalResultInformation: string
-    AdditionalTestInformation: string
-    SrcPort: number
-    DstPort: number
-    StartTimestamp: string
-    EndTimestamp: string
-    uuid: string
-    Stacktrace?: string
-}
-
 export interface IScore {
     Total: number,
     Reached: number,
@@ -82,20 +68,22 @@ export enum TestResult {
 export interface IReport extends ITimestamp {
     Identifier: string,
     Date: Date,
-    DisplayName: string,
     Running: boolean,
     ElapsedTime: number,
-    FailedTests: number,
-    SucceededTests: number,
+    PartiallyFailedTests: number,
+    FullyFailedTests: number,
+    StrictlySucceededTests: number,
+    ConceptuallySucceededTests: number,
     DisabledTests: number,
     TotalTests: number,
     FinishedTests: number,
-    StatesCount: number,
+    TestCaseCount: number,
     Score: IScoreMap,
     TestEndpointType: string,
     TestRuns?: {[key: string]: {[key: string]: ITestRun}},
     Job?: IAnvilJob,
-    Config: string
+    AnvilConfig: string,
+    AdditionalConfig: string,
 }
 
 export interface ITestRunEdit {
@@ -111,13 +99,13 @@ export interface ITestRunEdit {
 
 export interface ITestRun {
     ContainerId: string | any,
-    TestMethod: ITestMethod,
+    TestMethod: string,
+    TestClass: string,
     Result: TestResult,
     HasStateWithAdditionalResultInformation: boolean,
     HasVaryingAdditionalResultInformation: boolean,
     DisabledReason?: string,
     FailedReason?: string,
-    FailedStacktrace?: string,
     ElapsedTime: number,
     TestCases: ITestCase[],
     CaseCount: number,
@@ -142,11 +130,11 @@ export interface ITestMethod {
 }
 
 export interface ITestCase {
-    DerivationContainer: { [identifier: string]: string }
+    ParameterCombination: { [identifier: string]: string }
     DisplayName: string
     Result: string
-    AdditionalResultInformation: string
-    AdditionalTestInformation: string
+    AdditionalResultInformation: string[]
+    AdditionalTestInformation: string[]
     SrcPort: number
     DstPort: number
     StartTimestamp: string
@@ -168,6 +156,7 @@ export interface IAnvilJob {
     progress: number,
     identifier: string,
     config: any,
+    additionalConfig: any,
     workerId: string,
     workerName: string
 }

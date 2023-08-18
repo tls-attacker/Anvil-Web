@@ -64,12 +64,12 @@ class AnvilController {
         return Object.values(this.workerList);
     }
 
-    addJob(config: any, worker?: AnvilWorker): AnvilJob {
+    addJob(config: any, additionalConfig: any, worker?: AnvilWorker): AnvilJob {
         let id;
         do {
             id = this.makeId();
         } while (this.jobList[id] != undefined);
-        this.jobList[id] = new AnvilJob(id, config, worker);
+        this.jobList[id] = new AnvilJob(id, config, additionalConfig, worker);
         if (!worker) {
             console.debug(`New job[${id}] added to the pool.`)
         } else {

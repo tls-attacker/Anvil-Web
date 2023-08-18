@@ -38,8 +38,8 @@ export namespace TestRunEndpoint {
     
       const testRuns = await DB.TestRun.find(
         {ContainerId: {"$in": reports.map(i => i._id)},
-        "TestMethod.ClassName": className,
-        "TestMethod.MethodName": methodName
+        "TestClass": className,
+        "TestMethod": methodName
       }).lean().exec();
 
       if (testRuns.length == 0) {
@@ -95,8 +95,8 @@ export namespace TestRunEndpoint {
 
       const runIds = await DB.TestRun.find({
         ContainerId: {$in: containerIds}, 
-        "TestMethod.ClassName": data.ClassName, 
-        "TestMethod.MethodName": data.MethodName
+        "TestClass": data.ClassName, 
+        "TestMethod": data.MethodName
       }).lean().exec().then((docs) => {
         return docs.map(i => i._id)
       })

@@ -1,18 +1,18 @@
 <template>
-    <article>
+    <article v-if="metaDataContainer != undefined">
             <header class="run-summary">
-                <span><strong>TLS Version:</strong> {{ testMethod.TlsVersion }}</span>
-                <span><strong>Test Class:</strong> {{ testMethod.ClassName.substring(31) }}</span>
-                <span><strong>Test Method:</strong> {{ testMethod.MethodName }}</span>
+                <span><strong>TLS Version:</strong> todo</span>
+                <span><strong>Test Class:</strong> {{ testClass.substring(31) }}</span>
+                <span><strong>Test Method:</strong> {{ testMethod }}</span>
             </header>
             <main>
                 <div class="summary-main-flex">
                     <div>
-                        <div v-if="testMethod.RFC">
-                            <span><strong>RFC:</strong> {{ testMethod.RFC.number || "not set" }}</span>
-                            <span><strong> Setion:</strong> {{ testMethod.RFC.Section }}</span>
+                        <div v-if="metaDataContainer.rfc">
+                            <span><strong>RFC:</strong> {{ metaDataContainer.rfc.number || "not set" }}</span>
+                            <span><strong> Setion:</strong> {{ metaDataContainer.rfc.section }}</span>
                         </div>
-                        <blockquote><samp>{{ testMethod.Description }} {{ testMethod.TestDescription }}</samp></blockquote>
+                        <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
@@ -23,8 +23,8 @@
                         </div>
                     </div>
                     <CircularProgress v-if="testRun"
-                        :progress="(testRun.SucceededStates + testRun.ConSucceededStates) * 100 / testRun.TestCases.length"
-                        :name="`${testRun.SucceededStates + testRun.ConSucceededStates}/${testRun.TestCases.length}`"/>
+                        :progress="(testRun.SucceededCases + testRun.ConSucceededCases) * 100 / testRun.TestCases.length"
+                        :name="`${testRun.SucceededCases + testRun.ConSucceededCases}/${testRun.TestCases.length}`"/>
                 </div>
                 </main>
             <footer>
@@ -38,8 +38,16 @@ import CircularProgress from '@/components/CircularProgress.vue';
 
 export default {
     name: "TestRunSummary",
-    props: ["testMethod", "testRun"],
-    components: { CircularProgress }
+    components: { CircularProgress },
+    props: ["testMethod", "testClass", "testRun"],
+    data() {
+        return {
+            metaDataContainer: undefined as any
+        }
+    },
+    created() {
+        this.metaDataContainer = this.$api.getMetaData(this.testClass, this.testMethod);
+    }
 }
 </script>
 

@@ -43,8 +43,8 @@ export module AnvilApi {
         return getApiObject("/control/job");
     }
 
-    export function addJob(config: any, workerId?: string): Promise<IAnvilJob> {
-        let apiObject = workerId ? {config: config, workerId: workerId} : {config: config}
+    export function addJob(config: any, additionalConfig: any, workerId?: string): Promise<IAnvilJob> {
+        let apiObject = workerId ? {config: config, additionalConfig: additionalConfig, workerId: workerId} : {config: config, additionalConfig: additionalConfig};
         return postApiObject("/control/job", apiObject);
     }
 
@@ -143,5 +143,11 @@ export module AnvilApi {
                 return `${hours}h ${min}min`
             }
         }
+    }
+
+    let metaData = {} as {[key: string]: any};
+    fetch("/src/assets/metadata.json").then(r => r.json()).then(o => metaData = o);
+    export function getMetaData(testClass: string, testMethod: string): any {
+        return metaData[testClass+"."+testMethod];
     }
 }

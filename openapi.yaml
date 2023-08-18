@@ -400,6 +400,9 @@ paths:
               type: object
               properties: 
                 config:
+                  type: object
+                additionalConfig:
+                  type: object
                 workerId:
                   type: string
       responses: 
@@ -514,6 +517,9 @@ components:
         identifier:
           $ref: '#/components/schemas/Identifier'
         config:
+          type: object
+        additionalConfig:
+          type: object
         workerId:
           type: string
         workerName:

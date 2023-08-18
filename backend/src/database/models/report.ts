@@ -14,32 +14,34 @@ export const ReportSchema = new Schema({
     required: true,
   },
   Date: Date,
-  DispalyName: String,
   ElapsedTime: Number,
-  FailedTests: Number,
-  SucceededTests: Number,
+  PartiallyFailedTests: Number,
+  FullyFailedTests: Number,
+  ConceptuallySucceededTests: Number,
+  StrictlySucceededTests: Number,
   DisabledTests: Number,
   TotalTests: Number,
   FinishedTests: Number,
   Score: ScoreMapSchmaObject,
-  StatesCount: Number,
+  TestCaseCount: Number,
   TestEndpointType: String,
   Running: Boolean,
-  Config: String
+  AnvilConfig: String,
+  AdditionalConfig: String
 }, {
   statics: {
     async addTestRuns(report: IReport & {_id: Types.ObjectId}) {
       const runs = await DB.TestRun.aggregate([
         { $project: {TestCases: 0}},
         { $match: {ContainerId: report._id} },
-        { $group: {_id: "$TestMethod.ClassName", result: {$addToSet: "$$ROOT"}} }
+        { $group: {_id: "$TestClass", result: {$addToSet: "$$ROOT"}} }
       ]).exec();
       // reduce test runs into object by id as key (classname -> methodname -> testrun)
       let runMap = runs.reduce(
           (classMap: {[id: string]: any}, runArray: any) => {
               classMap[runArray._id] = runArray.result.reduce(
                 (methodMap: {[id: string]: ITestRun}, runObject: ITestRun) => {
-                  methodMap[runObject.TestMethod.MethodName] = runObject;
+                  methodMap[runObject.TestMethod] = runObject;
                   return methodMap;
                 }, {});
               return classMap;

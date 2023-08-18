@@ -5,7 +5,7 @@
         <thead>
             <th>Testcase</th>
             <th v-for="identifier in identifiers">
-                <RouterLink :to="`/tests/${identifier}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod.ClassName}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod.MethodName}`">{{ identifier.substring(0,8) }}</RouterLink>
+                <RouterLink :to="`/tests/${identifier}/${(<ITestRun>Object.values(testRuns)[0]).TestClass}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod}`">{{ identifier.substring(0,8) }}</RouterLink>
             </th>
         </thead>
         <tbody>
@@ -99,7 +99,7 @@ export default {
             for (let testRun of Object.values(this.testRuns) as ITestRun[]) {
                 for (let testCase of testRun.TestCases) {
                     if (!this.derivations[testCase.uuid]) {
-                        this.derivations[testCase.uuid] = testCase.DerivationContainer;
+                        this.derivations[testCase.uuid] = testCase.ParameterCombination;
                     }
                 }
             }

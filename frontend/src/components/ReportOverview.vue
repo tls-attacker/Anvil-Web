@@ -10,7 +10,7 @@
                             <span>Elapsed Time: <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
                             <span>States: {{ report.StatesCount }}</span>
                         </div>
-                        <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.SucceededTests" :failedTests="report.FailedTests"/>
+                        <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.StrictlySucceededTests+report.ConceptuallySucceededTests" :failedTests="report.FullyFailedTests+report.PartiallyFailedTests"/>
                         <progress v-if="report.Running"></progress>
                         <div class="buttons" style="margin-top: 10px;">
                             <RouterLink :to="`tests/${report.Identifier}`" role="button" class="outline">Details</RouterLink>
@@ -40,6 +40,8 @@ export default {
     },
     methods: {
         calculateOverallScore(report: IReport) {
+            //todo reenable
+            return 20;
             let count = 0;
             let score = 0;
             for (let category of Object.keys(report.Score)) {

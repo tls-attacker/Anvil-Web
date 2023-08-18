@@ -16,13 +16,13 @@ export const TestRunSchema = new Schema({
     ref: 'Report',
     required: true
   },
-  TestMethod: TestMethodSchemaObject,
+  TestMethod: String,
+  TestClass: String,
   Result: String,
   HasStateWithAdditionalResultInformation: Boolean,
   HasVaryingAdditionalResultInformation: Boolean,
   DisabledReason: String,
   FailedReason: String,
-  FailedStacktrace: String,
   ElapsedTime: Number,
   TestCases: [TestCaseSchema],
   CaseCount: Number,
@@ -41,12 +41,12 @@ export const TestRunSchema = new Schema({
           {Containers: {"$in": [testRun.ContainerId.toString()]}},
           {Containers: null},
         ],
-        MethodName: testRun.TestMethod.MethodName,
-        ClassName: testRun.TestMethod.ClassName
+        MethodName: testRun.TestMethod,
+        ClassName: testRun.TestClass
       }).sort({createdAt: 'desc'}).lean().exec()
 
       if (edits.length > 1) {
-        //console.warn(`Multiple edits were found targeting ${testResult.TestMethod.ClassName.replace("de.rub.nds.tlstest.suite.tests.", "")}.${testResult.TestMethod.MethodName}@${identifier}`)
+        //console.warn(`Multiple edits were found targeting ${testResult.TestClass.replace("de.rub.nds.tlstest.suite.tests.", "")}.${testResult.TestMethod}@${identifier}`)
         console.warn("Only evaluating the newest one")
       }
 
@@ -87,4 +87,4 @@ TestRunSchema.index({Result: 1})
 
 // This index also helps with searches just for ContainerId
 // https://docs.mongodb.com/manual/core/index-compound/
-TestRunSchema.index({ContainerId: 1, "TestMethod.ClassName": 1, "TestMethod.MethodName": 1})
+TestRunSchema.index({ContainerId: 1, "TestClass": 1, "TestMethod": 1})

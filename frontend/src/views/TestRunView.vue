@@ -3,13 +3,13 @@
     <template v-else>
         <header class="flex-header">
             <hgroup>
-                <h1>{{ testRun.TestMethod.MethodName }}</h1>
+                <h1>{{ testRun.TestMethod }}</h1>
                 <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink></h3>
             </hgroup>
             <span class="spacer"></span>
             <a role="button" href="">Re-Run</a>
         </header>
-        <TestRunSummary :testMethod="testRun.TestMethod" :testRun="testRun"/>
+        <TestRunSummary :testMethod="testRun.TestMethod" :testClass="testRun.TestClass" :testRun="testRun"/>
 
         <article>
             <header class="grid">
@@ -21,14 +21,14 @@
                 <table role="grid">
                 <thead>
                     <tr>
-                        <th v-for="(derivation, parameter) of testRun.TestCases[0].DerivationContainer">{{ parameter }}</th>
+                        <th v-for="(derivation, parameter) of testRun.TestCases[0].ParameterCombination">{{ parameter }}</th>
                         <th>Result</th>
                     </tr>
                 </thead>
                 <tbody>
                     <template v-for="testCase of testRun.TestCases">
                         <tr v-if="filterCase(testCase)" @click="openCase = testCase">
-                            <td v-for="(derivation, parameter) of testCase.DerivationContainer">{{ derivation }}</td>
+                            <td v-for="(derivation, parameter) of testCase.ParameterCombination">{{ derivation }}</td>
                             <td>{{ getResultSymbol(testCase.Result) }}</td>
                         </tr>
                     </template>
@@ -37,7 +37,7 @@
         </figure>
         </article>
 
-        <TestCaseModal :case="openCase" @close="openCase = undefined"/>
+        <TestCaseModal :testCase="openCase" @close="openCase = undefined"/>
     </template>
 </template>
 

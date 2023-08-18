@@ -22,7 +22,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(derivation, parameter) of testCase.DerivationContainer">
+                            <tr v-for="(derivation, parameter) of testCase.ParameterCombination">
                                 <td>{{ parameter }}</td>
                                 <td>{{ derivation }}</td>
                             </tr>

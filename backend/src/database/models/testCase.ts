@@ -2,15 +2,15 @@ import { Schema } from "mongoose";
 
 
 export const TestCaseSchema = new Schema({
-  DerivationContainer: {
+  ParameterCombination: {
     type: Schema.Types.Map,
     of: String,
     default: new Map()
   },
   DisplayName: String,
   Result: String,
-  AdditionalResultInformation: String,
-  AdditionalTestInformation: String,
+  AdditionalResultInformation: [String],
+  AdditionalTestInformation: [String],
   SrcPort: Number,
   DstPort: Number,
   StartTimestamp: String,

@@ -20,42 +20,39 @@
                     </select>
 
                     <label>Identifier:
-                        <input type="text" placeholder="example-test" v-model="identifier">
+                        <input type="text" placeholder="example-test" v-model="config.identifier">
                     </label>
                     <label>Testmode:
-                        <select v-model="testmode">
-                            <option value="server">Server</option>
-                            <option value="client">Client</option>
+                        <select v-model="config.endpointMode">
+                            <option value="SERVER">Server</option>
+                            <option value="CLIENT">Client</option>
                         </select>
                     </label>
-                    <template v-if="testmode=='server'">
+                    <template v-if="config.endpointMode=='SERVER'">
                         <label>Server:
-                            <input type="text" placeholder="testserver:443" v-model="serverHost">
+                            <input type="text" placeholder="testserver:443" v-model="additionalConfig.serverConfig.host">
                         </label>
                         <label>
-                            <input type="checkbox" v-model="sendSNI">
-                            Send SNI Extension
+                            <input type="checkbox" v-model="additionalConfig.serverConfig.doNotSendSNIExtension">
+                            Do not send SNI Extension
                         </label>
-                        <label v-if="sendSNI">Server Name (SNI):
-                            <input type="text" v-model="sniName">
+                        <label v-if="!additionalConfig.serverConfig.doNotSendSNIExtension">Server Name (SNI):
+                            <input type="text" v-model="additionalConfig.serverConfig.sniHostname">
                         </label>
                     </template>
                     <template v-else>
                         <label>Port:
-                            <input type="number" v-model="clientPort">
+                            <input type="number" v-model="additionalConfig.clientConfig.port">
                         </label>
                         <label>Trigger Script:
-                            <input type="text" v-model="triggerScript">
+                            <input type="text" v-model="additionalConfig.clientConfig.triggerScriptCommand">
                         </label>
                     </template>
                     <label>Strength:
-                        <input type="number" v-model="strength">
+                        <input type="number" v-model="config.strength">
                     </label>
                     <label>Parallel Testcases:
-                        <input type="number" v-model="parallelTestcases">
-                    </label>
-                    <label>Additional config:
-                        <input type="text" v-model="config">
+                        <input type="number" v-model="config.parallelTestCases">
                     </label>
                 </form>
             </main>
@@ -82,18 +79,26 @@ export default {
         return {
             waiting: false,
             error: false,
-            config: "",
-            testmode: "server",
-            sendSNI: false,
-            sniName: "",
+            config: {
+                testPackage: "de.rub.nds.tlstest.suite",
+                identifier: "",
+                strength: "1",
+                parallelTestCases: "1",
+                endpointMode: "SERVER"
+            },
+            additionalConfig: {
+                clientConfig: {
+                    port: 443,
+                    triggerScriptCommand: ""
+                },
+                serverConfig: {
+                    doNotSendSNIExtension: true,
+                    sniHostname: "",
+                    host: ""
+                }
+            },
             selectedWorker: this.workerId ? this.workerId : undefined,
-            serverHost: "",
-            clientPort: 443,
-            triggerScript: "",
-            identifier: "",
             dlWorkers: [] as IAnvilWorker[],
-            strength: "1",
-            parallelTestcases: "1"
         }
     },
     methods: {
@@ -101,28 +106,7 @@ export default {
             this.waiting = true;
             this.error = false;
 
-            let command = this.config;
-            if (this.identifier.length>0) {
-                command += ` -identifier ${this.identifier}`;
-            }
-            command += ` -strength ${this.strength} -parallelHandshakes ${this.parallelTestcases} ${this.testmode}`;
-            if (this.testmode == 'server') {
-                command += ` -connect ${this.serverHost}`;
-                if (this.sendSNI) {
-                    if (this.sniName.length>0) {
-                        command += ` -server_name ${this.sniName}`;
-                    }
-                } else {
-                    command += " -doNotSendSNIExtension";
-                }
-            } else {
-                command += ` -port ${this.clientPort}`;
-                if (this.triggerScript.length>0) {
-                    command += ` -triggerScript ${this.triggerScript}`;
-                }
-            }
-
-            this.$api.addJob(command.trim(), this.selectedWorker)
+            this.$api.addJob(JSON.stringify(this.config), JSON.stringify(this.additionalConfig), this.selectedWorker)
                 .then(() => {
                     this.waiting = false;
                     this.$emit("close");

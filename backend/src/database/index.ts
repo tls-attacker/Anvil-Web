@@ -11,7 +11,7 @@ class Database {
   Report = mongoose.model<IReport, ReportModel>("Report", ReportSchema)
   TestRunEdit = mongoose.model<ITestRunEdit>("TestRunEdit", TestRunEditSchema)
   TestRun = mongoose.model<ITestRun, TestRunModel>("TestRun", TestRunSchema)
-  TestCase = mongoose.model<ITestCase>("TestCase", TestCaseSchema)
+  //TestCase = mongoose.model<ITestCase>("TestCase", TestCaseSchema)
   private rawDb: mongodb.Db;
   //pcapBucket: mongodb.GridFSBucket
   //keylogfileBucket: mongodb.GridFSBucket
