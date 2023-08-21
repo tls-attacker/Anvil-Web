@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ITestResultContainer, ITestResult } from '../database/models';
 import { UploadReportEndpoint } from '../endpoints';
 

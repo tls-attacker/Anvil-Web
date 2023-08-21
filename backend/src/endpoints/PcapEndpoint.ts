@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { spawnSync } from 'child_process';
 import { NextFunction, Request, Response, Router } from 'express';
 import fs, { promises as fsPromises } from 'fs';

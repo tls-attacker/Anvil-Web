@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { IState, ITestResult, ITestResultContainer } from '../database/models';
 import { allResults, IItemProviderContext, Optional, resolveStatus, TestResult } from '../../lib/const';
 

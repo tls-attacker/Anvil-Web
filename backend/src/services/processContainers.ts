@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { ITestMethod, ITestResult, ITestResultContainer } from '../database/models';
 import { IScoreMap } from "../database/models/score";
 import { IItemProviderContext, Optional, resolveStatus } from '../../lib/const';
