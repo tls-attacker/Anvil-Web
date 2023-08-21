@@ -129,7 +129,7 @@ export module AnvilApi {
     }
 
     export function millisecondsToTime(time: number): string {
-        let seconds = time/1000;
+        let seconds = Math.floor(time/1000);
         if (seconds<60) {
             return `${seconds}s`
         } else {

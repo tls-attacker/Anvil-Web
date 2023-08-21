@@ -14,18 +14,18 @@
         <article>
             <header class="report-summary">
                 <span><strong>Test started:</strong> {{ $api.formatDate(report.Date+"") }}</span>
-                <span><strong>TestCases:</strong> {{ report.TestCaseCount }}</span>
+                <span><strong>Test Cases:</strong> {{ report.TestCaseCount }}</span>
                 <span><strong>Elapsed Time:</strong> <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
             </header>
             <main>
                 <template v-if="!report.Running">
                     <strong>Scores:</strong>
-                    <div class="score-container" v-if="false">
+                    <!--<div class="score-container">
                         <CircularProgress name="Security" :progress="report.Score.SECURITY.Percentage"/>
                         <CircularProgress name="Crypto" :progress="report.Score.CRYPTO.Percentage"/>
                         <CircularProgress name="Compliance" :progress="report.Score.COMPLIANCE.Percentage"/>
                         <CircularProgress name="Certificate" :progress="report.Score.CERTIFICATE.Percentage"/>
-                    </div>
+                    </div>-->
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :disabledTests="report.DisabledTests"/>
             </main>
@@ -33,7 +33,7 @@
                 <progress v-if="report.Running"></progress>
             </footer>
         </article>
-        <label><input type="checkbox" role="switch" checked /> Detailed View</label>
+        <!--<label><input type="checkbox" role="switch" checked /> Detailed View</label>-->
         <article>
             <header>
                 <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
@@ -69,7 +69,7 @@
         </article>
         <DeleteReportDialog v-if="showDelete" @close="showDelete = false" :identifiers="[report.Identifier]" @deleted="$router.push('/')"/>
         <CancelJobDialog v-if="showCancel" @close="showCancel = false" :job="report.Job" />
-        <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.AnvilConfig"/>
+        <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.AnvilConfig" :givenAdditionalConfig="report.AdditionalConfig"/>
     </template>
 </template>
 

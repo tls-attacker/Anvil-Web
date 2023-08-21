@@ -1,11 +1,10 @@
 <template>
     <h1>Tests</h1>
     <div id="command-bar">
-        <input type="checkbox" @click="(e) => reports.forEach((r) => selectedReports[r.Identifier] = (<HTMLInputElement>e.target).checked)"/>
+        <input type="checkbox" @click="(e) => reports.filter(matchesFilter).forEach((r) => selectedReports[r.Identifier] = (<HTMLInputElement>e.target).checked)"/>
         <input class="no-full-width" type="text" placeholder="Filter" v-model="filter"/>
         <a href="" role="button" class="negative" :disabled="Object.values(selectedReports).includes(true)?undefined:''" @click.prevent="showDeleteDialog">Delete</a>
         <a href="" role="button" :disabled="Object.values(selectedReports).includes(true)?undefined:''" @click.prevent="compare">Compare</a>
-        <a href="" role="button" :disabled="Object.values(selectedReports).includes(true)?undefined:''">Re-Run</a>
         <span style="flex: 1;"></span>
         <a href="" role="button" class="positive" @click.prevent="upload = true">Upload Test</a>
         <a href="" role="button" @click.prevent="newJob = true">Start Test</a>
@@ -19,7 +18,7 @@
     </div>
     <UploadDialog :open="upload" @close="upload = false; refreshReports()"/>
     <DeleteReportDialog v-if="deleteIdentifiers.length>0" @close="deleteIdentifiers = []" @deleted="deleteIdentifiers = []; refreshReports()" :identifiers="deleteIdentifiers"/>
-    <NewJobDialog v-if="newJob" @close="newJob=false" />
+    <NewJobDialog v-if="newJob" @close="newJob=false"/>
 </template>
 
 <script lang="ts">
@@ -59,6 +58,9 @@ export default {
         },
         showDeleteDialog() {
             this.deleteIdentifiers = Object.keys(this.selectedReports).filter((i,) => this.selectedReports[i]);
+        },
+        openRerun() {
+
         }
     },
     created() {

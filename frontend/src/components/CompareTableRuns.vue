@@ -1,36 +1,36 @@
 <template>
     <template v-if="testRuns && Object.values(testRuns).length>0">
-    <TestRunSummary :testMethod="(<ITestRun>Object.values(testRuns)[0]).TestMethod"/>
+    <TestRunSummary :testMethod="$route.query.methodName" :testClass="$route.query.className"/>
     <table role="grid">
         <thead>
             <th>Testcase</th>
-            <th v-for="identifier in identifiers">
+            <th v-for="identifier in Object.keys(testRuns)">
                 <RouterLink :to="`/tests/${identifier}/${(<ITestRun>Object.values(testRuns)[0]).TestClass}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod}`">{{ identifier.substring(0,8) }}</RouterLink>
             </th>
         </thead>
         <tbody>
             <tr>
                 <td>Strictly Succeeded</td>
-                <td v-for="identifier in identifiers">{{ testRuns[identifier].SucceededCases }}</td>
+                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].SucceededCases }}</td>
             </tr>
             <tr>
                 <td>Conceptually Succeeded</td>
-                <td v-for="identifier in identifiers">{{ testRuns[identifier].ConSucceededCases }}</td>
+                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].ConSucceededCases }}</td>
             </tr>
             <tr>
                 <td>Fully Failed</td>
-                <td v-for="identifier in identifiers">{{ testRuns[identifier].FailedCases }}</td>
+                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].FailedCases }}</td>
             </tr>
             <tr>
                 <td>Overall Result</td>
-                <td v-for="identifier in identifiers">{{ getResultSymbol(testRuns[identifier].Result) }}</td>
+                <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbol(testRuns[identifier].Result) }}</td>
             </tr>
             <tr class="header">
-                <td :colspan="identifiers.length+1">States</td>
+                <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
             </tr>
             <tr v-for="(derivation, uuid) in derivations">
                 <td>{{ uuid }}</td>
-                <td v-for="identifier in identifiers">
+                <td v-for="identifier in Object.keys(testRuns)">
                     <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid)" class="pointer">
                         {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
                     </span>
@@ -50,7 +50,7 @@ import { getResultSymbol } from '@/composables/visuals';
 
 export default {
     name: "CompareTableRuns",
-    props: ["testRuns", "identifiers"],
+    props: ["testRuns"],
     components: {TestRunSummary, TestCaseModal},
     data() {
         return {
@@ -109,7 +109,7 @@ export default {
         this.mergeCases();
     },
     watch: {
-        identifiers() {
+        testRuns() {
             this.mergeCases();
         }
     }

@@ -45,6 +45,7 @@ class AnvilController {
         for (let job of worker.jobs) {
             if (job.report) {
                 job.report.Running = false;
+                job.report.ElapsedTime = Math.floor((Date.now() - job.report.Date.getMilliseconds())/1000);
                 job.report.save();
             }
             if (job.status == AnvilJobStatus.QUEUED) {

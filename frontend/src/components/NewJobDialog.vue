@@ -73,7 +73,7 @@ import type { IAnvilWorker } from '@/lib/data_types';
 
 export default {
     name: "NewJobDialog",
-    props: ["open", "workers", "workerId", "givenConfig"],
+    props: ["workers", "workerId", "givenConfig", "givenAdditionalConfig"],
     emits: ["close"],
     data() {
         return {
@@ -122,7 +122,10 @@ export default {
             this.$api.getWorkerList().then(workerList => this.dlWorkers = workerList);
         }
         if (this.givenConfig) {
-            this.config = this.givenConfig;
+            this.config = JSON.parse(this.givenConfig);
+        }
+        if (this.givenAdditionalConfig) {
+            this.additionalConfig = JSON.parse(this.givenAdditionalConfig);
         }
     },
     computed: {

@@ -7,7 +7,7 @@
     </hgroup>
        
     <CompareTableReports v-show="Object.values(testRuns).length == 0" :reports="reports" :numReports="reports.length" />
-    <CompareTableRuns :testRuns="testRuns" :identifiers="reports.map(r => r.Identifier)" />
+    <CompareTableRuns :testRuns="testRuns" />
 </template>
 
 <script lang="ts">

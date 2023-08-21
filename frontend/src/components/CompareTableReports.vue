@@ -9,25 +9,33 @@
                 </th>
             </thead>
             <tbody>
-                <tr v-for="score in Object.keys(reports[0].Score).sort()">
+                <!--<tr v-for="score in Object.keys(reports[0].Score).sort()">
                     <td>Score {{ score }}</td>
                     <td v-for="report in reports">{{ formatScore(report.Score[score]) }}</td>
+                </tr>-->
+                <tr>
+                    <td>Strictly succeeded tests</td>
+                    <td v-for="report in reports">{{ report.StrictlySucceededTests }}</td>
                 </tr>
                 <tr>
-                    <td>Succeeded tests</td>
-                    <td v-for="report in reports">{{ report.SucceededTests }}</td>
+                    <td>Conceptually succeeded tests</td>
+                    <td v-for="report in reports">{{ report.ConceptuallySucceededTests }}</td>
                 </tr>
                 <tr>
-                    <td>Failed tests</td>
-                    <td v-for="report in reports">{{ report.FailedTests }}</td>
+                    <td>Fully failed tests</td>
+                    <td v-for="report in reports">{{ report.FullyFailedTests }}</td>
+                </tr>
+                <tr>
+                    <td>Partially failed tests</td>
+                    <td v-for="report in reports">{{ report.PartiallyFailedTests }}</td>
                 </tr>
                 <tr>
                     <td>Disabled tests</td>
                     <td v-for="report in reports">{{ report.DisabledTests }}</td>
                 </tr>
                 <tr>
-                    <td># TLS Handshakes</td>
-                    <td v-for="report in reports">{{ report.StatesCount }}</td>
+                    <td># Test Cases</td>
+                    <td v-for="report in reports">{{ report.TestCaseCount }}</td>
                 </tr>
                 <tr>
                     <td>Execution time</td>
@@ -38,7 +46,7 @@
                         <td :colspan="numReports+1">{{ testClass.substring(31) }}</td>
                     </tr>
                     <template v-for="testMethod in Object.keys(testClasses[testClass])">
-                        <tr v-if="filterMethod(testClasses[testClass][testMethod])">
+                        <tr v-if="filterMethod(testClass, testMethod)">
                             <td @click="showRun(testClass, testMethod)" class="pointer">{{ testMethod }}</td>
                             <td v-for="report in reports">
                                 <span v-if="hasTestResultFor(report, testClass, testMethod)"
@@ -103,20 +111,22 @@ export default {
                 && report.TestRuns[className] !== undefined
                 && report.TestRuns[className][methodName] !== undefined;
         },
-        filterMethod(method: ITestMethod) {
-            let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, method.ClassName, method.MethodName));
+        filterMethod(testClass: string, testMethod: string) {
+            let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, testClass, testMethod));
             if (relevantReports.length==0) return false;
-            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns[method.ClassName][method.MethodName].Result]))) return false;
+            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns[testClass][testMethod].Result]))) return false;
             // TODO put categories in testmethod, better in metadata
             if (!relevantReports.some(r => {
                 if (!r.TestRuns) return false;
-                let score = r.TestRuns[method.ClassName][method.MethodName].Score;
+                let score = r.TestRuns[testClass][testMethod].Score;
                 if (score != undefined) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);
+                } else {
+                    return true;
                 }
             })) return false;
             
-            return method.MethodName.toLowerCase().includes(this.filterText.toLowerCase());
+            return testMethod.toLowerCase().includes(this.filterText.toLowerCase());
         },
         getResultDisplay,
         getResultToolTip,
@@ -131,7 +141,7 @@ export default {
                     }
                     for (let testMethod of Object.keys(report.TestRuns[testClass])) {
                         if (!Object.keys(testMethods).includes(testMethod) && report.TestRuns[testClass][testMethod].Result != "DISABLED") {
-                            testMethods[testMethod] = report.TestRuns[testClass][testMethod].TestMethod;
+                            testMethods[testMethod] = report.TestRuns[testClass][testMethod];
                         }
                     }
                 }

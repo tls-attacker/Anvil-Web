@@ -44,7 +44,9 @@ export default {
             this.$emit('update:filteredCategories', Object.fromEntries(Object.keys(ScoreCategories).map(k => [k, true])));
         },
         resetResults() {
-            this.$emit('update:filteredResults', Object.fromEntries(Object.keys(TestResult).map(k => [k, true])));
+            let results = Object.fromEntries(Object.keys(TestResult).map(k => [k, true]));
+            results["DISABLED"] = false;
+            this.$emit('update:filteredResults', results);
         }
     },
     created() {

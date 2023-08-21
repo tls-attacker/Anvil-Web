@@ -8,18 +8,19 @@
                         <div class="grid" style="margin-bottom: 10px;">
                             <span>Date: {{ $api.formatDate(report.Date+"") }}</span>
                             <span>Elapsed Time: <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
-                            <span>States: {{ report.StatesCount }}</span>
+                            <span>Test Cases: {{ report.TestCaseCount }}</span>
                         </div>
                         <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.StrictlySucceededTests+report.ConceptuallySucceededTests" :failedTests="report.FullyFailedTests+report.PartiallyFailedTests"/>
                         <progress v-if="report.Running"></progress>
                         <div class="buttons" style="margin-top: 10px;">
                             <RouterLink :to="`tests/${report.Identifier}`" role="button" class="outline">Details</RouterLink>
-                            <a href="" role="button" class="outline">Re-Run</a>
+                            <a href="" role="button" class="outline" @click.prevent="rerun = true">Re-Run</a>
                             <a href="" role="button" v-if="report.Running" class="outline negative">Stop</a>
                         </div>
                     </div>
                     <CircularProgress :progress="calculateOverallScore(report)" name="Score" v-if="!report.Running"/>
                 </div>
+                <NewJobDialog v-if="rerun" @close="rerun = false" :givenConfig="report.AnvilConfig" :givenAdditionalConfig="report.AdditionalConfig"/>
             </article>
 </template>
 
@@ -27,15 +28,17 @@
 import type { IReport } from '@/lib/data_types';
 import CircularProgress from './CircularProgress.vue';
 import TestBar from './TestBar.vue';
+import NewJobDialog from './NewJobDialog.vue';
 
 export default {
     name: "ReportOverview",
-    components: {CircularProgress, TestBar},
+    components: { CircularProgress, TestBar, NewJobDialog },
     props: ["report", "selected"],
     emits: ["update:selected"],
     data() {
         return {
-            currentTime: Date.now()
+            currentTime: Date.now(),
+            rerun: false
         }
     },
     methods: {

@@ -12,9 +12,9 @@ export function getResultDisplay(testRun: ITestRun) {
 
 export function getResultToolTip(testRun: ITestRun) {
     let tooltip = `${testRun.CaseCount} cases`;
-    if (testRun.FailedReason != null) {
-        tooltip += "\n" + testRun.FailedReason;
-    }
+    //if (testRun.FailedReason != null) {
+    //    tooltip += "\n" + testRun.FailedReason;
+    //}
     return tooltip;
 }
 

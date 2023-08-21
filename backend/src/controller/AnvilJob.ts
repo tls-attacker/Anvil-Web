@@ -32,14 +32,26 @@ export class AnvilJob {
         this.progress = 0;
         this.testRuns = {};
         this.testRunTimeouts = {};
-        let anvilConfig = JSON.parse(config);
-        this.report = new DB.Report({
-            Identifier: anvilConfig.identifier,
-            TestEndpointType: anvilConfig.endpointMode,
-            Date: new Date(),
-            Running: true,
-            AnvilConfig: anvilConfig.config,
-            AdditionalConfig: anvilConfig.additionalConfig});
+        try {
+            let anvilConfig = JSON.parse(config);
+            this.report = new DB.Report({
+                Identifier: anvilConfig.identifier,
+                TestEndpointType: anvilConfig.endpointMode,
+                Date: new Date(),
+                Running: true,
+                PartiallyFailedTests: 0,
+                FullyFailedTests: 0,
+                ConceptuallySucceededTests: 0,
+                StrictlySucceededTests: 0,
+                DisabledTests: 0,
+                FinishedTests: 0,
+                TestCaseCount: 0,
+                AnvilConfig: anvilConfig.config,
+                AdditionalConfig: anvilConfig.additionalConfig});
+        } catch (error) {
+            console.error("Cannot fully create job. Config cannot be parsed as json: " + config);
+        }
+        
     }
 
     public apiObject(): IAnvilJob {

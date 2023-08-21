@@ -15,7 +15,7 @@ export namespace WorkerEndpoint {
             this.router = router;
             router.post("/worker/register", this.registerWorker);
             router.post("/worker/fetch", this.fetch);
-            router.post("/worker/update/scan", this.updateScan);
+            router.post("/worker/update/status", this.updateStatus);
             router.post("/worker/update/report", this.updateReport);
             router.post("/worker/update/testrun", this.updateTestRun);
             router.post("/worker/update/testcase", this.updateTestCase);
@@ -69,11 +69,11 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("id not valid"));
             }
             if (!job.report) {
-                return next(new BadRequest("no associated report posted before"));
+                return next(new BadRequest("no associated report found"));
             }
             let newTestRun = req.body.testRun as ITestRun;
-            let className = newTestRun.TestMethod;
-            let methodName = newTestRun.TestClass;
+            let className = newTestRun.TestClass;
+            let methodName = newTestRun.TestMethod;
             let testRun = job.testRuns[className+":"+methodName];
             if (!testRun) {
                 job.testRuns[className+":"+methodName] = new DB.TestRun(newTestRun);
@@ -83,32 +83,31 @@ export namespace WorkerEndpoint {
             }
             testRun.ContainerId = job.report._id;
             
-            if (req.body.finished) {
+            if (req.body.testRun.finished) {
                 job.report.FinishedTests++;
+                job.report.TestCaseCount += testRun.TestCases.length;
                 job.progress = Math.round(100*(job.report.FinishedTests)/job.report.TotalTests);
 
-                if (testRun.TestCases.length == 0) { // test has no cases, count testrun
-                    switch (testRun.Result) {
-                        case TestResult.STRICTLY_SUCCEEDED:
-                            job.report.StrictlySucceededTests++;
-                            break;
-                        case TestResult.CONCEPTUALLY_SUCCEEDED:
-                            job.report.ConceptuallySucceededTests++;
-                            break;
-                        case TestResult.FULLY_FAILED:
-                            job.report.FullyFailedTests++;
-                            break;
-                        case TestResult.PARTIALLY_FAILED:
-                            job.report.PartiallyFailedTests++;
-                            break;
-                        case TestResult.DISABLED:
-                        case TestResult.PARSER_ERROR:
-                        case TestResult.NOT_SPECIFIED:
-                        default:
-                            job.report.DisabledTests++;
-                    }
+                switch (testRun.Result) {
+                    case TestResult.STRICTLY_SUCCEEDED:
+                        job.report.StrictlySucceededTests++;
+                        break;
+                    case TestResult.CONCEPTUALLY_SUCCEEDED:
+                        job.report.ConceptuallySucceededTests++;
+                        break;
+                    case TestResult.FULLY_FAILED:
+                        job.report.FullyFailedTests++;
+                        break;
+                    case TestResult.PARTIALLY_FAILED:
+                        job.report.PartiallyFailedTests++;
+                        break;
+                    case TestResult.DISABLED:
+                    case TestResult.PARSER_ERROR:
+                    case TestResult.NOT_SPECIFIED:
+                    default:
+                        job.report.DisabledTests++;
                 }
-
+                
                 clearTimeout(job.reportTimeout);
                 job.reportTimeout = setTimeout(() => job.report.save(), 3000);
             }
@@ -125,53 +124,41 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("id not valid"));
             }
             if (!job.report) {
-                return next(new BadRequest("no associated report posted before"));
+                return next(new BadRequest("no associated report found"));
             }
             let newTestCase = req.body.testCase as ITestCase;
             let className = req.body.className;
             let methodName = req.body.methodName;
             let testRun = job.testRuns[className+":"+methodName];
             if (!testRun) {
-                return next(new BadRequest("no associated testrun posted before"));
+                testRun = new DB.TestRun({
+                    TestClass: className,
+                    TestMethod: methodName,
+                    CaseCount: 0,
+                    TestCases: [],
+                    Result: "INCOMPLETE"
+                });
+                testRun.ContainerId = job.report._id;
+                job.testRuns[className+":"+methodName] = testRun;
             }
             testRun.TestCases.push(newTestCase);
             testRun.CaseCount++;
             clearTimeout(job.testRunTimeouts[className+":"+methodName])
             job.testRunTimeouts[className+":"+methodName] = setTimeout(() => testRun.save(), 3000);
-
-            job.report.TestCaseCount++;
-            switch (newTestCase.Result) {
-                case TestResult.STRICTLY_SUCCEEDED:
-                    job.report.StrictlySucceededTests++;
-                    break;
-                case TestResult.CONCEPTUALLY_SUCCEEDED:
-                    job.report.ConceptuallySucceededTests++;
-                    break;
-                case TestResult.FULLY_FAILED:
-                    job.report.FullyFailedTests++;
-                    break;
-                case TestResult.PARTIALLY_FAILED:
-                    job.report.PartiallyFailedTests++;
-                    break;
-                case TestResult.DISABLED:
-                case TestResult.PARSER_ERROR:
-                case TestResult.NOT_SPECIFIED:
-                default:
-                    job.report.DisabledTests++;
-            }
-            clearTimeout(job.reportTimeout);
-            job.reportTimeout = setTimeout(() => job.report.save(), 3000);
-
             res.json({status: "OK"});
         }
 
-        private async updateScan(req: Request, res: Response, next: NextFunction) {
+        private async updateStatus(req: Request, res: Response, next: NextFunction) {
             let jobId = req.body.jobId;
+            let status = req.body.status;
             let job = AC.getJob(jobId as string);
             if (!job) {
                 return next(new BadRequest("id not valid"));
             }
-            job.status = AnvilJobStatus.TESTING;
+            job.status = status;
+            if (status == AnvilJobStatus.TESTING && job.report) {
+                await job.report.save()
+            }
             res.json({status: "OK"});
         }
     }

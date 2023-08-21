@@ -69,10 +69,16 @@ export namespace ReportEnpoint {
       let job = AC.getAllJobs().find(j => j.report && j.report.Identifier == identifier);
       let report;
       if (job) {
-        report = structuredClone(job.report);
+        report = job.report.toObject();
         report.Job = job.apiObject();
-        // todo add test runs
-        // ...
+        report.TestRuns = Object.values(job.testRuns).reduce(
+          (classMap: {[id: string]: any}, currentRun: ITestRun) => {
+              if (!classMap[currentRun.TestClass]) {
+                classMap[currentRun.TestClass] = {};
+              }
+              classMap[currentRun.TestClass][currentRun.TestMethod] = currentRun;
+              return classMap;
+          }, {});
       } else {
         report = await DB.Report.findOne({Identifier: identifier}).lean().exec();
         if (!report) {
@@ -80,10 +86,9 @@ export namespace ReportEnpoint {
         }
         // add test runs
         await DB.Report.addTestRuns(report);
+        // overlay edits
+        await DB.Report.overlayEdits(report);
       }
-
-      // overlay edits
-      await DB.Report.overlayEdits(report);
 
       res.send(report);
     }
@@ -111,23 +116,33 @@ export namespace ReportEnpoint {
       const identifier = req.params.identifier
       const className = req.params.className
       const methodName = req.params.methodName
+
+      let job = AC.getAllJobs().find(j => j.report && j.report.Identifier == identifier);
+      let testRun;
+      if (job) {
+
+        testRun = job.testRuns[className+":"+methodName];
+
+      } else {
     
-      const report = await DB.Report.findOne({ Identifier: identifier }).select({_id: 1}).lean().exec()
-      if (!report) {
-        return next(new BadRequest("identifier not found"));
-      }
-      const testRun = await DB.TestRun.findOne({
-        ContainerId: report._id.toString(), 
-        'TestClass': className, 
-        'TestMethod': methodName
-      }).lean().exec()
+        const report = await DB.Report.findOne({ Identifier: identifier }).select({_id: 1}).lean().exec()
+        if (!report) {
+          return next(new BadRequest("identifier not found"));
+        }
+        testRun = await DB.TestRun.findOne({
+          ContainerId: report._id.toString(), 
+          'TestClass': className, 
+          'TestMethod': methodName
+        }).lean().exec()
 
-      if (!testRun) {
-        return next(new BadRequest("testrun not found"));
-      }
+        if (!testRun) {
+          return next(new BadRequest("testrun not found"));
+        }
 
-      await DB.TestRun.overlayEdits(testRun);
-      DB.TestRun.countTestCases(testRun);
+        await DB.TestRun.overlayEdits(testRun);
+        DB.TestRun.countTestCases(testRun);
+
+      }
       res.send(testRun)
     }
   }
