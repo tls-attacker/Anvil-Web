@@ -69,7 +69,7 @@ export namespace UploadReportEndpoint {
       res.send("Already exists")
       return
     }
-    report.Date = new Date(report.Date)
+    
     let testRun = new DB.Report(report)
     await testRun.save()
     const entries = zipFile.getEntries()

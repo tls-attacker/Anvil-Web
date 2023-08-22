@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express, { NextFunction, Request, Response } from "express";
 import fileUpload from "express-fileupload";
+import * as OpenApiValidator from "express-openapi-validator";
 import DB from './database';
 import { UploadReportEndpoint } from './endpoints';
 import { ReportEnpoint } from './endpoints/ReportEndpoint';
@@ -24,7 +25,19 @@ app.use(express.json({
 }));
 app.use(cors());
 app.use(fileUpload())
+app.use(OpenApiValidator.middleware({
+  apiSpec: '../openapi.yaml',
+  validateResponses: true
+}))
 app.use('/api/v2', router)
+// error handler
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err); // dump error to console for debug
+  res.status(err.status || 500).json({
+    message: err.message,
+    errors: err.errors,
+  });
+});
 
 new UploadReportEndpoint.Controller(router)
 //new KeylogFileEndpoint.Controller(router)

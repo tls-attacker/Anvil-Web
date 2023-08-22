@@ -86,7 +86,9 @@ export namespace WorkerEndpoint {
             if (req.body.testRun.finished) {
                 job.report.FinishedTests++;
                 job.report.TestCaseCount += testRun.TestCases.length;
-                job.progress = Math.round(100*(job.report.FinishedTests)/job.report.TotalTests);
+                if (job.report.TotalTests>0) {
+                    job.progress = Math.round(100*(job.report.FinishedTests)/job.report.TotalTests);
+                }
 
                 switch (testRun.Result) {
                     case TestResult.STRICTLY_SUCCEEDED:

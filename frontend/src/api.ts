@@ -8,7 +8,8 @@ export module AnvilApi {
     }
 
     export function getReports(identifiers?: string[], detailed?: boolean): Promise<IReport[]> {
-        return getApiObject("report" + buildQueryString({identifiers: identifiers, detailed: detailed+""}));
+        let query = detailed == undefined ? {identifiers: identifiers} : {identifiers: identifiers, detailed: ""+detailed}
+        return getApiObject("report" + buildQueryString(query));
     }
 
     export function getReport(identifier: string): Promise<IReport> {
@@ -36,24 +37,24 @@ export module AnvilApi {
     }
 
     export function getWorkerList(): Promise<IAnvilWorker[]> {
-        return getApiObject("/control/worker");
+        return getApiObject("control/worker");
     }
 
     export function getJobList(): Promise<IAnvilJob[]> {
-        return getApiObject("/control/job");
+        return getApiObject("control/job");
     }
 
     export function addJob(config: any, additionalConfig: any, workerId?: string): Promise<IAnvilJob> {
         let apiObject = workerId ? {config: config, additionalConfig: additionalConfig, workerId: workerId} : {config: config, additionalConfig: additionalConfig};
-        return postApiObject("/control/job", apiObject);
+        return postApiObject("control/job", apiObject);
     }
 
     export function cancelJob(jobId: string): Promise<IAnvilJob> {
-        return postApiObject(`/control/job/${jobId}/cancel`, {});
+        return postApiObject(`control/job/${jobId}/cancel`, {});
     }
 
     export function shutdownWorker(workerId: string): Promise<IAnvilJob> {
-        return postApiObject(`/control/worker/${workerId}/shutdown`, {});
+        return postApiObject(`control/worker/${workerId}/shutdown`, {});
     }
 
 

@@ -46,6 +46,20 @@ paths:
       summary: Get all reports
       description: Gets a list of all reports, containing its testruns but not testcases.
       operationId: getReports
+      parameters: 
+        - name: detailed
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: identifiers
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Identifier'
       responses:
         '200':
           description: successful operation
@@ -143,7 +157,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: identifiers[]
+        - name: identifiers
           in: query
           required: true
           schema:
@@ -157,8 +171,6 @@ paths:
             application/json: 
               schema:
                 type: object
-                propertyNames: 
-                  $ref: '#/components/schemas/Identifier'
                 additionalProperties: 
                   $ref: '#/components/schemas/TestRun'
   /worker/register:
@@ -209,12 +221,12 @@ paths:
               schema:
                 type: object
                 $ref: '#/components/schemas/AnvilCommand'
-  /worker/update/scan:
+  /worker/update/status:
     post:
       tags:
         - worker
-      summary: Signal, that the worker started scanning
-      description: Signal, that the worker is now doing a feature extraction scan
+      summary: Signal, that the job status has changed.
+      description: Signal, that the worker is now doing a feature extraction scan or started testing.
       requestBody:
         content:
           application/json:
@@ -223,6 +235,11 @@ paths:
               properties: 
                 jobId:
                   type: string
+                status:
+                  type: string
+                  enum:
+                    - "TESTING"
+                    - "SCANNING"
       responses: 
         '200':
           description: successful operation
@@ -331,8 +348,9 @@ paths:
           content:
             application/json: 
               schema:
-                type: object
-                $ref: '#/components/schemas/AnvilWorker'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnvilWorker'
   /control/worker/{id}:
     get:
       tags:
@@ -351,9 +369,8 @@ paths:
           content:
             application/json: 
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AnvilWorker'
+                type: object
+                $ref: '#/components/schemas/AnvilWorker'
   /control/worker/{id}/shutdown:
     post:
       tags:
@@ -398,11 +415,13 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - "config"
               properties: 
                 config:
-                  type: object
+                  type: string
                 additionalConfig:
-                  type: object
+                  type: string
                 workerId:
                   type: string
       responses: 
@@ -517,13 +536,16 @@ components:
         identifier:
           $ref: '#/components/schemas/Identifier'
         config:
-          type: object
+          type: string
         additionalConfig:
-          type: object
+          type: string
+          nullable: true
         workerId:
           type: string
+          nullable: true
         workerName:
           type: string
+          nullable: true
     AnvilWorker:
       type: object
       properties: 
@@ -547,7 +569,7 @@ components:
           type: boolean
     Identifier:
       type: string
-      examples: ["openssl-server", "matrixssl-client"]
+      example: "openssl-server"
     Report:
       type: object
       properties:
@@ -556,40 +578,40 @@ components:
         Date:
           type: string
           format: date-time
-          examples: ["2022-05-22T16:07:30.361Z"]
+          example: "2022-05-22T16:07:30.361Z"
         DisplayName:
           type: string
-          examples: ["openssl-server"]
+          example: "openssl-server"
         Running:
           type: boolean
         ElapsedTime:
           type: integer
-          examples: [12345]
+          example: 12345
         FailedTests:
           type: integer
-          examples: [10]
+          example: 10
         SucceededTests:
           type: integer
-          examples: [10]
+          example: 10
         DisabledTests:
           type: integer
-          examples: [10]
+          example: 10
         TotalTests:
           type: integer
-          examples: [10]
+          example: 10
         FinishedTests:
           type: integer
-          examples: [10]
+          example: 10
         StatesCount:
           type: integer
-          examples: [10]
+          example: 10
         Score:
           $ref: '#/components/schemas/ScoreMap'
         TestEndpointType:
           type: string
           enum: 
-            - "server"
-            - "client"
+            - "SERVER"
+            - "CLIENT"
         Config:
           type: string
     ScoreCategory:
@@ -608,8 +630,6 @@ components:
         - "COMPLIANCE"
     ScoreMap:
       type: object
-      propertyNames: 
-        $ref: '#/components/schemas/ScoreCategory'
       additionalProperties: 
         $ref: '#/components/schemas/Score'
     Score:
@@ -631,29 +651,6 @@ components:
         - "MEDIUM"
         - "HIGH"
         - "CRITICAL"
-    TestMethod:
-      type: object
-      properties: 
-        Description:
-          type: string
-        TestDescription:
-          type: string
-        TlsVersion:
-          type: string
-          examples: ["TLS 1.3"]
-        RFC:
-          type: object
-          properties:
-            Section:
-              type: string
-            number:
-              type: integer
-        MethodName:
-          type: string
-        DisplayName:
-          type: string
-        ClassName:
-          type: string
     TestResult:
       type: string
       enum:
@@ -669,7 +666,11 @@ components:
       type: object
       properties: 
         TestMethod:
-          $ref: '#/components/schemas/TestMethod'
+          type: string
+          example: negotiatesEncThenMacExtOnlyWithBlockCiphers
+        TestClass:
+          type: string
+          example: de.rub.nds.tlstest.suite.tests.server.tls12.rfc7366.EncThenMacExtension
         Result:
           $ref: '#/components/schemas/TestResult'
         HasStateWithAdditionalResultInformation:
@@ -678,8 +679,10 @@ components:
           type: boolean
         DisabledReason:
           type: string
+          nullable: true
         FailedReason:
           type: string
+          nullable: true
         FailedStacktrace:
           type: string
         ElapsedTime:
@@ -700,6 +703,7 @@ components:
           $ref: '#/components/schemas/ScoreMap'
         FailureInducingCombinations:
           type: object
+          nullable: true
           additionalProperties: 
             type: string
     TestCase:
@@ -715,8 +719,10 @@ components:
           $ref: '#/components/schemas/TestResult'
         AdditionalResultInformation:
           type: string
+          nullable: true
         AdditionalTestInformation:
           type: string
+          nullable: true
         SrcPort:
           type: integer
         DstPort:
@@ -731,4 +737,5 @@ components:
           type: string
         Stacktrace:
           type: string
+          nullable: true
         
