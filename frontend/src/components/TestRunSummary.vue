@@ -59,5 +59,7 @@ export default {
 .summary-main-flex {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 20px;
 }
 </style>

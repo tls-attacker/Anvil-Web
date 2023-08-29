@@ -240,6 +240,8 @@ paths:
                   enum:
                     - "TESTING"
                     - "SCANNING"
+                totalTests:
+                  type: integer
       responses: 
         '200':
           description: successful operation
@@ -702,26 +704,28 @@ components:
         Score:
           $ref: '#/components/schemas/ScoreMap'
         FailureInducingCombinations:
-          type: object
+          type: array
           nullable: true
-          additionalProperties: 
-            type: string
+          items:
+            type: object
     TestCase:
       type: object
       properties: 
         DerivationContainer:
           type: object
-          additionalProperties: 
-            type: string
         DisplayName:
           type: string
         Result:
           $ref: '#/components/schemas/TestResult'
         AdditionalResultInformation:
-          type: string
+          type: array
+          items:
+            type: string
           nullable: true
         AdditionalTestInformation:
-          type: string
+          type: array
+          items:
+            type: string
           nullable: true
         SrcPort:
           type: integer

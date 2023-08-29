@@ -3,19 +3,23 @@
         <input type="text" placeholder="Filter..." :value="filterText" @input="$emit('update:filterText', (<HTMLInputElement>$event.target).value)"/>
         <details>
             <summary role="button">Test Result</summary>
-            <label v-for="result of Object.keys(filteredResults)">
-                <input type="checkbox" :checked="filteredResults[result]" @change="updateResults(result, (<HTMLInputElement>$event.target).checked)"/>
-                    {{ formatEnum(result) }}
-            </label>
-            <a href="" @click.prevent="resetResults()">Reset</a>
+            <div>
+                <label v-for="result of Object.keys(filteredResults)">
+                    <input type="checkbox" :checked="filteredResults[result]" @change="updateResults(result, (<HTMLInputElement>$event.target).checked)"/>
+                        {{ formatEnum(result) }}
+                </label>
+                <a href="" @click.prevent="resetResults()">Reset</a>
+            </div>
         </details>
         <details>
             <summary role="button">Category</summary>
-            <label v-for="category of Object.keys(filteredCategories)">
-                <input type="checkbox" :checked="filteredCategories[category]" @change="updateCategories(category, (<HTMLInputElement>$event.target).checked)"/>
-                    {{ formatEnum(category) }}
-            </label>
-            <a href="" @click.prevent="resetCategories()">Reset</a>
+            <div>
+                <label v-for="category of Object.keys(filteredCategories)">
+                    <input type="checkbox" :checked="filteredCategories[category]" @change="updateCategories(category, (<HTMLInputElement>$event.target).checked)"/>
+                        {{ formatEnum(category) }}
+                </label>
+                <a href="" @click.prevent="resetCategories()">Reset</a>
+            </div>
         </details>
     </div>
 </template>

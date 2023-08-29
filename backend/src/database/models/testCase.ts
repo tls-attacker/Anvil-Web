@@ -4,7 +4,7 @@ import { Schema } from "mongoose";
 export const TestCaseSchema = new Schema({
   ParameterCombination: {
     type: Schema.Types.Map,
-    of: String,
+    of: Schema.Types.Mixed,
     default: new Map()
   },
   DisplayName: String,

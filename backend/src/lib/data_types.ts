@@ -130,7 +130,7 @@ export interface ITestMethod {
 }
 
 export interface ITestCase {
-    ParameterCombination: { [identifier: string]: string }
+    ParameterCombination: { [identifier: string]: string | number | boolean }
     DisplayName: string
     Result: string
     AdditionalResultInformation: string[]

@@ -56,7 +56,7 @@ export const ReportSchema = new Schema({
           {Containers: null},
         ]
       }).sort({"createdAt": "asc"}).lean().exec()
-      let resultScoreDelta: IScoreDeltaMap = {}
+      /* let resultScoreDelta: IScoreDeltaMap = {}
       if (report.TestRuns) {
         for (let edit of (await edits)) {
           const run = report.TestRuns[edit.ClassName][edit.MethodName]
@@ -77,7 +77,7 @@ export const ReportSchema = new Schema({
         score.Reached += v.ReachedDelta
         score.Total   += v.TotalDelta
         score.Percentage = (score.Reached / score.Total * 100)
-      }
+      } */
       return report;
     }
   },

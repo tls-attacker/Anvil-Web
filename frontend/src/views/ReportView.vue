@@ -56,8 +56,10 @@
                                             {{ testRun.TestMethod }}
                                             </RouterLink>
                                         </td>
-                                        <td :data-tooltip="getResultToolTip(testRun)">
-                                            {{ getResultDisplay(testRun) }}
+                                        <td>
+                                            <span :data-tooltip="getResultToolTip(testRun)">
+                                                {{ getResultDisplay(testRun) }}
+                                            </span>
                                         </td>
                                     </tr>
                                 </template>
@@ -173,7 +175,8 @@ h1 {
     justify-content: center;
 }
 td, th {
-    text-align: center;
+    text-align: right;
+    padding-right: 50px;
 }
 td:first-child, th:first-child {
     text-align: start;

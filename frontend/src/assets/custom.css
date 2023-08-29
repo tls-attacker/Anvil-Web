@@ -40,3 +40,12 @@
 .flex-header > * {
     height: fit-content;
 }
+details[open] > summary[role=button] + * {
+    background-color: rgb(230, 236, 237);
+    padding: 20px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+details[open] > summary[role=button] {
+    margin-bottom: 0;
+}

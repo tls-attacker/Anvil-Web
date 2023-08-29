@@ -29,7 +29,7 @@ export const TestRunSchema = new Schema({
   Score: ScoreMapSchmaObject,
   FailureInducingCombinations: [{
     type: Schema.Types.Map,
-    of: String,
+    of: Schema.Types.Mixed,
     default: new Map()
   }]
 },
@@ -57,7 +57,7 @@ export const TestRunSchema = new Schema({
         //result.matchingEdits = <any>edits
 
         // updates result.Score inplace
-        calculateScoreDelta(testRun.Score, edits[0].newResult)
+        //calculateScoreDelta(testRun.Score, edits[0].newResult)
       }
 
       return testRun;

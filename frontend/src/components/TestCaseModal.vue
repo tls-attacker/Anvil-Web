@@ -3,9 +3,10 @@
             <article>
                 <header>
                 <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')"></a>
-                {{ testCase.uuid }}
+                Test Case Details
                 </header>
                 <main>
+                    <p><strong>UUID: </strong>{{ testCase.uuid }}</p>
                     <p><strong>Result: </strong>{{ testCase.Result }}</p>
                     <p><strong>SrcPort: </strong>{{ testCase.SrcPort }}</p>
                     <p><strong>DstPort: </strong>{{ testCase.DstPort }}</p>
@@ -45,5 +46,15 @@ export default {
 <style scoped>
 td {
     word-break: break-all;
+}
+article {
+    max-width: 1000px;
+}
+th {
+    font-weight: bold;
+    background-color: rgb(209, 209, 209);
+}
+p {
+    margin-bottom: 10px;
 }
 </style>

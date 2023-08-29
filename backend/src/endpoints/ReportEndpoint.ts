@@ -69,7 +69,7 @@ export namespace ReportEnpoint {
       let job = AC.getAllJobs().find(j => j.report && j.report.Identifier == identifier);
       let report;
       if (job) {
-        report = job.report.toObject();
+        report = job.report.toObject({flattenMaps: true});
         report.Job = job.apiObject();
         report.TestRuns = Object.values(job.testRuns).reduce(
           (classMap: {[id: string]: any}, currentRun: ITestRun) => {
@@ -121,7 +121,7 @@ export namespace ReportEnpoint {
       let testRun;
       if (job) {
 
-        testRun = job.testRuns[className+":"+methodName];
+        testRun = job.testRuns[className+":"+methodName].toObject({flattenMaps: true});
 
       } else {
     

@@ -138,7 +138,8 @@ export namespace WorkerEndpoint {
                     TestMethod: methodName,
                     CaseCount: 0,
                     TestCases: [],
-                    Result: "INCOMPLETE"
+                    Result: "INCOMPLETE",
+                    Score: null
                 });
                 testRun.ContainerId = job.report._id;
                 job.testRuns[className+":"+methodName] = testRun;
@@ -159,7 +160,10 @@ export namespace WorkerEndpoint {
             }
             job.status = status;
             if (status == AnvilJobStatus.TESTING && job.report) {
-                await job.report.save()
+                if (req.body.totalTests) {
+                    job.report.TotalTests = req.body.totalTests;
+                }
+                await job.report.save();
             }
             res.json({status: "OK"});
         }
