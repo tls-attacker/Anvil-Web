@@ -12,8 +12,16 @@
                     <p><strong>DstPort: </strong>{{ testCase.DstPort }}</p>
                     <p><strong>Start: </strong>{{ testCase.StartTimestamp }}</p>
                     <p><strong>End: </strong>{{ testCase.EndTimestamp }}</p>
-                    <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>{{ testCase.AdditionalResultInformation }}</p>
-                    <p v-if="testCase.AdditionalTestInformation"><strong>AdditionalTestInformation: </strong>{{ testCase.AdditionalTestInformation }}</p>
+                    <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>
+                        <ul>
+                            <li v-for="ari of testCase.AdditionalResultInformation"> {{ ari }}</li>
+                        </ul>
+                    </p>
+                    <p v-if="testCase.AdditionalTestInformation"><strong>AdditionalTestInformation: </strong>
+                        <ul>
+                            <li v-for="ati of testCase.AdditionalTestInformation"> {{ ati }}</li>
+                        </ul>
+                    </p>
                     <p><strong>Derivations:</strong>
                     <table role="grid">
                         <thead>

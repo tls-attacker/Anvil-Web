@@ -28,8 +28,8 @@ export module AnvilApi {
         });
     }
 
-    export function getTestRun(identifier: string, className: string, methodName: string): Promise<ITestRun> {
-        return getApiObject(`report/${identifier}/testRuns/${className}/${methodName}`);
+    export function getTestRun(identifier: string, testId: string): Promise<ITestRun> {
+        return getApiObject(`report/${identifier}/testRuns/${testId}`);
     }
 
     export function getTestRuns(identifiers: string[], className: string, methodName: string): Promise<{[identifier: string]: ITestRun}> {
@@ -148,7 +148,20 @@ export module AnvilApi {
 
     let metaData = {} as {[key: string]: any};
     fetch("/src/assets/metadata.json").then(r => r.json()).then(o => metaData = o);
-    export function getMetaData(testClass: string, testMethod: string): any {
-        return metaData[testClass+"."+testMethod];
+    export function getMetaData(testId: string): any {
+        return metaData[testId];
+    }
+    export function getScoreCategories(): string[] {
+        let result = [] as string[]
+        for (let test of Object.values(metaData)) {
+            if (test.severityLevels) {
+                for (let c of Object.keys(test.severityLevels)) {
+                    if (!result.includes(c)) {
+                        result.push(c);
+                    }
+                }
+            }
+        }
+        return result;
     }
 }

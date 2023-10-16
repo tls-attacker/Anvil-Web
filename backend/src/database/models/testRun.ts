@@ -1,6 +1,5 @@
 import { TestMethodSchemaObject } from "./testMethod";
 import { Model, ObjectId, Schema, Types } from 'mongoose';
-import { ScoreMapSchmaObject, calculateScoreDelta } from './score';
 import { ITestRun, TestResult } from "../../lib/data_types";
 import DB from "../index"
 import { TestCaseSchema } from "./testCase";
@@ -18,6 +17,7 @@ export const TestRunSchema = new Schema({
   },
   TestMethod: String,
   TestClass: String,
+  TestId: String,
   Result: String,
   HasStateWithAdditionalResultInformation: Boolean,
   HasVaryingAdditionalResultInformation: Boolean,
@@ -26,7 +26,10 @@ export const TestRunSchema = new Schema({
   ElapsedTime: Number,
   TestCases: [TestCaseSchema],
   CaseCount: Number,
-  Score: ScoreMapSchmaObject,
+  Score: {
+    type: Map,
+    of: Number
+  },
   FailureInducingCombinations: [{
     type: Schema.Types.Map,
     of: Schema.Types.Mixed,
@@ -41,8 +44,7 @@ export const TestRunSchema = new Schema({
           {Containers: {"$in": [testRun.ContainerId.toString()]}},
           {Containers: null},
         ],
-        MethodName: testRun.TestMethod,
-        ClassName: testRun.TestClass
+        TestId: testRun.TestId,
       }).sort({createdAt: 'desc'}).lean().exec()
 
       if (edits.length > 1) {
@@ -87,4 +89,4 @@ TestRunSchema.index({Result: 1})
 
 // This index also helps with searches just for ContainerId
 // https://docs.mongodb.com/manual/core/index-compound/
-TestRunSchema.index({ContainerId: 1, "TestClass": 1, "TestMethod": 1})
+TestRunSchema.index({ContainerId: 1, "TestId": 1})

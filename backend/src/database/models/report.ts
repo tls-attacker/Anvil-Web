@@ -1,6 +1,5 @@
 import { Model, Schema, Types } from "mongoose";
-import { ScoreMapSchmaObject, calculateScoreDelta } from './score';
-import { CategoriesStrings, IScoreDeltaMap, IReport, ITestRun } from "../../lib/data_types";
+import { IReport, ITestRun } from "../../lib/data_types";
 import DB from "../index"
 
 export interface ReportModel extends Model<IReport> {
@@ -22,7 +21,10 @@ export const ReportSchema = new Schema({
   DisabledTests: Number,
   TotalTests: Number,
   FinishedTests: Number,
-  Score: ScoreMapSchmaObject,
+  Score: {
+    type: Map,
+    of: Number
+  },
   TestCaseCount: Number,
   TestEndpointType: String,
   Running: Boolean,
@@ -31,22 +33,8 @@ export const ReportSchema = new Schema({
 }, {
   statics: {
     async addTestRuns(report: IReport & {_id: Types.ObjectId}) {
-      const runs = await DB.TestRun.aggregate([
-        { $project: {TestCases: 0}},
-        { $match: {ContainerId: report._id} },
-        { $group: {_id: "$TestClass", result: {$addToSet: "$$ROOT"}} }
-      ]).exec();
-      // reduce test runs into object by id as key (classname -> methodname -> testrun)
-      let runMap = runs.reduce(
-          (classMap: {[id: string]: any}, runArray: any) => {
-              classMap[runArray._id] = runArray.result.reduce(
-                (methodMap: {[id: string]: ITestRun}, runObject: ITestRun) => {
-                  methodMap[runObject.TestMethod] = runObject;
-                  return methodMap;
-                }, {});
-              return classMap;
-          }, {});
-          report.TestRuns = runMap;
+      const runs = await DB.TestRun.find({ContainerId: report._id}, "-TestCases").lean().exec();
+      report.TestRuns = runs;
       return report;
     },
     async overlayEdits(report: IReport & {_id: Types.ObjectId}) {

@@ -108,7 +108,7 @@ paths:
             application/json: 
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
-  /report/{identifier}/testRuns/{className}/{methodName}:
+  /report/{identifier}/testRuns/{testId}:
     get:
       tags:
         - report
@@ -122,12 +122,7 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/Identifier'
-        - name: className
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: methodName
+        - name: testId
           in: path
           required: true
           schema:
@@ -139,7 +134,7 @@ paths:
             application/json: 
               schema:
                 $ref: '#/components/schemas/TestRun'
-  /testRun/{className}/{methodName}:
+  /testRun/{testId}:
     get:
       tags:
         - testrun
@@ -147,12 +142,7 @@ paths:
       description: Get multiple testruns for the same method, but from different reports
       operationId: getTestruns
       parameters: 
-        - name: className
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: methodName
+        - name: testId
           in: path
           required: true
           schema:
@@ -608,7 +598,8 @@ components:
           type: integer
           example: 10
         Score:
-          $ref: '#/components/schemas/ScoreMap'
+          type: object
+          additionalProperties: true
         TestEndpointType:
           type: string
           enum: 
@@ -616,35 +607,6 @@ components:
             - "CLIENT"
         Config:
           type: string
-    ScoreCategory:
-      type: string
-      enum: 
-        - "ALERT"
-        - "CVE"
-        - "CERTIFICATE"
-        - "CRYPTO"
-        - "DEPRECATED"
-        - "HANDSHAKE"
-        - "MESSAGESTRUCTURE"
-        - "RECORDLAYER"
-        - "SECURITY"
-        - "INTEROPERABILITY"
-        - "COMPLIANCE"
-    ScoreMap:
-      type: object
-      additionalProperties: 
-        $ref: '#/components/schemas/Score'
-    Score:
-      type: object
-      properties: 
-        Total:
-          type: number
-        Reached:
-          type: number
-        Percentage:
-          type: number
-        SeverityLevel:
-          $ref: '#/components/schemas/SeverityLevel'
     SeverityLevel:
       type: string
       enum:
@@ -702,7 +664,8 @@ components:
         FailedCases:
           type: integer
         Score:
-          $ref: '#/components/schemas/ScoreMap'
+          type: object
+          additionalProperties: true
         FailureInducingCombinations:
           type: array
           nullable: true

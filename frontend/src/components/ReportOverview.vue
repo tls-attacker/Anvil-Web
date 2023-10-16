@@ -43,13 +43,11 @@ export default {
     },
     methods: {
         calculateOverallScore(report: IReport) {
-            //todo reenable
-            return 20;
             let count = 0;
             let score = 0;
             for (let category of Object.keys(report.Score)) {
                 // @ts-ignore
-                score += report.Score[category].Percentage;
+                score += report.Score[category];
                 count += 1;
             }
             return score/count;

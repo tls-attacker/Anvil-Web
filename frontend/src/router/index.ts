@@ -29,7 +29,7 @@ const router = createRouter({
       component: ReportView
     },
     {
-      path: '/tests/:identifier/:className/:methodName',
+      path: '/tests/:identifier/:testId',
       name: 'TestRunView',
       component: TestRunView
     }

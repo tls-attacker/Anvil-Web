@@ -1,8 +1,7 @@
 import { BadRequest } from '../errors';
 import { NextFunction, Request, Response, Router } from 'express'
 import DB, { FileType } from '../database';
-import { CategoriesStrings, IScoreDeltaMap, ITestRun, TestResult } from '../lib/data_types';
-import { calculateScoreDelta } from '../database/models/score';
+import { ITestRun, TestResult } from '../lib/data_types';
 import { ObjectId } from 'mongoose';
 import { AC } from '../controller/AnvilController';
 import { AnvilJob } from '../controller/AnvilJob';
@@ -27,7 +26,7 @@ export namespace ReportEnpoint {
         .get(this.getReport.bind(this))
         .delete(this.deleteReport.bind(this))
       // get single test run from this report
-      this.router.get("/report/:identifier/testRuns/:className/:methodName", this.getTestRunsForReport.bind(this))
+      this.router.get("/report/:identifier/testRuns/:testId", this.getTestRunsForReport.bind(this))
     }
 
 
@@ -114,14 +113,13 @@ export namespace ReportEnpoint {
 
     private async getTestRunsForReport(req: Request, res: Response, next: NextFunction) {
       const identifier = req.params.identifier
-      const className = req.params.className
-      const methodName = req.params.methodName
+      const testId = req.params.testId
 
       let job = AC.getAllJobs().find(j => j.report && j.report.Identifier == identifier);
       let testRun;
       if (job) {
 
-        testRun = job.testRuns[className+":"+methodName].toObject({flattenMaps: true});
+        testRun = job.testRuns[testId].toObject({flattenMaps: true});
 
       } else {
     
@@ -131,8 +129,7 @@ export namespace ReportEnpoint {
         }
         testRun = await DB.TestRun.findOne({
           ContainerId: report._id.toString(), 
-          'TestClass': className, 
-          'TestMethod': methodName
+          TestId: testId
         }).lean().exec()
 
         if (!testRun) {

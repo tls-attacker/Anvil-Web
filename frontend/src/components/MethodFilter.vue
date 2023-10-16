@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { formatEnum } from '@/composables/visuals';
-import { ScoreCategories, TestResult } from '@/lib/data_types';
+import { TestResult } from '@/lib/data_types';
 
 export default {
     name: 'MethodFilter',
@@ -45,7 +45,7 @@ export default {
             this.$emit('update:filteredResults', results);
         },
         resetCategories() {
-            this.$emit('update:filteredCategories', Object.fromEntries(Object.keys(ScoreCategories).map(k => [k, true])));
+            this.$emit('update:filteredCategories', Object.fromEntries(this.$api.getScoreCategories().map(k => [k, true])));
         },
         resetResults() {
             let results = Object.fromEntries(Object.keys(TestResult).map(k => [k, true]));

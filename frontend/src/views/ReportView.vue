@@ -20,12 +20,12 @@
             <main>
                 <template v-if="!report.Running">
                     <strong>Scores:</strong>
-                    <!--<div class="score-container">
-                        <CircularProgress name="Security" :progress="report.Score.SECURITY.Percentage"/>
-                        <CircularProgress name="Crypto" :progress="report.Score.CRYPTO.Percentage"/>
-                        <CircularProgress name="Compliance" :progress="report.Score.COMPLIANCE.Percentage"/>
-                        <CircularProgress name="Certificate" :progress="report.Score.CERTIFICATE.Percentage"/>
-                    </div>-->
+                    <div class="score-container">
+                        <CircularProgress name="Security" :progress="report.Score['Security']"/>
+                        <CircularProgress name="Crypto" :progress="report.Score['Crypto']"/>
+                        <CircularProgress name="Interoperability" :progress="report.Score['Interoperability']"/>
+                        <CircularProgress name="Certificate" :progress="report.Score['Certificate']"/>
+                    </div>
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :disabledTests="report.DisabledTests"/>
             </main>
@@ -40,21 +40,21 @@
                 <a href="" @click.prevent="allOpen = !allOpen"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
             </header>
             <main>
-                <template v-for="(testRuns, className) of report.TestRuns">
-                    <details v-show="filterClass(className as string)" :open="allOpen">
+                <template v-for="prefix of prefixes">
+                    <details v-show="filterPrefix(prefix)" :open="allOpen">
                         <summary>
-                            <strong>{{ makeCategoryName(className as string)[0] }}</strong>
-                            &nbsp;
-                            <small>({{ makeCategoryName(className as string)[1] }})</small>
+                            <strong>{{ prefix.startsWith("X") ? prefix : "RFC " + prefix }}</strong>
                         </summary>
                         <table role="grid">
                             <tbody>
-                                <template v-for="testRun in testRuns">
-                                    <tr v-if="filterMethod(testRun)">
+                                <template v-for="testRun in report.TestRuns?.filter(tR => tR.TestId.startsWith(prefix))">
+                                    <tr v-if="filterTestRun(testRun)">
                                         <td>
-                                            <RouterLink :to="`/tests/${report.Identifier}/${className}/${testRun.TestMethod}`" class="contrast">
-                                            {{ testRun.TestMethod }}
+                                            <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
+                                                {{ testRun.TestId }}
                                             </RouterLink>
+                                            &nbsp;
+                                            <small>({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
                                         </td>
                                         <td>
                                             <span :data-tooltip="getResultToolTip(testRun)">
@@ -98,7 +98,8 @@ export default {
             allOpen: false,
             showCancel: false,
             showRerun: false,
-            timer: 0
+            timer: 0,
+            prefixes: [] as string[]
         }
     },
     methods: {
@@ -108,20 +109,20 @@ export default {
             parts.splice(parts.length-1, 1);
             return [name, parts.join(", ")];
         },
-        filterClass(className: string) {
+        filterPrefix(prefix: string) {
             if (this.report == undefined) return false;
             if (this.report.TestRuns == undefined) return false;
 
-            let results = Object.values(this.report.TestRuns[className]);
-            return results.some(this.filterMethod);
+            let results = this.report.TestRuns.filter(tR => tR.TestId.startsWith(prefix));
+            return results.some(this.filterTestRun);
         },
-        filterMethod(testRun: ITestRun) {
+        filterTestRun(testRun: ITestRun) {
             //if (testResult.Result == TestOutcome.DISABLED) return false;
             if (this.filteredResults[testRun.Result] == false) return false;
             if (testRun.Score != undefined) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
-            return testRun.TestMethod.toLowerCase().includes(this.filterText.toLowerCase());
+            return testRun.TestMethod.toLowerCase().includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
         },
         refreshReport() {
             if (this.$route.params["identifier"]) {
@@ -130,6 +131,14 @@ export default {
                     this.report = report;
                     if (report.Running) {
                         this.timer = setTimeout(() => this.refreshReport(), 10000);
+                    }
+                    this.prefixes = [];
+                    if (report.TestRuns) {
+                        for (let tR of report.TestRuns) {
+                            if (!this.prefixes.includes(tR.TestId.split("-")[0])) {
+                                this.prefixes.push(tR.TestId.split("-")[0])
+                            }
+                        }
                     }
                 })
             }

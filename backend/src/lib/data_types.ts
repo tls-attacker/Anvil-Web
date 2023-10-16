@@ -3,25 +3,6 @@ interface ITimestamp {
     updatedAt: Date
 }
 
-export interface IScore {
-    Total: number,
-    Reached: number,
-    Percentage: number,
-    SeverityLevel: SeverityLevel
-}
-
-export type IScoreMap = {
-    [identifier in CategoriesStrings]: IScore;
-};
-
-
-export type IScoreDeltaMap = {
-    [i in CategoriesStrings]?: {
-        TotalDelta: number;
-        ReachedDelta: number;
-    };
-};
-
 export enum SeverityLevel {
     INFORMATIONAL = "INFORMATIONAL",
     LOW = "LOW",
@@ -29,22 +10,6 @@ export enum SeverityLevel {
     HIGH = "HIGH",
     CRITICAL = "CRITICAL"
 }
-
-export enum ScoreCategories {
-    ALERT = "ALERT",
-    CVE = "CVE",
-    CERTIFICATE = "CERTIFICATE",
-    CRYPTO = "CRYPTO",
-    DEPRECATED = "DEPRECATED",
-    HANDSHAKE = "HANDSHAKE",
-    MESSAGESTRUCTURE = "MESSAGESTRUCTURE",
-    RECORDLAYER = "RECORDLAYER",
-    SECURITY = "SECURITY",
-    INTEROPERABILITY = "INTEROPERABILITY",
-    COMPLIANCE = "COMPLIANCE"
-}
-
-export type CategoriesStrings = keyof typeof ScoreCategories
 
 export enum EditMode {
     selected = "selected",
@@ -78,9 +43,9 @@ export interface IReport extends ITimestamp {
     TotalTests: number,
     FinishedTests: number,
     TestCaseCount: number,
-    Score: IScoreMap,
+    Score: { [key: string]: number },
     TestEndpointType: string,
-    TestRuns?: {[key: string]: {[key: string]: ITestRun}},
+    TestRuns?: ITestRun[],
     Job?: IAnvilJob,
     AnvilConfig: string,
     AdditionalConfig: string,
@@ -101,6 +66,7 @@ export interface ITestRun {
     ContainerId: string | any,
     TestMethod: string,
     TestClass: string,
+    TestId: string,
     Result: TestResult,
     HasStateWithAdditionalResultInformation: boolean,
     HasVaryingAdditionalResultInformation: boolean,
@@ -112,7 +78,7 @@ export interface ITestRun {
     SucceededCases: number,
     ConSucceededCases: number,
     FailedCases: number,
-    Score: IScoreMap,
+    Score: { [key: string]: number },
     FailureInducingCombinations: { [key: string]: string }[]
 }
 

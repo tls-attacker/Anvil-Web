@@ -3,15 +3,15 @@
     <template v-else>
         <header class="flex-header">
             <hgroup>
-                <h1>{{ testRun.TestMethod }}</h1>
+                <h1>{{ testRun.TestId }}</h1>
                 <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink></h3>
             </hgroup>
             <span class="spacer"></span>
             <a role="button" href="">Re-Run</a>
         </header>
-        <TestRunSummary :testMethod="testRun.TestMethod" :testClass="testRun.TestClass" :testRun="testRun"/>
+        <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
 
-        <article>
+        <article v-if="testRun.CaseCount>0">
             <header>
                 <details style="margin-bottom: var(--spacing);" open>
                     <summary role="button">Result:</summary>
@@ -38,7 +38,7 @@
                                     @click.prevent="selectedParameters.splice(selectedParameters.indexOf(parameter), 1)">
                                     {{parameter.replace("INCLUDE_", "")}}
                                 </span>
-                                <span @click.prevent="sortByParameter(parameter)" class="sorting-symbol">▼</span>
+                                <span @click.prevent="sortByParameter(parameter)" :class="{'sorting-symbol': true, 'selected': parameter==sortedBy, 'rotated': parameter==sortedBy && !sortedAsc}">▼</span>
                             </th>
                             <th>Result</th>
                         </tr>
@@ -82,15 +82,15 @@ export default {
             },
             allParameters: [] as string[],
             selectedParameters: [] as string[],
-            sortedBy: ""
+            sortedBy: "",
+            sortedAsc: true
         };
     },
     created() {
-        if (this.$route.params["identifier"] && this.$route.params["className"] && this.$route.params["methodName"]) {
+        if (this.$route.params["identifier"] && this.$route.params["testId"]) {
             let identifier = this.$route.params["identifier"] as string;
-            let className = this.$route.params["className"] as string;
-            let methodName = this.$route.params["methodName"] as string;
-            this.$api.getTestRun(identifier, className, methodName).then((testRun: ITestRun) => {
+            let testId = this.$route.params["testId"] as string;
+            this.$api.getTestRun(identifier, testId).then((testRun: ITestRun) => {
                 this.testRun = testRun;
                 this.identifier = identifier;
                 if (testRun.TestCases.length > 0) {
@@ -124,16 +124,24 @@ export default {
             this.selectedParameters.sort();
         },
         sortByParameter(parameter: string) {
+            if (this.sortedBy == parameter) {
+                this.sortedAsc = !this.sortedAsc;
+            } else {
+                this.sortedAsc = true;
+            }
             this.sortedBy = parameter;
             this.testRun?.TestCases.sort((caseA, caseB) => {
-                if (typeof(caseA.ParameterCombination[parameter]) === "number") {
-                    return caseA.ParameterCombination[parameter] - caseB.ParameterCombination[parameter];
+                let cA = this.sortedAsc ? caseA : caseB;
+                let cB = this.sortedAsc ? caseB : caseA;
+                if (typeof(cA.ParameterCombination[parameter]) === "number") {
+                    // @ts-ignore
+                    return cA.ParameterCombination[parameter] - cB.ParameterCombination[parameter];
                 } else {
-                    return caseA.ParameterCombination[parameter].localeCompare(caseB.ParameterCombination[parameter])
+                    return (""+cA.ParameterCombination[parameter]).localeCompare(""+cB.ParameterCombination[parameter])
                 }
             })
         },
-        isRightAlign(parameter: string): boolean {
+        isRightAlign(parameter: any): boolean {
             return typeof(parameter) === "number";
         }
     }
@@ -172,6 +180,7 @@ h1 {
 }
 .parameter-header:hover {
     /* overflow: visible; */
+    text-decoration: line-through;
 }
 th {
     font-weight: bold;
@@ -182,9 +191,15 @@ th {
 .sorting-symbol {
     display: inline-block;
     visibility: hidden;
-    margin-left: 10px;
+    margin-left: 5px;
     cursor: pointer;
     overflow: hidden;
+}
+.sorting-symbol.selected {
+    visibility: visible;
+}
+.sorting-symbol.selected.rotated {
+    transform: rotate(180deg);
 }
 th:hover > .sorting-symbol {
     visibility: visible;

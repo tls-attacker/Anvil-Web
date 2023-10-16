@@ -2,8 +2,8 @@
     <article v-if="metaDataContainer != undefined">
             <header class="run-summary">
                 <span><strong>TLS Version:</strong> todo</span>
-                <span><strong>Test Class:</strong> {{ testClass.substring(31) }}</span>
-                <span><strong>Test Method:</strong> {{ testMethod }}</span>
+                <span><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
+                <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
             </header>
             <main>
                 <div class="summary-main-flex">
@@ -13,6 +13,7 @@
                             <span><strong> Setion:</strong> {{ metaDataContainer.rfc.section }}</span>
                         </div>
                         <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
+                        <div><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</div>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
@@ -39,14 +40,14 @@ import CircularProgress from '@/components/CircularProgress.vue';
 export default {
     name: "TestRunSummary",
     components: { CircularProgress },
-    props: ["testMethod", "testClass", "testRun"],
+    props: ["testId", "testRun"],
     data() {
         return {
             metaDataContainer: undefined as any
         }
     },
     created() {
-        this.metaDataContainer = this.$api.getMetaData(this.testClass, this.testMethod);
+        this.metaDataContainer = this.$api.getMetaData(this.testId);
     }
 }
 </script>
