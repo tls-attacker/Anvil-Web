@@ -39,13 +39,14 @@ export namespace ReportEnpoint {
 
     private async getReports(req: Request, res: Response, next: NextFunction) {
       const identifiers = req.query.identifiers as string[];
+      const detailed = req.query.detailed || false;
+
       let reports;
       if (identifiers === undefined) {
-        reports = await DB.Report.find().lean().exec();
+        reports = await DB.Report.find({}, detailed ? "" : "-GuidelineReports").lean().exec();
       } else {
-        reports = await DB.Report.find({Identifier: {"$in": identifiers}}).lean().exec();
+        reports = await DB.Report.find({Identifier: {"$in": identifiers}}, detailed ? "" : "-GuidelineReports").lean().exec();
       }
-      const detailed = req.query.detailed || false;
       
       let promised = []
       if (detailed) {

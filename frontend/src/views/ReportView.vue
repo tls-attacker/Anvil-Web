@@ -23,83 +23,64 @@
                     <div class="score-container">
                         <CircularProgress name="Security" :progress="report.Score['Security']"/>
                         <CircularProgress name="Crypto" :progress="report.Score['Crypto']"/>
-                        <CircularProgress name="Interoperability" :progress="report.Score['Interoperability']"/>
+                        <CircularProgress name="Interop." :progress="report.Score['Interoperability']"/>
                         <CircularProgress name="Certificate" :progress="report.Score['Certificate']"/>
                     </div>
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :disabledTests="report.DisabledTests"/>
+                <div v-if="report.GuidelineReports" style="margin-top: 20px;">
+                    <strong>Guidelines:</strong>
+                    <div class="grid" style="margin-top: 10px;">
+                        <div v-for="guideline of report.GuidelineReports" class="guideline-box" @click.prevent="showGuideline = guideline">
+                            <div>
+                                <strong>{{ guideline.name }}</strong> <br>
+                                Passed: {{ guideline.passed.length }} <br>
+                                Failed: {{ guideline.failed.length }}
+                            </div>
+                            <CircularProgress :progress="100*guideline.passed.length/(guideline.passed.length+guideline.failed.length)"/>
+                        </div>
+                    </div>
+                </div>
             </main>
             <footer>
                 <progress v-if="report.Running"></progress>
             </footer>
         </article>
-        <!--<label><input type="checkbox" role="switch" checked /> Detailed View</label>-->
-        <article>
-            <header>
-                <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
-                <a href="" @click.prevent="allOpen = !allOpen"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
-            </header>
-            <main>
-                <template v-for="prefix of prefixes">
-                    <details v-show="filterPrefix(prefix)" :open="allOpen">
-                        <summary>
-                            <strong>{{ prefix.startsWith("X") ? prefix : "RFC " + prefix }}</strong>
-                        </summary>
-                        <table role="grid">
-                            <tbody>
-                                <template v-for="testRun in report.TestRuns?.filter(tR => tR.TestId.startsWith(prefix))">
-                                    <tr v-if="filterTestRun(testRun)">
-                                        <td>
-                                            <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
-                                                {{ testRun.TestId }}
-                                            </RouterLink>
-                                            &nbsp;
-                                            <small>({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
-                                        </td>
-                                        <td>
-                                            <span :data-tooltip="getResultToolTip(testRun)">
-                                                {{ getResultDisplay(testRun) }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </template>
-                            </tbody>
-                        </table>
-                    </details>
-                </template>
-            </main>
-        </article>
+
+        <label><input type="checkbox" role="switch" v-model="detailedView"/> Detailed View</label>
+        <DetailedReportTable :report="report" v-if="detailedView"/>
+        <SimpleReportTable :report="report" v-else />
+
         <DeleteReportDialog v-if="showDelete" @close="showDelete = false" :identifiers="[report.Identifier]" @deleted="$router.push('/')"/>
         <CancelJobDialog v-if="showCancel" @close="showCancel = false" :job="report.Job" />
         <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.AnvilConfig" :givenAdditionalConfig="report.AdditionalConfig"/>
+        <GuidelineModal :guidelineReport="showGuideline" @close="showGuideline = undefined"/>
     </template>
 </template>
 
 <script lang="ts">
-import { type IReport, type ITestRun } from '@/lib/data_types';
+import { type IGuidelineReport, type IReport, type ITestRun } from '@/lib/data_types';
 import DeleteReportDialog from '@/components/DeleteReportDialog.vue'
 import TestBar from '@/components/TestBar.vue';
 import CircularProgress from '@/components/CircularProgress.vue';
-import { formatEnum, getResultDisplay, getResultToolTip } from '@/composables/visuals';
-import MethodFilter from '@/components/MethodFilter.vue';
 import CancelJobDialog from '@/components/CancelJobDialog.vue';
 import NewJobDialog from '@/components/NewJobDialog.vue';
+import GuidelineModal from '@/components/GuidelineModal.vue';
+import DetailedReportTable from '@/components/DetailedReportTable.vue';
+import SimpleReportTable from '@/components/SimpleReportTable.vue';
 
 export default {
     name: "ReportView",
-    components: { TestBar, CircularProgress, MethodFilter, DeleteReportDialog, CancelJobDialog, NewJobDialog },
+    components: { TestBar, CircularProgress, DeleteReportDialog, CancelJobDialog, NewJobDialog, GuidelineModal, DetailedReportTable, SimpleReportTable },
     data() {
         return {
             report: undefined as IReport | undefined,
-            filterText: "",
-            filteredCategories: {} as {[category: string]: boolean},
-            filteredResults: {} as {[result: string]: boolean},
             showDelete: false,
-            allOpen: false,
             showCancel: false,
             showRerun: false,
             timer: 0,
-            prefixes: [] as string[]
+            showGuideline: undefined as IGuidelineReport | undefined,
+            detailedView: false
         }
     },
     methods: {
@@ -109,21 +90,6 @@ export default {
             parts.splice(parts.length-1, 1);
             return [name, parts.join(", ")];
         },
-        filterPrefix(prefix: string) {
-            if (this.report == undefined) return false;
-            if (this.report.TestRuns == undefined) return false;
-
-            let results = this.report.TestRuns.filter(tR => tR.TestId.startsWith(prefix));
-            return results.some(this.filterTestRun);
-        },
-        filterTestRun(testRun: ITestRun) {
-            //if (testResult.Result == TestOutcome.DISABLED) return false;
-            if (this.filteredResults[testRun.Result] == false) return false;
-            if (testRun.Score != undefined) {
-                if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
-            }
-            return testRun.TestMethod.toLowerCase().includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
-        },
         refreshReport() {
             if (this.$route.params["identifier"]) {
                 let identifier = this.$route.params["identifier"] as string
@@ -132,20 +98,9 @@ export default {
                     if (report.Running) {
                         this.timer = setTimeout(() => this.refreshReport(), 10000);
                     }
-                    this.prefixes = [];
-                    if (report.TestRuns) {
-                        for (let tR of report.TestRuns) {
-                            if (!this.prefixes.includes(tR.TestId.split("-")[0])) {
-                                this.prefixes.push(tR.TestId.split("-")[0])
-                            }
-                        }
-                    }
                 })
             }
-        },
-        getResultDisplay,
-        getResultToolTip,
-        formatEnum
+        }
     },
     created() {
         this.refreshReport();
@@ -189,6 +144,19 @@ td, th {
 }
 td:first-child, th:first-child {
     text-align: start;
+}
+
+.guideline-box {
+    background-color: rgb(240, 240, 240);
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.guideline-box:hover {
+    background-color: aliceblue;
+    cursor: pointer;
 }
 
 </style>

@@ -149,7 +149,11 @@ export module AnvilApi {
     let metaData = {} as {[key: string]: any};
     fetch("/src/assets/metadata.json").then(r => r.json()).then(o => metaData = o);
     export function getMetaData(testId: string): any {
-        return metaData[testId];
+        if (testId in metaData) {
+            return metaData[testId];
+        } else {
+            return Object.values(metaData)[0];
+        }
     }
     export function getScoreCategories(): string[] {
         let result = [] as string[]

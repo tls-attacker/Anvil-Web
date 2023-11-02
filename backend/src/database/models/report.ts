@@ -1,6 +1,7 @@
 import { Model, Schema, Types } from "mongoose";
 import { IReport, ITestRun } from "../../lib/data_types";
 import DB from "../index"
+import { GuidelineReportSchema } from "./guidelineReport";
 
 export interface ReportModel extends Model<IReport> {
   addTestRuns(report: IReport & {_id: Types.ObjectId}): Promise<IReport & {_id: Types.ObjectId}>;
@@ -29,7 +30,8 @@ export const ReportSchema = new Schema({
   TestEndpointType: String,
   Running: Boolean,
   AnvilConfig: String,
-  AdditionalConfig: String
+  AdditionalConfig: String,
+  GuidelineReports: [GuidelineReportSchema]
 }, {
   statics: {
     async addTestRuns(report: IReport & {_id: Types.ObjectId}) {

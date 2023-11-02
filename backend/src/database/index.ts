@@ -1,7 +1,7 @@
 import mongodb from 'mongodb';
 import mongoose from "mongoose";
-import { IReport, ITestCase, ITestRun, ITestRunEdit } from '../lib/data_types';
-import { TestCaseSchema, TestRunEditSchema, TestRunModel, TestRunSchema, ReportModel, ReportSchema } from './models';
+import { IGuidelineReport, IReport, ITestCase, ITestRun, ITestRunEdit } from '../lib/data_types';
+import { TestCaseSchema, TestRunEditSchema, TestRunModel, TestRunSchema, ReportModel, ReportSchema, GuidelineReportSchema } from './models';
 
 export enum FileType {
   pcap,

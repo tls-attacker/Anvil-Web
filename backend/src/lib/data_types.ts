@@ -49,6 +49,7 @@ export interface IReport extends ITimestamp {
     Job?: IAnvilJob,
     AnvilConfig: string,
     AdditionalConfig: string,
+    GuidelineReports?: IGuidelineReport[]
 }
 
 export interface ITestRunEdit {
@@ -125,4 +126,21 @@ export interface IAnvilJob {
     additionalConfig: any,
     workerId: string,
     workerName: string
+}
+
+export interface IGuideline {
+    id: string,
+    name: string,
+    result: string,
+    display: string,
+    [x: string]: unknown
+}
+
+export interface IGuidelineReport {
+    name: string,
+    link: string,
+    passed: IGuideline[],
+    failed: IGuideline[],
+    uncertain: IGuideline[],
+    skipped: IGuideline[]
 }

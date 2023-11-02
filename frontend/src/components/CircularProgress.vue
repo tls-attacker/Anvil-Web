@@ -1,11 +1,14 @@
 <template>
-    <div class="circle-container" :data-tooltip="`${Math.round(progress)} %`">
-        <div class="wrapper" :class="{ noclip: progress > 50 }">
-            <div class="circle" :style="{ transform: `rotate(${Math.min(Math.round(progress * 360 / 100), 180)}deg)` }"></div>
-            <div class="circle" :style="{ transform: `rotate(${Math.round(progress * 360 / 100)}deg)` }"></div>
+    <div>
+        <div class="heading">{{ name }}</div>
+        <div class="circle-container">
+            <div class="wrapper" :class="{ noclip: progress > 50 }">
+                <div class="circle" :style="{ transform: `rotate(${Math.min(Math.round(progress * 360 / 100), 180)}deg)` }"></div>
+                <div class="circle" :style="{ transform: `rotate(${Math.round(progress * 360 / 100)}deg)` }"></div>
+            </div>
+            <div class="circle-back"></div>
+            <div class="label">{{ Math.round(progress) }} %</div>
         </div>
-        <div class="circle-back"></div>
-        <div class="label">{{ name }}</div>
     </div>
 </template>
 
@@ -61,5 +64,9 @@ export default {
     height: 100px;
     text-align: center;
     line-height: 100px;
+}
+.heading {
+    text-align: center;
+    margin-bottom: 5px;
 }
 </style>
