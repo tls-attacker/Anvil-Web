@@ -107,7 +107,8 @@ export interface ITestCase {
     StartTimestamp: string
     EndTimestamp: string
     uuid: string
-    Stacktrace?: string
+    Stacktrace?: string,
+    PcapData: string
 }
 
 export interface IAnvilWorker {

@@ -9,6 +9,7 @@ import { TestRunEndpoint } from './endpoints/TestRunEndpoint';
 import { WorkerEndpoint } from './endpoints/WorkerEndpoint';
 import { BadRequest, InternalServerError } from './errors';
 import { ControllerEndpoint } from './endpoints/ControlEndpoint';
+import { PcapEndpoint } from './endpoints/PcapEndpoint';
 
 console.log("AnvilWeb starting...")
 const app = express()
@@ -42,7 +43,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 new UploadReportEndpoint.Controller(router)
 //new KeylogFileEndpoint.Controller(router)
-//new PcapEndpoint.Controller(router)
+new PcapEndpoint.Controller(router)
 new ReportEnpoint.Controller(router)
 new TestRunEndpoint.Controller(router)
 new WorkerEndpoint.Controller(router)

@@ -1,4 +1,4 @@
-import mongodb from 'mongodb';
+import { Db, GridFSBucket } from 'mongodb';
 import mongoose from "mongoose";
 import { IGuidelineReport, IReport, ITestCase, ITestRun, ITestRunEdit } from '../lib/data_types';
 import { TestCaseSchema, TestRunEditSchema, TestRunModel, TestRunSchema, ReportModel, ReportSchema, GuidelineReportSchema } from './models';
@@ -12,9 +12,8 @@ class Database {
   TestRunEdit = mongoose.model<ITestRunEdit>("TestRunEdit", TestRunEditSchema)
   TestRun = mongoose.model<ITestRun, TestRunModel>("TestRun", TestRunSchema)
   //TestCase = mongoose.model<ITestCase>("TestCase", TestCaseSchema)
-  private rawDb: mongodb.Db;
-  //pcapBucket: mongodb.GridFSBucket
-  //keylogfileBucket: mongodb.GridFSBucket
+  private rawDb: Db;
+  keylogfileBucket: GridFSBucket
 
   //private rawDb_testResults: mongodb.Collection
 
@@ -30,13 +29,9 @@ class Database {
       }
       mongoose.connect(`mongodb://${conHost}:27017/anvilWebTls`).then((m) => {
         this.rawDb = m.connection.db
-        //this.rawDb_testResults = this.rawDb.collection("testresults")
-        //this.pcapBucket = new mongodb.GridFSBucket(this.rawDb, {
-        //  bucketName: "pcap"
-        //})
-        //this.keylogfileBucket = new mongodb.GridFSBucket(this.rawDb, {
-        //  bucketName: "keylogfile"
-        //})
+        this.keylogfileBucket = new GridFSBucket(this.rawDb, {
+          bucketName: "keylogfile"
+        })
         res()
       }).catch((e) => {
         rej(e)

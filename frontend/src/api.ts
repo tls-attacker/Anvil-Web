@@ -57,7 +57,26 @@ export module AnvilApi {
         return postApiObject(`control/worker/${workerId}/shutdown`, {});
     }
 
+    export function getPcapDownloadLink(identifier: string, testId: string, uuid: string) {
+        return `${baseUrl}report/${identifier}/testRuns/${testId}/${uuid}/pcap`;
+    }
 
+    export function getTrafficOverview(identifier: string, testId: string, uuid: string): Promise<string> {
+        return new Promise((resolve, reject) => {
+            fetch(`${baseUrl}report/${identifier}/testRuns/${testId}/${uuid}/traffic`)
+            .then((response) => {
+                if (!response.ok) {
+                    reject(response);
+                }
+                resolve(response.text());
+            })
+            .catch(error => {
+                console.error("Error while trying to access the api backend:");
+                console.error(error);
+                reject(error);
+            });
+        });
+    }
 
     /* ---- Internal ---- */
 

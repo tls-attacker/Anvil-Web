@@ -134,6 +134,69 @@ paths:
             application/json: 
               schema:
                 $ref: '#/components/schemas/TestRun'
+  /report/{identifier}/testRuns/{testId}/{uuid}/pcap:
+    get:
+      tags:
+        - report
+        - testrun
+      summary: Download the pcap file
+      description: Returns the pcap file associated with this test case.
+      operationId: getPcap
+      parameters: 
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identifier'
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /report/{identifier}/testRuns/{testId}/{uuid}/traffic:
+    get:
+      tags:
+        - report
+        - testrun
+      summary: Show the network traffic
+      description: Parsed pcap file overview, created with tshark.
+      operationId: displayPcap
+      parameters: 
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identifier'
+        - name: testId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses: 
+        '200':
+          description: successful operation
+          content:
+            text/plain:
+              schema:
+                type: string
   /testRun/{testId}:
     get:
       tags:
@@ -703,6 +766,9 @@ components:
         uuid:
           type: string
         Stacktrace:
+          type: string
+          nullable: true
+        PcapData:
           type: string
           nullable: true
         

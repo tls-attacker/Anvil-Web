@@ -1,7 +1,9 @@
 import AdmZip from "adm-zip";
 import { NextFunction, Request, Response, Router } from 'express';
 import fileUpload from "express-fileupload";
+import { Readable } from "stream";
 import DB from '../database';
+import mongoose from "mongoose";
 
 
 export namespace UploadReportEndpoint {
@@ -108,13 +110,32 @@ export namespace UploadReportEndpoint {
     if (guidelines) {
       report.GuidelineReports = JSON.parse(guidelines.getData().toString())
     }
+    // key log file
+    const keylogfile = zipFile.getEntry("keyfile.log");
+    const uploadStream = DB.keylogfileBucket.openUploadStream("keyfile.log")
+    const readableStream = new Readable()
+    readableStream.push(keylogfile.getData())
+    readableStream.push(null)
+    readableStream.pipe(uploadStream)
+    report.keylogfile = uploadStream.id;
+    
     await report.save()
-    const entries = zipFile.getEntries()
+
+    // test runs
+    const entries = zipFile.getEntries();
     for (let entry of entries) {
       if (entry.entryName.endsWith("_testRun.json")) {
         let testRun = JSON.parse(entry.getData().toString())
         testRun = new DB.TestRun(testRun)
         testRun.ContainerId = report._id
+        // pcaps
+        for (let testCase of testRun.TestCases) {
+          let caseFile = entry.entryName.replace("_testRun.json", `dump_${testCase.uuid}.pcap`);
+          let pcapEntry = zipFile.getEntry(caseFile);
+          if (pcapEntry) {
+            testCase.PcapData = pcapEntry.getData();
+          }
+        }
         testRun.save()
       }
     }

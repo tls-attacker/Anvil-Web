@@ -14,15 +14,14 @@ export namespace TestRunEndpoint {
       this.router = aRouter
 
       // get multiple testruns
-      this.router.get("/testRun/:className/:methodName", this.getTestRuns.bind(this))
+      this.router.get("/testRun/:testId", this.getTestRuns.bind(this))
       // edit one testrun
       this.router.post("/testRun/edit", this.submitEdit.bind(this))
     }
 
     private async getTestRuns(req: Request, res: Response, next: NextFunction) {
       const identifiers = <string[]>req.query.identifiers
-      const className = req.params.className
-      const methodName = req.params.methodName
+      const testId = req.params.testId
 
       if (!identifiers) {
         return next(new BadRequest("Parameter identifiers is missing"))
@@ -38,9 +37,8 @@ export namespace TestRunEndpoint {
     
       const testRuns = await DB.TestRun.find(
         {ContainerId: {"$in": reports.map(i => i._id)},
-        "TestClass": className,
-        "TestMethod": methodName
-      }).lean().exec();
+         TestId: testId
+      }, "-TestCases.PcapData").lean().exec();
 
       if (testRuns.length == 0) {
         next(new BadRequest("No result found for the given identifiers."))

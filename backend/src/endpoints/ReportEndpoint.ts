@@ -131,7 +131,7 @@ export namespace ReportEnpoint {
         testRun = await DB.TestRun.findOne({
           ContainerId: report._id.toString(), 
           TestId: testId
-        }).lean().exec()
+        }, "-TestCases.PcapData").lean().exec()
 
         if (!testRun) {
           return next(new BadRequest("testrun not found"));

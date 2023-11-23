@@ -16,7 +16,8 @@ export const TestCaseSchema = new Schema({
   StartTimestamp: String,
   EndTimestamp: String,
   uuid: String,
-  Stacktrace: String
+  Stacktrace: String,
+  PcapData: Buffer
 })
 
 TestCaseSchema.index({Result: 1})

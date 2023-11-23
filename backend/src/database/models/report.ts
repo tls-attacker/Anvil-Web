@@ -31,7 +31,8 @@ export const ReportSchema = new Schema({
   Running: Boolean,
   AnvilConfig: String,
   AdditionalConfig: String,
-  GuidelineReports: [GuidelineReportSchema]
+  GuidelineReports: [GuidelineReportSchema],
+  KeylogFile: Types.ObjectId
 }, {
   statics: {
     async addTestRuns(report: IReport & {_id: Types.ObjectId}) {

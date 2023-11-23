@@ -33,6 +33,7 @@
                     </colgroup>
                     <thead>
                         <tr>
+                            <th>Result</th>
                             <th v-for="parameter of selectedParameters">
                                 <span class="parameter-header"
                                     @click.prevent="selectedParameters.splice(selectedParameters.indexOf(parameter), 1)">
@@ -40,14 +41,13 @@
                                 </span>
                                 <span @click.prevent="sortByParameter(parameter)" :class="{'sorting-symbol': true, 'selected': parameter==sortedBy, 'rotated': parameter==sortedBy && !sortedAsc}">▼</span>
                             </th>
-                            <th>Result</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template v-for="testCase of testRun.TestCases">
                             <tr v-if="filterCase(testCase)" @click="openCase = testCase">
-                                <td v-for="parameter of selectedParameters" :class="{'right-align': isRightAlign(testCase.ParameterCombination[parameter])}">{{ testCase.ParameterCombination[parameter] }}</td>
                                 <td>{{ getResultSymbol(testCase.Result) }}</td>
+                                <td v-for="parameter of selectedParameters" :class="{'right-align': isRightAlign(testCase.ParameterCombination[parameter])}">{{ testCase.ParameterCombination[parameter] }}</td>
                             </tr>
                         </template>
                     </tbody>
