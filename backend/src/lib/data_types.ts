@@ -130,18 +130,15 @@ export interface IAnvilJob {
 }
 
 export interface IGuideline {
-    id: string,
-    name: string,
-    result: string,
-    display: string,
+    checkName: string,
+    adherence: string,
+    hint: string,
+    info: string,
     [x: string]: unknown
 }
 
 export interface IGuidelineReport {
     name: string,
     link: string,
-    passed: IGuideline[],
-    failed: IGuideline[],
-    uncertain: IGuideline[],
-    skipped: IGuideline[]
+    results: IGuideline[]
 }

@@ -16,7 +16,7 @@ export class AnvilJob {
     public status: AnvilJobStatus;
     public progress: number;
     public report: HydratedDocument<IReport>;
-    public testRuns: {[classMethod: string]: HydratedDocument<ITestRun>};
+    public testRuns: {[testId: string]: HydratedDocument<ITestRun>};
     public testRunTimeouts: {[classMethod: string]: NodeJS.Timeout};
     public reportTimeout: NodeJS.Timeout;
     public config: string;

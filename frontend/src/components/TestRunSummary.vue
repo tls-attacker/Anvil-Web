@@ -13,6 +13,7 @@
                             <span><strong> Setion:</strong> {{ metaDataContainer.rfc.section }}</span>
                         </div>
                         <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
+                        <div><strong>Result: </strong> {{ testRun.Result }}</div>
                         <div><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</div>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
@@ -23,7 +24,7 @@
                         </ul>
                         </div>
                     </div>
-                    <CircularProgress v-if="testRun"
+                    <CircularProgress v-if="testRun && testRun.Cases && testRun.Cases.length > 0"
                         :progress="(testRun.SucceededCases + testRun.ConSucceededCases) * 100 / testRun.TestCases.length"
                         :name="`${testRun.SucceededCases + testRun.ConSucceededCases}/${testRun.TestCases.length}`"/>
                 </div>

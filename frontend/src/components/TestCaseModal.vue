@@ -42,7 +42,12 @@
                 </p>
                 <p>
                     <strong>Network Traffic Capture</strong> <br>
-                    <pre>{{ traffic }}</pre>
+                    <pre><span v-for="line of traffic" :class="{
+                        'traffic-tcp': (line.includes('SYN') || line.includes('FIN') || line.includes('ACK')),
+                        'traffic-tls': (line.includes('TLS')),
+                        'traffic-http': (line.includes('HTTP')),
+                        'traffic-rts': (line.includes('RTS'))
+                    }">{{ line }}<br></span></pre>
                     <a :href="$api.getPcapDownloadLink($route.params.identifier as string, $route.params.testId as string, testCase.uuid)" role="button" target="_blank" download="capture.pcap">Download PCAP</a>
                 </p>
             </main>
@@ -57,7 +62,7 @@ export default {
     emits: ["close"],
     data() {
         return {
-            traffic: ""
+            traffic: [] as string[]
         }
     },
     watch: {
@@ -65,7 +70,7 @@ export default {
             if (this.testCase) {
                 this.$api.getTrafficOverview(this.$route.params.identifier as string, this.$route.params.testId as string, this.testCase.uuid)
                 .then((text) => {
-                    this.traffic = text.trim();
+                    this.traffic = text.split("\n");
                 });
             }
         }
@@ -89,4 +94,19 @@ th {
 
 p {
     margin-bottom: 10px;
-}</style>
+}
+
+.traffic-tcp {
+    color: rgb(146, 146, 146);
+}
+.traffic-tls {
+    color: blue;
+}
+.traffic-http {
+    color: green;
+}
+.traffic-rts {
+    color: red;
+}
+
+</style>

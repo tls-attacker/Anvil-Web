@@ -72,18 +72,16 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("no associated report found"));
             }
             let newTestRun = req.body.testRun as ITestRun;
-            let className = newTestRun.TestClass;
-            let methodName = newTestRun.TestMethod;
-            let testRun = job.testRuns[className+":"+methodName];
+            let testRun = job.testRuns[newTestRun.TestId];
             if (!testRun) {
-                job.testRuns[className+":"+methodName] = new DB.TestRun(newTestRun);
-                testRun = job.testRuns[className+":"+methodName];
+                job.testRuns[newTestRun.TestId] = new DB.TestRun(newTestRun);
+                testRun = job.testRuns[newTestRun.TestId];
             } else {
                 testRun.overwrite(newTestRun);
             }
             testRun.ContainerId = job.report._id;
             
-            if (req.body.testRun.finished) {
+            if (req.body.finished) {
                 job.report.FinishedTests++;
                 job.report.TestCaseCount += testRun.TestCases.length;
                 if (job.report.TotalTests>0) {
@@ -113,8 +111,8 @@ export namespace WorkerEndpoint {
                 clearTimeout(job.reportTimeout);
                 job.reportTimeout = setTimeout(() => job.report.save(), 3000);
             }
-            clearTimeout(job.testRunTimeouts[className+":"+methodName])
-            job.testRunTimeouts[className+":"+methodName] = setTimeout(() => testRun.save(), 3000);
+            clearTimeout(job.testRunTimeouts[newTestRun.TestId])
+            job.testRunTimeouts[newTestRun.TestId] = setTimeout(() => testRun.save(), 3000);
             
             res.json({status: "OK"});
         }
@@ -129,25 +127,23 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("no associated report found"));
             }
             let newTestCase = req.body.testCase as ITestCase;
-            let className = req.body.className;
-            let methodName = req.body.methodName;
-            let testRun = job.testRuns[className+":"+methodName];
+            let testId = req.body.testId;
+            let testRun = job.testRuns[testId];
             if (!testRun) {
                 testRun = new DB.TestRun({
-                    TestClass: className,
-                    TestMethod: methodName,
+                    TestId: testId,
                     CaseCount: 0,
                     TestCases: [],
                     Result: "INCOMPLETE",
                     Score: null
                 });
                 testRun.ContainerId = job.report._id;
-                job.testRuns[className+":"+methodName] = testRun;
+                job.testRuns[testId] = testRun;
             }
             testRun.TestCases.push(newTestCase);
             testRun.CaseCount++;
-            clearTimeout(job.testRunTimeouts[className+":"+methodName])
-            job.testRunTimeouts[className+":"+methodName] = setTimeout(() => testRun.save(), 3000);
+            clearTimeout(job.testRunTimeouts[testId])
+            job.testRunTimeouts[testId] = setTimeout(() => testRun.save(), 3000);
             res.json({status: "OK"});
         }
 

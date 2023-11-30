@@ -45,7 +45,7 @@
                             <input type="number" v-model="additionalConfig.clientConfig.port">
                         </label>
                         <label>Trigger Script:
-                            <input type="text" v-model="additionalConfig.clientConfig.triggerScriptCommand">
+                            <input type="text" v-model="additionalConfig.clientConfig.triggerScriptCommand[0]">
                         </label>
                     </template>
                     <label>Strength:
@@ -89,7 +89,7 @@ export default {
             additionalConfig: {
                 clientConfig: {
                     port: 443,
-                    triggerScriptCommand: ""
+                    triggerScriptCommand: [""]
                 },
                 serverConfig: {
                     doNotSendSNIExtension: true,

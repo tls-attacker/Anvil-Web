@@ -43,6 +43,9 @@ export default {
     },
     methods: {
         calculateOverallScore(report: IReport) {
+            if (!report.Score) {
+                return 0;
+            }
             let count = 0;
             let score = 0;
             for (let category of Object.keys(report.Score)) {

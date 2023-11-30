@@ -71,14 +71,7 @@ export namespace ReportEnpoint {
       if (job) {
         report = job.report.toObject({flattenMaps: true});
         report.Job = job.apiObject();
-        report.TestRuns = Object.values(job.testRuns).reduce(
-          (classMap: {[id: string]: any}, currentRun: ITestRun) => {
-              if (!classMap[currentRun.TestClass]) {
-                classMap[currentRun.TestClass] = {};
-              }
-              classMap[currentRun.TestClass][currentRun.TestMethod] = currentRun;
-              return classMap;
-          }, {});
+        report.TestRuns = Object.values(job.testRuns).map(tR => tR.toObject({flattenMaps: true}));
       } else {
         report = await DB.Report.findOne({Identifier: identifier}).lean().exec();
         if (!report) {

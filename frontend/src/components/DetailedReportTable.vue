@@ -68,7 +68,8 @@ export default {
             if (testRun.Score != undefined) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
-            return testRun.TestMethod.toLowerCase().includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
+            let tags = this.$api.getMetaData(testRun.TestId).tags.join(" ").toLowerCase();
+            return tags.includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
         },
         makePrefixes() {
             this.prefixes = [];

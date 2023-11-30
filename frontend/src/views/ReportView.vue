@@ -34,10 +34,11 @@
                         <div v-for="guideline of report.GuidelineReports" class="guideline-box" @click.prevent="showGuideline = guideline">
                             <div>
                                 <strong>{{ guideline.name }}</strong> <br>
-                                Passed: {{ guideline.passed.length }} <br>
-                                Failed: {{ guideline.failed.length }}
+                                Adhered: {{ guideline.results.filter(g => g.adherence == "ADHERED").length }} <br>
+                                Violated: {{ guideline.results.filter(g => g.adherence == "VIOLATED").length }} <br>
+                                Check failed: {{ guideline.results.filter(g => g.adherence == "CHECK_FAILED").length }} <br>
                             </div>
-                            <CircularProgress :progress="100*guideline.passed.length/(guideline.passed.length+guideline.failed.length)"/>
+                            <CircularProgress :progress="100*guideline.results.filter(g => g.adherence == 'ADHERED').length/guideline.results.filter(g => g.adherence == 'ADHERED' || g.adherence == 'VIOLATED').length"/>
                         </div>
                     </div>
                 </div>
@@ -47,7 +48,7 @@
             </footer>
         </article>
 
-        <label><input type="checkbox" role="switch" v-model="detailedView"/> Detailed View</label>
+        <!-- <label><input type="checkbox" role="switch" v-model="detailedView"/> Detailed View</label> -->
         <DetailedReportTable :report="report" v-if="detailedView"/>
         <SimpleReportTable :report="report" v-else />
 
@@ -80,7 +81,7 @@ export default {
             showRerun: false,
             timer: 0,
             showGuideline: undefined as IGuidelineReport | undefined,
-            detailedView: false
+            detailedView: true
         }
     },
     methods: {

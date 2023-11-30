@@ -9,45 +9,45 @@
                     <p><strong>Link: </strong> <a target="_blank" :href="guidelineReport.link">{{ guidelineReport.link }}</a></p>
                     <br>
                     <details open>
-                        <summary><strong>Failed ({{ guidelineReport.failed.length }})</strong></summary>
+                        <summary><strong>Violated ({{ guidelineReport.results.filter(g => g.adherence == "VIOLATED").length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.failed">
-                                    <td>{{ g.name }} <br> <pre v-if="Object.keys(omitValues(g)).length > 0">{{ g.display }}</pre></td>
+                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'VIOLATED')">
+                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>❌</td>
                                 </tr>
                             </tbody>
                         </table>
                     </details>
                     <details>
-                        <summary><strong>Passed ({{ guidelineReport.passed.length }})</strong></summary>
+                        <summary><strong>Adhered ({{ guidelineReport.results.filter(g => g.adherence == 'ADHERED').length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.passed">
-                                    <td>{{ g.name }} <br> <pre>{{ omitValues(g) }}</pre></td>
-                                    <td>✅</td>
+                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'ADHERED')">
+                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
+                                    <td>✔</td>
                                 </tr>
                             </tbody>
                         </table>
                     </details>
                     <details>
-                        <summary><strong>Uncertain ({{ guidelineReport.uncertain.length }})</strong></summary>
+                        <summary><strong>Check failed ({{ guidelineReport.results.filter(g => g.adherence == 'CHECK_FAILED').length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.uncertain">
-                                    <td>{{ g.name }}</td>
+                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'CHECK_FAILED')">
+                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
+                                    <td>💢</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </details>
+                    <details>
+                        <summary><strong>Condition not met ({{ guidelineReport.results.filter(g => g.adherence == 'CONDITION_NOT_MET').length }})</strong></summary>
+                        <table role="grid">
+                            <tbody>
+                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'CONDITION_NOT_MET')">
+                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>❔</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
-                    <details>
-                        <summary><strong>Skipped ({{ guidelineReport.skipped.length }})</strong></summary>
-                        <table role="grid">
-                            <tbody>
-                                <tr v-for="g in guidelineReport.skipped">
-                                    <td>{{ g.name }}</td>
-                                    <td></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -64,7 +64,7 @@ export default {
     emits: ["close"],
     methods: {
         omitValues(guideline: any): any {
-            const {_id, id, name, result,  ...strippedGuideline} = guideline;
+            const {_id, id, checkName, result,  ...strippedGuideline} = guideline;
             let textResult = JSON.stringify(strippedGuideline, null, 2);
             textResult = textResult.replace(/("|\[|\s*\]\s*|\s*{|\s*}\s*)/g, "");
             textResult = textResult.substring(1);
