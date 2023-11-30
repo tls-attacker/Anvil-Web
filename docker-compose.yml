@@ -19,7 +19,7 @@ services:
 
   app:
     # image: ghcr.io/tls-attacker/anvil-web
-    image: testo
+    image: anvil-web
     restart: always
     environment:
       - PRODUCTION=1

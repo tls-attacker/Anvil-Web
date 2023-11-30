@@ -12,7 +12,7 @@ To build Anvil Web simply run
 ``` sh
 docker build -t anvil-web .
 ```
-The resulting 
+The resulting docker container can be run separately, but we recommand using the supplied docker compose file, since it needs a mongodb and an environment variable `PRODUCTION=1` so it also serves the frontend. More information can be found under "Running".
 ### Manualy
 You will need:
  - Node.js
@@ -46,7 +46,7 @@ docker run --network tlsanvil mongo
 ```
 To start anvil web using docker you can then run
 ```
-docker run -network tlsanvil -p 5000:5000 anvil-web
+docker run -network tlsanvil -e PRODUCTION=1 -p 5000:5000 anvil-web
 ```
 After starting, the web interface is acessible via http://localhost:5000/
 The backend runs on the same port.
