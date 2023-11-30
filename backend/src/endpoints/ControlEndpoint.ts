@@ -81,7 +81,7 @@ export namespace ControllerEndpoint {
                 job.report.Running = false;
                 job.report.save();
             }
-            job.status = AnvilJobStatus.CANCELD;
+            job.status = AnvilJobStatus.CANCELED;
             setTimeout(() => AC.removeJob(jobId), 20000);
             res.json({sucess: true});
         }

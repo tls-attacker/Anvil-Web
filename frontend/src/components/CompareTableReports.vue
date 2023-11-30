@@ -3,7 +3,7 @@
         <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults" />
         <table v-if="reports.length > 0" role="grid">
             <thead>
-                <th>Testcase</th>
+                <th>Identifier</th>
                 <th v-for="(report, index) in reports">
                     <RouterLink :to="`/tests/${report.Identifier}`">{{ report.Identifier.substring(0,8) }}</RouterLink>
                 </th>
@@ -50,10 +50,10 @@
                             <td @click="showRun(testId)" class="pointer">{{ testId }}</td>
                             <td v-for="report in reports">
                                 <span v-if="hasTestResultFor(report, testId)"
-                                :data-tooltip="getResultToolTip(report.TestRuns.find(tR => tR.TestId == testId))"
+                                :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))"
                                 @click="$router.push(`/tests/${report.Identifier}/${testId}`)"
                                 class="pointer">
-                                    {{ getResultDisplay(report.TestRuns.find(tR => tR.TestId == testId)) }}
+                                    {{ getResultDisplay(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
                                 </span>
                             </td>
                         </tr>
@@ -66,9 +66,8 @@
 
 <script lang="ts">
 import { getResultDisplay, getResultToolTip } from '@/composables/visuals'
-import { ScoreCategories, TestResult, type IScore, type ITestRun, type IReport } from '@/lib/data_types'
+import { type IReport, type ITestRun } from '@/lib/data_types'
 import MethodFilter from './MethodFilter.vue'
-import TestResults from '@/views/TestResults.vue';
 
 export default {
     name: "CompareTableReports",
@@ -84,9 +83,6 @@ export default {
         };
     },
     methods: {
-        formatScore(score: IScore) {
-            return `${score.Reached}/${score.Total} (${score.Percentage.toFixed(2)}%)`;
-        },
         formatTime(seconds: number) {
             if (seconds < 60) {
                 return `${seconds}s`;
@@ -111,9 +107,11 @@ export default {
         filterMethod(testId: string) {
             let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, testId));
             if (relevantReports.length==0) return false;
-            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns.find(tR => tR.TestId == testId).Result]))) return false;
+            // @ts-ignore
+            if (!relevantReports.some((r => this.filteredResults[r.TestRuns.find(tR => tR.TestId == testId).Result]))) return false;
             if (!relevantReports.some(r => {
                 if (!r.TestRuns) return false;
+                // @ts-ignore
                 let score = r.TestRuns.find(tR => tR.TestId == testId).Score;
                 if (score != undefined) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);

@@ -3,7 +3,7 @@
     <TestRunSummary :testId="$route.query.testId"/>
     <table role="grid">
         <thead>
-            <th>Testcase</th>
+            <th>Identifier</th>
             <th v-for="identifier in Object.keys(testRuns)">
                 <RouterLink :to="`/tests/${identifier}/${$route.query.testId}`">{{ identifier.substring(0,8) }}</RouterLink>
             </th>
@@ -25,7 +25,7 @@
                 <td>Overall Result</td>
                 <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbol(testRuns[identifier].Result) }}</td>
             </tr>
-            <tr class="header">
+            <tr class="header" v-if="Object.keys(derivations).length > 0">
                 <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
             </tr>
             <tr v-for="(derivation, uuid) in derivations">
@@ -43,7 +43,7 @@
 </template>
 
 <script lang="ts">
-import { type IScore, type ITestCase, type IReport, type ITestRun } from '@/lib/data_types'
+import { type ITestCase, type ITestRun } from '@/lib/data_types'
 import TestRunSummary from './TestRunSummary.vue'
 import TestCaseModal from './TestCaseModal.vue';
 import { getResultSymbol } from '@/composables/visuals';
@@ -56,7 +56,7 @@ export default {
         return {
             derivations: {} as {
                 [uuid: string]: {
-                    [identifier: string]: string;
+                    [identifier: string]: string | number | boolean;
                 };
             },
             openCase: undefined as ITestCase | undefined,
@@ -64,9 +64,6 @@ export default {
         };
     },
     methods: {
-        formatScore(score: IScore) {
-            return `${score.Reached}/${score.Total} (${score.Percentage.toFixed(2)}%)`;
-        },
         formatTime(seconds: number) {
             if (seconds < 60) {
                 return `${seconds}s`;

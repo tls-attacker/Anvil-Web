@@ -8,7 +8,7 @@ export enum AnvilJobStatus {
     TESTING = "TESTING",
     PAUSED = "PAUSED",
     QUEUED = "QUEUED",
-    CANCELD = "CANCELD"
+    CANCELED = "CANCELED"
 }
 
 export class AnvilJob {
@@ -35,7 +35,7 @@ export class AnvilJob {
         try {
             let anvilConfig = JSON.parse(config);
             this.report = new DB.Report({
-                Identifier: anvilConfig.identifier,
+                Identifier: anvilConfig.identifier || "new_test",
                 TestEndpointType: anvilConfig.endpointMode,
                 Date: new Date(),
                 Running: true,

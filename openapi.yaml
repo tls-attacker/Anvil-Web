@@ -634,18 +634,21 @@ components:
           type: string
           format: date-time
           example: "2022-05-22T16:07:30.361Z"
-        DisplayName:
-          type: string
-          example: "openssl-server"
         Running:
           type: boolean
         ElapsedTime:
           type: integer
           example: 12345
-        FailedTests:
+        FullyFailedTests:
           type: integer
           example: 10
-        SucceededTests:
+        PartiallyFailedTests:
+          type: integer
+          example: 10
+        StrictlySucceededTests:
+          type: integer
+          example: 10
+        ConceptuallySucceededTests:
           type: integer
           example: 10
         DisabledTests:
@@ -657,7 +660,7 @@ components:
         FinishedTests:
           type: integer
           example: 10
-        StatesCount:
+        TestCaseCount:
           type: integer
           example: 10
         Score:
@@ -668,8 +671,24 @@ components:
           enum: 
             - "SERVER"
             - "CLIENT"
-        Config:
+        TestRuns:
+          type: array
+          items:
+            $ref: "#/components/schemas/TestRun"
+          nullable: true
+        Job:
+          type: object
+          $ref: "#/components/schemas/AnvilJob"
+          nullable: true
+        AnvilConfig:
           type: string
+        AdditionalConfig:
+          type: string
+        GuidelineReports:
+          type: array
+          items:
+            $ref: '#/components/schemas/GuidelineReport'
+          nullable: true
     SeverityLevel:
       type: string
       enum:
@@ -698,6 +717,9 @@ components:
         TestClass:
           type: string
           example: de.rub.nds.tlstest.suite.tests.server.tls12.rfc7366.EncThenMacExtension
+        TestId:
+          type: string
+          example: 1234-aBcDEfgHiJ
         Result:
           $ref: '#/components/schemas/TestResult'
         HasStateWithAdditionalResultInformation:
@@ -729,6 +751,7 @@ components:
         Score:
           type: object
           additionalProperties: true
+          nullable: true
         FailureInducingCombinations:
           type: array
           nullable: true
@@ -737,7 +760,7 @@ components:
     TestCase:
       type: object
       properties: 
-        DerivationContainer:
+        ParameterCombination:
           type: object
         DisplayName:
           type: string
@@ -771,4 +794,35 @@ components:
         PcapData:
           type: string
           nullable: true
+    GuidelineReport:
+      type: object
+      properties:
+        name:
+          type: string
+          example: BSI-TR-123
+        link:
+          type: string
+          example: "https://bsi.de/dowload/TR-123"
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Guideline'
+    Guideline:
+      type: object
+      properties:
+        checkName:
+          type: string
+        adherence:
+          type: string
+          enum:
+            - ADHERED
+            - VIOLATED
+            - CHECK_FAILED
+            - CONDITION_NOT_MET
+        hint:
+          type: string
+          nullable: true
+        info:
+          type: string
+      additionalProperties: true
         

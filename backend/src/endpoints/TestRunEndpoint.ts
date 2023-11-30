@@ -31,7 +31,6 @@ export namespace TestRunEndpoint {
         .find({Identifier: {"$in": identifiers}})
         .select({
           Identifier: 1,
-          ShortIdentifier: 1,
           "_id": 1,
         }).lean().exec();
     
