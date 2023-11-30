@@ -1,11 +1,11 @@
 <template>
     <template v-if="testRuns && Object.values(testRuns).length>0">
-    <TestRunSummary :testMethod="$route.query.methodName" :testClass="$route.query.className"/>
+    <TestRunSummary :testId="$route.query.testId"/>
     <table role="grid">
         <thead>
             <th>Testcase</th>
             <th v-for="identifier in Object.keys(testRuns)">
-                <RouterLink :to="`/tests/${identifier}/${(<ITestRun>Object.values(testRuns)[0]).TestClass}/${(<ITestRun>Object.values(testRuns)[0]).TestMethod}`">{{ identifier.substring(0,8) }}</RouterLink>
+                <RouterLink :to="`/tests/${identifier}/${$route.query.testId}`">{{ identifier.substring(0,8) }}</RouterLink>
             </th>
         </thead>
         <tbody>
@@ -31,7 +31,7 @@
             <tr v-for="(derivation, uuid) in derivations">
                 <td>{{ uuid }}</td>
                 <td v-for="identifier in Object.keys(testRuns)">
-                    <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid)" class="pointer">
+                    <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid); selectedIdentifier = identifier" class="pointer">
                         {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
                     </span>
                 </td>
@@ -39,7 +39,7 @@
         </tbody>
     </table>
 </template>
-<TestCaseModal :testCase="openCase" @close="openCase = undefined"/>
+<TestCaseModal :testCase="openCase" @close="openCase = undefined" :testId="$route.query.testId" :identifier="selectedIdentifier"/>
 </template>
 
 <script lang="ts">
@@ -59,7 +59,8 @@ export default {
                     [identifier: string]: string;
                 };
             },
-            openCase: undefined as ITestCase | undefined
+            openCase: undefined as ITestCase | undefined,
+            selectedIdentifier: ""
         };
     },
     methods: {

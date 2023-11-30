@@ -1,6 +1,6 @@
 <template>
     <article v-if="metaDataContainer != undefined">
-            <header class="run-summary">
+            <header class="run-summary" v-if="testRun">
                 <span><strong>TLS Version:</strong> todo</span>
                 <span><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
                 <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
@@ -13,7 +13,7 @@
                             <span><strong> Setion:</strong> {{ metaDataContainer.rfc.section }}</span>
                         </div>
                         <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
-                        <div><strong>Result: </strong> {{ testRun.Result }}</div>
+                        <div v-if="testRun"><strong>Result: </strong> {{ testRun.Result }}</div>
                         <div><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</div>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>

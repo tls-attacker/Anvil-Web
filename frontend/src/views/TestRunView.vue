@@ -55,7 +55,7 @@
             </figure>
         </article>
 
-        <TestCaseModal :testCase="openCase" @close="openCase = undefined"/>
+        <TestCaseModal :testCase="openCase" @close="openCase = undefined" :testId="$route.params['testId']" :identifier="$route.params['identifier']"/>
     </template>
 </template>
 

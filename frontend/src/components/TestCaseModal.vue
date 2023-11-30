@@ -48,7 +48,7 @@
                         'traffic-http': (line.includes('HTTP')),
                         'traffic-rts': (line.includes('RTS'))
                     }">{{ line }}<br></span></pre>
-                    <a :href="$api.getPcapDownloadLink($route.params.identifier as string, $route.params.testId as string, testCase.uuid)" role="button" target="_blank" download="capture.pcap">Download PCAP</a>
+                    <a :href="$api.getPcapDownloadLink(identifier,testId, testCase.uuid)" role="button" target="_blank" download="capture.pcap">Download PCAP</a>
                 </p>
             </main>
         </article>
@@ -58,7 +58,7 @@
 <script lang="ts">
 export default {
     name: "TestCaseModal",
-    props: ["testCase"],
+    props: ["testCase", "identifier", "testId"],
     emits: ["close"],
     data() {
         return {
@@ -68,7 +68,7 @@ export default {
     watch: {
         testCase() {
             if (this.testCase) {
-                this.$api.getTrafficOverview(this.$route.params.identifier as string, this.$route.params.testId as string, this.testCase.uuid)
+                this.$api.getTrafficOverview(this.identifier, this.testId, this.testCase.uuid)
                 .then((text) => {
                     this.traffic = text.split("\n");
                 });

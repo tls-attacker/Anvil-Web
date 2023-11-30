@@ -32,8 +32,8 @@ export module AnvilApi {
         return getApiObject(`report/${identifier}/testRuns/${testId}`);
     }
 
-    export function getTestRuns(identifiers: string[], className: string, methodName: string): Promise<{[identifier: string]: ITestRun}> {
-        return getApiObject(`testRun/${className}/${methodName}` + buildQueryString({identifiers: identifiers}));
+    export function getTestRuns(identifiers: string[], testId: string): Promise<{[identifier: string]: ITestRun}> {
+        return getApiObject(`testRun/${testId}` + buildQueryString({identifiers: identifiers}));
     }
 
     export function getWorkerList(): Promise<IAnvilWorker[]> {

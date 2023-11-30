@@ -41,19 +41,19 @@
                     <td>Execution time</td>
                     <td v-for="report in reports">{{ formatTime(report.ElapsedTime/1000) }}</td>
                 </tr>
-                <template v-for="testClass in Object.keys(testClasses)">
+                <template v-for="prefix in Object.keys(prefixes)">
                     <tr class="header">
-                        <td :colspan="numReports+1">{{ testClass.substring(31) }}</td>
+                        <td :colspan="numReports+1">{{ prefix.startsWith("X") ? prefix : "RFC " + prefix }}</td>
                     </tr>
-                    <template v-for="testMethod in Object.keys(testClasses[testClass])">
-                        <tr v-if="filterMethod(testClass, testMethod)">
-                            <td @click="showRun(testClass, testMethod)" class="pointer">{{ testMethod }}</td>
+                    <template v-for="testId in prefixes[prefix]">
+                        <tr v-if="filterMethod(testId)">
+                            <td @click="showRun(testId)" class="pointer">{{ testId }}</td>
                             <td v-for="report in reports">
-                                <span v-if="hasTestResultFor(report, testClass, testMethod)"
-                                :data-tooltip="getResultToolTip(report.TestRuns[testClass][testMethod])"
-                                @click="$router.push(`/tests/${report.Identifier}/${testClass}/${testMethod}`)"
+                                <span v-if="hasTestResultFor(report, testId)"
+                                :data-tooltip="getResultToolTip(report.TestRuns.find(tR => tR.TestId == testId))"
+                                @click="$router.push(`/tests/${report.Identifier}/${testId}`)"
                                 class="pointer">
-                                    {{ getResultDisplay(report.TestRuns[testClass][testMethod]) }}
+                                    {{ getResultDisplay(report.TestRuns.find(tR => tR.TestId == testId)) }}
                                 </span>
                             </td>
                         </tr>
@@ -66,7 +66,7 @@
 
 <script lang="ts">
 import { getResultDisplay, getResultToolTip } from '@/composables/visuals'
-import { ScoreCategories, TestResult, type IScore, type ITestRun, type ITestMethod, type IReport } from '@/lib/data_types'
+import { ScoreCategories, TestResult, type IScore, type ITestRun, type IReport } from '@/lib/data_types'
 import MethodFilter from './MethodFilter.vue'
 import TestResults from '@/views/TestResults.vue';
 
@@ -77,9 +77,7 @@ export default {
     emits: ["removeReport"],
     data() {
         return {
-            testClasses: {} as {
-                [testClass: string]: {[testMethod: string]: ITestMethod};
-            },
+            prefixes: {} as {[prefix: string]: string[]},
             filterText: "",
             filteredCategories: {} as {[category: string]: boolean},
             filteredResults: {} as {[result: string]: boolean}
@@ -106,50 +104,45 @@ export default {
                 }
             }
         },
-        hasTestResultFor(report: IReport, className: string, methodName: string) {
+        hasTestResultFor(report: IReport, testId: string) {
             return report.TestRuns !== undefined
-                && report.TestRuns[className] !== undefined
-                && report.TestRuns[className][methodName] !== undefined;
+                && report.TestRuns.find(tR => tR.TestId == testId);
         },
-        filterMethod(testClass: string, testMethod: string) {
-            let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, testClass, testMethod));
+        filterMethod(testId: string) {
+            let relevantReports: IReport[] = this.reports.filter((r: IReport) => this.hasTestResultFor(r, testId));
             if (relevantReports.length==0) return false;
-            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns[testClass][testMethod].Result]))) return false;
-            // TODO put categories in testmethod, better in metadata
+            if (!relevantReports.some((r => r.TestRuns && this.filteredResults[r.TestRuns.find(tR => tR.TestId == testId).Result]))) return false;
             if (!relevantReports.some(r => {
                 if (!r.TestRuns) return false;
-                let score = r.TestRuns[testClass][testMethod].Score;
+                let score = r.TestRuns.find(tR => tR.TestId == testId).Score;
                 if (score != undefined) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);
                 } else {
                     return true;
                 }
             })) return false;
-            
-            return testMethod.toLowerCase().includes(this.filterText.toLowerCase());
+            let tags = this.$api.getMetaData(testId).tags.join(" ").toLowerCase();
+            return tags.includes(this.filterText.toLowerCase()) || testId.toLowerCase().includes(this.filterText.toLowerCase());
         },
         getResultDisplay,
         getResultToolTip,
-        mergeTestClasses() {
-            this.testClasses = {};
+        makePrefixes() {
+            this.prefixes = {};
             for (let report of this.reports) {
-                for (let testClass of Object.keys(report.TestRuns)) {
-                    let testMethods = this.testClasses[testClass];
-                    if (testMethods === undefined) {
-                        this.testClasses[testClass] = {};
-                        testMethods = this.testClasses[testClass];
+                for (let tR of report.TestRuns) {
+                    let prefix = this.prefixes[tR.TestId.split("-")[0]];
+                    if (!prefix) {
+                        this.prefixes[tR.TestId.split("-")[0]] = [];
+                        prefix = this.prefixes[tR.TestId.split("-")[0]];
                     }
-                    for (let testMethod of Object.keys(report.TestRuns[testClass])) {
-                        if (!Object.keys(testMethods).includes(testMethod) && report.TestRuns[testClass][testMethod].Result != "DISABLED") {
-                            testMethods[testMethod] = report.TestRuns[testClass][testMethod];
-                        }
+                    if (!prefix.includes(tR.TestId)) {
+                        prefix.push(tR.TestId);
                     }
                 }
             }
-            // console.log({...this.testClasses})
         },
-        showRun(className: string, methodName: string) {
-            this.$router.push({ query: { className: className, methodName: methodName } });
+        showRun(testId: string) {
+            this.$router.push({ query: { testId: testId } });
         },
         formatEnum(upper: string): string {
             let parts = upper.split("_");
@@ -157,11 +150,11 @@ export default {
         }
     },
     mounted() {
-        this.mergeTestClasses();
+        this.makePrefixes();
     },
     watch: {
         numReports() {
-            this.mergeTestClasses();
+            this.makePrefixes();
         }
     }
 }

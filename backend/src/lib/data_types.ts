@@ -83,19 +83,6 @@ export interface ITestRun {
     FailureInducingCombinations: { [key: string]: string }[]
 }
 
-export interface ITestMethod {
-    Description: string,
-    TestDescription: string,
-    TlsVersion: string,
-    RFC: {
-        Section: string,
-        number: number
-    }
-    MethodName: string,
-    DisplayName: string,
-    ClassName: string
-}
-
 export interface ITestCase {
     ParameterCombination: { [identifier: string]: string | number | boolean }
     DisplayName: string

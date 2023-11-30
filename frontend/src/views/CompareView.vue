@@ -45,8 +45,8 @@ export default {
             if (identifiers.length == 0) {
                 return;
             }
-            if (this.$route.query["className"] && this.$route.query["methodName"]) {
-                this.$api.getTestRuns(identifiers as string[], this.$route.query["className"] as string, this.$route.query["methodName"] as string)
+            if (this.$route.query["testId"]) {
+                this.$api.getTestRuns(identifiers as string[], this.$route.query["testId"] as string)
                     .then((testRuns) => {
                         this.testRuns = testRuns;
                     });   
