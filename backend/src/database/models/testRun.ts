@@ -1,4 +1,3 @@
-import { TestMethodSchemaObject } from "./testMethod";
 import { Model, ObjectId, Schema, Types } from 'mongoose';
 import { ITestRun, TestResult } from "../../lib/data_types";
 import DB from "../index"
@@ -6,7 +5,7 @@ import { TestCaseSchema } from "./testCase";
 
 export interface TestRunModel extends Model<ITestRun> {
   overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}): Promise<ITestRun & {_id: Types.ObjectId}>;
-  countTestCases(testRun: ITestRun & {_id: Types.ObjectId}): Promise<ITestRun & {_id: Types.ObjectId}>;
+  countTestCases(testRun: ITestRun & {_id: Types.ObjectId}): ITestRun & {_id: Types.ObjectId};
 }
 
 export const TestRunSchema = new Schema({
@@ -30,13 +29,8 @@ export const TestRunSchema = new Schema({
     type: Map,
     of: Number
   },
-  FailureInducingCombinations: [{
-    type: Schema.Types.Map,
-    of: Schema.Types.Mixed,
-    default: new Map()
-  }]
-},
-{
+  FailureInducingCombinations: [Schema.Types.Mixed]
+}, {
   statics: {
     async overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}) {
       const edits = await DB.TestRunEdit.find({
@@ -63,7 +57,7 @@ export const TestRunSchema = new Schema({
       }
 
       return testRun;
-    },
+    }, 
     countTestCases(testRun: ITestRun & {_id: Types.ObjectId}) {
       let sucCases = 0;
       let conSucCases = 0;
