@@ -71,7 +71,11 @@ export namespace ReportEnpoint {
       if (job) {
         report = job.report.toObject({flattenMaps: true});
         report.Job = job.apiObject();
-        report.TestRuns = Object.values(job.testRuns).map(tR => tR.toObject({flattenMaps: true}));
+        report.TestRuns = Object.values(job.testRuns).map(tR => {
+          let report = tR.toObject({flattenMaps: true});
+          delete report.TestCases;
+          return report;
+        });
       } else {
         report = await DB.Report.findOne({Identifier: identifier}).lean().exec();
         if (!report) {
@@ -114,6 +118,9 @@ export namespace ReportEnpoint {
       if (job) {
 
         testRun = job.testRuns[testId].toObject({flattenMaps: true});
+        for (let i = 0; i < testRun.TestCases.length; i++) {
+          delete testRun.TestCases[i].PcapData;
+        }
 
       } else {
     

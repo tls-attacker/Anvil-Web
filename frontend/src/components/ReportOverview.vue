@@ -18,7 +18,7 @@
                             <a href="" role="button" v-if="report.Running" class="outline negative">Stop</a>
                         </div>
                     </div>
-                    <CircularProgress :progress="calculateOverallScore(report)" name="Score" v-if="!report.Running"/>
+                    <CircularProgress :progress="calculateOverallScore(report)" name="Score" v-if="!report.Running && report.Score"/>
                 </div>
                 <NewJobDialog v-if="rerun" @close="rerun = false" :givenConfig="report.AnvilConfig" :givenAdditionalConfig="report.AdditionalConfig"/>
             </article>

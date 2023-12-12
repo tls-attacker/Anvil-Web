@@ -18,7 +18,7 @@
                 <span><strong>Elapsed Time:</strong> <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
             </header>
             <main>
-                <template v-if="!report.Running">
+                <template v-if="!report.Running && report.Score">
                     <strong>Scores:</strong>
                     <div class="score-container">
                         <CircularProgress name="Security" :progress="report.Score['Security']"/>

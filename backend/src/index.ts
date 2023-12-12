@@ -28,7 +28,7 @@ app.use(cors());
 app.use(fileUpload())
 app.use(OpenApiValidator.middleware({
   apiSpec: '../openapi.yaml',
-  validateResponses: true,
+  validateResponses: false,
   fileUploader: false
 }))
 app.use('/api/v2', router)

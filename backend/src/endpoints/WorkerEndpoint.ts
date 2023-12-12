@@ -19,6 +19,7 @@ export namespace WorkerEndpoint {
             router.post("/worker/update/report", this.updateReport);
             router.post("/worker/update/testrun", this.updateTestRun);
             router.post("/worker/update/testcase", this.updateTestCase);
+            router.post("/worker/update/pcap", this.updatePcapData);
 
         }
 
@@ -56,7 +57,7 @@ export namespace WorkerEndpoint {
             }
 
             if (req.body.finished) {
-                AC.removeJob(jobId);
+                setTimeout(() => AC.removeJob(jobId), 5000);
             }
             
             res.json({status: "OK"});
@@ -142,6 +143,35 @@ export namespace WorkerEndpoint {
             }
             testRun.TestCases.push(newTestCase);
             testRun.CaseCount++;
+            clearTimeout(job.testRunTimeouts[testId])
+            job.testRunTimeouts[testId] = setTimeout(() => testRun.save(), 3000);
+            res.json({status: "OK"});
+        }
+
+        private async updatePcapData(req: Request, res: Response, next: NextFunction) {
+            let jobId = req.body.jobId;
+            let job = AC.getJob(jobId as string);
+            if (!job) {
+                return next(new BadRequest("id not valid"));
+            }
+            if (!job.report) {
+                return next(new BadRequest("no associated report found"));
+            }
+            let uuid = req.body.uuid;
+            let testId = req.body.testId;
+            let pcapData = req.body.pcapData;
+            let testRun = job.testRuns[testId];
+            if (!testRun) {
+                return next(new BadRequest("no associated testrun found"));
+            }
+            for (let i = 0; i < testRun.TestCases.length; i++) {
+                if (testRun.TestCases[i].uuid == uuid) {
+                    // @ts-ignore
+                    testRun.TestCases[i].PcapData = Buffer.from(pcapData, 'base64');
+                    break;
+                }
+            }
+
             clearTimeout(job.testRunTimeouts[testId])
             job.testRunTimeouts[testId] = setTimeout(() => testRun.save(), 3000);
             res.json({status: "OK"});

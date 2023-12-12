@@ -7,7 +7,7 @@
                 <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink></h3>
             </hgroup>
             <span class="spacer"></span>
-            <a role="button" href="">Re-Run</a>
+            <!--<a role="button" href="">Re-Run</a>-->
         </header>
         <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
 

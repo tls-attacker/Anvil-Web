@@ -81,6 +81,7 @@ export default {
             error: false,
             config: {
                 testPackage: "de.rub.nds.tlstest.suite",
+                networkInterface: "\\Device\\NPF_Loopback",
                 identifier: "",
                 strength: "1",
                 parallelTestCases: "1",

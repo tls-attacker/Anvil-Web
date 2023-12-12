@@ -44,7 +44,7 @@
                     <strong>Network Traffic Capture</strong> <br>
                     <pre><span v-for="line of traffic" :class="{
                         'traffic-tcp': (line.includes('SYN') || line.includes('FIN') || line.includes('ACK')),
-                        'traffic-tls': (line.includes('TLS')),
+                        'traffic-tls': (line.includes('TLS') || line.includes('SSL')),
                         'traffic-http': (line.includes('HTTP')),
                         'traffic-rts': (line.includes('RTS'))
                     }">{{ line }}<br></span></pre>

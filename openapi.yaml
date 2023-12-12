@@ -374,12 +374,41 @@ paths:
               properties: 
                 jobId:
                   type: string
-                className:
-                  type: string
-                methodName:
+                testId:
                   type: string
                 testcase:
                   $ref: '#/components/schemas/TestCase'
+      responses: 
+        '200':
+          description: successful operation
+          content:
+            application/json: 
+              schema:
+                type: object
+                properties: 
+                  status:
+                    type: string
+                    default: "OK"
+  /worker/update/pcap:
+    post:
+      tags:
+        - worker
+      summary: update pcap data for a testcase
+      description: Update the pcap data for a specific test case.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: 
+                jobId:
+                  type: string
+                testId:
+                  type: string
+                uuid:
+                  type: string
+                pcapData:
+                  type: string
       responses: 
         '200':
           description: successful operation

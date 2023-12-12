@@ -17,7 +17,7 @@
         </template>
     </div>
     <UploadDialog :open="upload" @close="upload = false; refreshReports()"/>
-    <DeleteReportDialog v-if="deleteIdentifiers.length>0" @close="deleteIdentifiers = []" @deleted="deleteIdentifiers = []; refreshReports()" :identifiers="deleteIdentifiers"/>
+    <DeleteReportDialog v-if="deleteIdentifiers.length>0" @close="deleteIdentifiers = []" @deleted="deleteIdentifiers = []; selectedReports = {}; refreshReports()" :identifiers="deleteIdentifiers"/>
     <NewJobDialog v-if="newJob" @close="newJob=false"/>
 </template>
 

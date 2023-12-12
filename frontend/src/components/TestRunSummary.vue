@@ -2,7 +2,7 @@
     <article v-if="metaDataContainer != undefined">
             <header class="run-summary" v-if="testRun">
                 <span><strong>TLS Version:</strong> todo</span>
-                <span><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
+                <span v-if="testRun.TestClass"><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
                 <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
             </header>
             <main>
