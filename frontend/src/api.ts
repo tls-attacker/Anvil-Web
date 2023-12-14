@@ -1,4 +1,5 @@
 import type { IAnvilJob, IAnvilWorker, IReport, ITestRun } from './lib/data_types';
+import metaDataString from "@/assets/metadata.json";
 
 export module AnvilApi {
     const baseUrl = "http://localhost:5001/api/v2/";
@@ -165,8 +166,7 @@ export module AnvilApi {
         }
     }
 
-    let metaData = {} as {[key: string]: any};
-    fetch("/src/assets/metadata.json").then(r => r.json()).then(o => metaData = o);
+    let metaData = metaDataString as {[key: string]: any};
     export function getMetaData(testId: string): any {
         if (testId in metaData) {
             return metaData[testId];

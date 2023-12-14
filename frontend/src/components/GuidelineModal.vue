@@ -9,10 +9,10 @@
                     <p><strong>Link: </strong> <a target="_blank" :href="guidelineReport.link">{{ guidelineReport.link }}</a></p>
                     <br>
                     <details open>
-                        <summary><strong>Violated ({{ guidelineReport.results.filter(g => g.adherence == "VIOLATED").length }})</strong></summary>
+                        <summary><strong>Violated ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == "VIOLATED").length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'VIOLATED')">
+                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'VIOLATED')">
                                     <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>❌</td>
                                 </tr>
@@ -20,10 +20,10 @@
                         </table>
                     </details>
                     <details>
-                        <summary><strong>Adhered ({{ guidelineReport.results.filter(g => g.adherence == 'ADHERED').length }})</strong></summary>
+                        <summary><strong>Adhered ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'ADHERED').length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'ADHERED')">
+                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'ADHERED')">
                                     <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>✔</td>
                                 </tr>
@@ -31,10 +31,10 @@
                         </table>
                     </details>
                     <details>
-                        <summary><strong>Check failed ({{ guidelineReport.results.filter(g => g.adherence == 'CHECK_FAILED').length }})</strong></summary>
+                        <summary><strong>Check failed ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'CHECK_FAILED').length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'CHECK_FAILED')">
+                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'CHECK_FAILED')">
                                     <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>💢</td>
                                 </tr>
@@ -42,10 +42,10 @@
                         </table>
                     </details>
                     <details>
-                        <summary><strong>Condition not met ({{ guidelineReport.results.filter(g => g.adherence == 'CONDITION_NOT_MET').length }})</strong></summary>
+                        <summary><strong>Condition not met ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'CONDITION_NOT_MET').length }})</strong></summary>
                         <table role="grid">
                             <tbody>
-                                <tr v-for="g in guidelineReport.results.filter(h => h.adherence == 'CONDITION_NOT_MET')">
+                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'CONDITION_NOT_MET')">
                                     <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
                                     <td>❔</td>
                                 </tr>
@@ -58,6 +58,7 @@
 </template>
 
 <script lang="ts">
+import { type IGuideline, type IGuidelineReport } from '../lib/data_types';
 export default {
     name: "GuidelineModal",
     props: ["guidelineReport"],

@@ -14,8 +14,8 @@ import { PcapEndpoint } from './endpoints/PcapEndpoint';
 console.log("AnvilWeb starting...")
 const app = express()
 
-console.log(" - configuring frontend interface")
 if (process.env.PRODUCTION) {
+  console.log(" - configuring frontend interface")
   app.use(express.static('static'))
 }
 
@@ -27,8 +27,8 @@ app.use(express.json({
 app.use(cors());
 app.use(fileUpload())
 app.use(OpenApiValidator.middleware({
-  apiSpec: '../openapi.yaml',
-  validateResponses: false,
+  apiSpec: 'openapi.yaml',
+  validateResponses: true,
   fileUploader: false
 }))
 app.use('/api/v2', router)
@@ -68,6 +68,11 @@ app.use(function (err: Error, req: Request, res: Response, next: NextFunction) {
 
   next(err)
 })
+
+// express static routing for vue router
+if (process.env.PRODUCTION) {
+  app.use(function (req, res, next) { return res.sendFile('static/index.html', {root: process.cwd()}); }); 
+}
 
 console.log(" - establishing database connection")
 DB.connect().then(() => {
