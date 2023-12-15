@@ -79,6 +79,7 @@ DB.connect().then(() => {
   app.listen(5001, function () {
     console.log('AnvilWeb started. Running on port 5001!')
   })
+  DB.cleanUp();
 }).catch((e) => {
   console.error("Startup failed!", e)
 })

@@ -117,7 +117,7 @@ export namespace UploadReportEndpoint {
     readableStream.push(keylogfile.getData())
     readableStream.push(null)
     readableStream.pipe(uploadStream)
-    report.keylogfile = uploadStream.id;
+    report.KeylogFile = uploadStream.id;
     
     await report.save()
 

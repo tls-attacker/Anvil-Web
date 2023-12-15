@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { spawnSync } from 'child_process';
+import { spawnSync, spawn } from 'child_process';
 import { NextFunction, Request, Response, Router } from 'express';
 import fs, { promises as fsPromises } from 'fs';
 import { IState, ITestRun } from '../lib/data_types';
@@ -12,6 +12,7 @@ import { TestRunEditSchema } from 'database/models';
 
 
 export namespace PcapEndpoint {
+
   export class Controller {
     private router: Router
 
@@ -68,10 +69,12 @@ export namespace PcapEndpoint {
 
       let job = AC.getAllJobs().find(j => j.report && j.report.Identifier == identifier);
       let testRun;
+      let report;
       if (job) {
         testRun = job.testRuns[testId];
+        report = job.report;
       } else {
-        const report = await DB.Report.findOne({ Identifier: identifier }).select({_id: 1}).lean().exec()
+        report = await DB.Report.findOne({ Identifier: identifier }).select({_id: 1, KeylogFile: 1}).lean().exec()
         if (!report) {
           return next(new BadRequest("identifier not found"));
         }
@@ -92,16 +95,29 @@ export namespace PcapEndpoint {
       }
 
       if (pcap) {
-        let output = await this.execProgram(pcap, 
-          //'tshark', 
-          'C:\\Program Files\\Wireshark\\tshark.exe',
-          [
-            '-n', '-r', '-',
-            //'-o', `tls.keylog_file:/tmp/k${container.KeylogfileStorageId}`,
+        let output;
+        if (process.platform == "win32") {
+          output = await this.execProgram(pcap, 
+            "C:\\Program Files\\Wireshark\\tshark.exe",
+            [
+              '-n', '-r', "-",
+              '-o', 'gui.column.format:"Time","%Aut","s","%uS","d","%uD","Protocol","%p","Info","%i"',
+              '-T', 'tabs'
+            ]
+          )
+        } else {
+          fs.writeFileSync(`/tmp/dump_${uuid}.pcap`, pcap);
+          let keylogAvailable = await this.writeKeylogFile(report.KeylogFile);
+          let args = [
+            '-n', '-r', `/tmp/dump_${uuid}.pcap`,
             '-o', 'gui.column.format:"Time","%Aut","s","%uS","d","%uD","Protocol","%p","Info","%i"',
             '-T', 'tabs'
           ]
-        )
+          if (keylogAvailable) {
+            args.splice(1, 0, '-o', `tls.keylog_file:/tmp/keylog_${report.KeylogFile}.log`,);
+          }
+          output = await this.execProgram(null,  "tshark", args);
+        }
 
         res.type("text/plain")
         res.send(output)
@@ -125,9 +141,44 @@ export namespace PcapEndpoint {
           input: stdin || 'pipe',
           env: env,
         })
-        console.error(ret.stderr.toString('utf-8'))
+        if (ret.stderr) {
+          console.error(ret.stderr.toString('utf-8'))
+        }
         res(ret.stdout)
       })
+    }
+
+    private async writeKeylogFile(id: ObjectId):boolean {
+      if (!id) {
+        return false;
+      }
+      if (fs.existsSync(`/tmp/keylog_${id}.log`)) {
+        return true;
+      }
+  
+      let keyfile = await this.downloadFile(id);
+      fs.writeFileSync(`/tmp/keylog_${id}.log`, keyfile);
+  
+      return true;
+    }
+  
+    private async downloadFile(id): Promise<Buffer> {
+      return new Promise((res, rej) => {
+        let downloadStream = DB.keylogfileBucket.openDownloadStream(id);
+  
+        const out: any[] = []
+        downloadStream.on('data', (chunk) => {
+          out.push(chunk)
+        })
+  
+        downloadStream.on('error', (e) => {
+          rej(e)
+        })
+  
+        downloadStream.on('end', () => {
+          res(Buffer.concat(out))
+        })
+      });
     }
     
   }

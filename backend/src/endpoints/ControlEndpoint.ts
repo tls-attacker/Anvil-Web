@@ -8,6 +8,22 @@ import DB from '../database';
 
 export namespace ControllerEndpoint {
 
+    function validateConfig(stringConfig: string): boolean {
+        let config;
+        try {
+            config = JSON.parse(stringConfig);
+        } catch (err: any) {
+            return false;
+        }
+
+        const idReg = /^[a-zA-Z0-9\-_:.]+$/;
+        if (!idReg.test(config.identifier)) {
+            return false;
+        }
+        
+        return true;
+    } 
+
     export class Controller {
         private router: Router
 
@@ -37,6 +53,11 @@ export namespace ControllerEndpoint {
             let config = req.body.config;
             let additionalConfig = req.body.additionalConfig;
             let workerId = req.body.workerId;
+
+            if (!validateConfig(config)) {
+                return next(new BadRequest("config validation failed"));
+            }
+
             let worker;
             if (workerId) {
                 worker  = AC.getWorker(workerId);
@@ -44,6 +65,7 @@ export namespace ControllerEndpoint {
                     return next(new BadRequest("workerId not found"));
                 }
             }
+            
             let job = AC.addJob(config, additionalConfig, worker)
             res.send(job.apiObject());
         }

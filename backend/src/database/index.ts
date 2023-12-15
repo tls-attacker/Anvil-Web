@@ -39,6 +39,10 @@ class Database {
     })
   }
 
+  cleanUp() {
+    this.Report.updateMany({Running: true}, {Running: false}).exec();
+  }
+
   /* async addResultContainer(container: ITestRun, pcap: string, keylogfile: string): Promise<void> {
     const containerDoc = new this.TestRun(container)
     const testResultDocs: ITestResult[] = []

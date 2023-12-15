@@ -49,18 +49,42 @@
                         </label>
                     </template>
                     <label>Strength:
-                        <input type="number" v-model="config.strength">
+                        <input type="number" v-model="config.strength" min="1">
                     </label>
                     <label>Parallel Testcases:
-                        <input type="number" v-model="config.parallelTestCases">
+                        <input type="number" v-model="config.parallelTestCases" min="1">
                     </label>
+                    <details>
+                        <summary>More settings</summary>
+                        <label>Connection Timeout (ms)
+                            <input type="number" v-model="config.connectionTimeout" min="100" step="100">
+                        </label>
+                        <label>Don't capture network traffic
+                            <input type="checkbox" role="switch" v-model="config.disableTcpDump">
+                        </label>
+                        <label>DTLS
+                            <input type="checkbox" role="switch" v-model="config.useDTLS">
+                        </label>
+                        <label>Ignore cache
+                            <input type="checkbox" role="switch" v-model="config.ignoreCache">
+                        </label>
+                        <label>Restart target after ... failed attempts
+                            <input type="number" min="0" step="100" v-model="config.restartServerAfter">
+                        </label>
+                        <label>Tags
+                            <input type="text" v-model="config.tags">
+                        </label>
+                        <label>Testpackage
+                            <input type="text" v-model="config.testPackage">
+                        </label>
+                    </details>
                 </form>
             </main>
             <footer>
                 <a href="" role="button" class="secondary" @click.prevent="$emit('close')">
                     Cancel
                 </a>
-                <a href="" role="button" @click.prevent="createJob" :aria-busy="waiting">
+                <a href="" role="button" @click.prevent="createJob" :aria-busy="waiting" :disabled="validateForm()">
                     Create
                 </a>
             </footer>
@@ -80,11 +104,18 @@ export default {
             waiting: false,
             error: false,
             config: {
-                testPackage: "de.rub.nds.tlstest.suite",
-                networkInterface: "\\Device\\NPF_Loopback",
-                identifier: "",
-                strength: "1",
+                connectionTimeout: "200",
+                disableTcpDump: "true",
+                useDTLS: "false",
+                identifier: "new_test_"+Math.floor(Math.random()*100),
+                ignoreCache: "false",
+                //networkInterface: "\\Device\\NPF_Loopback",
                 parallelTestCases: "1",
+                //parallelTests: "1",
+                restartServerAfter: "0",
+                strength: "1",
+                tags: "",
+                testPackage: "de.rub.nds.tlstest.suite",
                 endpointMode: "SERVER"
             },
             additionalConfig: {
@@ -107,7 +138,15 @@ export default {
             this.waiting = true;
             this.error = false;
 
-            this.$api.addJob(JSON.stringify(this.config), JSON.stringify(this.additionalConfig), this.selectedWorker)
+            let modifiedConfig = JSON.parse(JSON.stringify(this.config));
+            if (modifiedConfig.tags.length > 0) {
+                modifiedConfig.tags = modifiedConfig.tags.split(" ");
+            } else {
+                modifiedConfig.tags = [];
+            }
+            console.log(modifiedConfig);
+
+            this.$api.addJob(JSON.stringify(modifiedConfig), JSON.stringify(this.additionalConfig), this.selectedWorker)
                 .then(() => {
                     this.waiting = false;
                     this.$emit("close");
@@ -116,6 +155,10 @@ export default {
                     this.error = true;
                     this.waiting = false;
                 });
+        },
+        validateForm() {
+            const idReg = /^[a-zA-Z0-9\-_:.]+$/;
+            return idReg.test(this.config.identifier) ? null : true;
         }
     },
     created() {
@@ -123,10 +166,26 @@ export default {
             this.$api.getWorkerList().then(workerList => this.dlWorkers = workerList);
         }
         if (this.givenConfig) {
-            this.config = JSON.parse(this.givenConfig);
+            // update config with entries from the given config
+            let configUpdates = JSON.parse(this.givenConfig);
+            if (Array.isArray(configUpdates.tags)) {
+                configUpdates.tags = configUpdates.tags.join(" ");
+            }
+            Object.keys(this.config).forEach((key) => {
+                if(key in configUpdates){
+                    // @ts-ignore
+                    this.config[key] = configUpdates[key];
+                }
+            });
         }
         if (this.givenAdditionalConfig) {
-            this.additionalConfig = JSON.parse(this.givenAdditionalConfig);
+            let configUpdates = JSON.parse(this.givenAdditionalConfig);
+            Object.keys(this.additionalConfig).forEach((key) => {
+                if(key in configUpdates){
+                    // @ts-ignore
+                    this.additionalConfig[key] = configUpdates[key]
+                }
+            });
         }
     },
     computed: {

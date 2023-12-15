@@ -1,4 +1,5 @@
 FROM node:20
+RUN apt update && apt install tshark -y
 
 COPY frontend /build/frontend
 RUN rm -r /build/frontend/src/lib

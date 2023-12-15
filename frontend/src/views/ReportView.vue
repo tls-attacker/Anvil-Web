@@ -7,7 +7,7 @@
                 <h2>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink></h2>
             </hgroup>
             <span class="spacer"></span>
-            <a v-if="report.Running" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
+            <a v-if="report.Running && report.Job" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
             <a v-if="!report.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
             <a v-if="!report.Running" role="button" href="" @click.prevent="showRerun = true">Re-Run</a>
         </header>
