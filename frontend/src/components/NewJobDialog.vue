@@ -144,7 +144,6 @@ export default {
             } else {
                 modifiedConfig.tags = [];
             }
-            console.log(modifiedConfig);
 
             this.$api.addJob(JSON.stringify(modifiedConfig), JSON.stringify(this.additionalConfig), this.selectedWorker)
                 .then(() => {
