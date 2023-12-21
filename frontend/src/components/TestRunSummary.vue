@@ -1,7 +1,7 @@
 <template>
     <article v-if="metaDataContainer != undefined">
             <header class="run-summary" v-if="testRun">
-                <span><strong>TLS Version:</strong> todo</span>
+                <!--<span><strong>TLS Version:</strong> todo</span>-->
                 <span v-if="testRun.TestClass"><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
                 <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
             </header>
@@ -24,7 +24,7 @@
                         </ul>
                         </div>
                     </div>
-                    <CircularProgress v-if="testRun && testRun.Cases && testRun.Cases.length > 0"
+                    <CircularProgress v-if="testRun && testRun.TestCases && testRun.TestCases.length > 0"
                         :progress="(testRun.SucceededCases + testRun.ConSucceededCases) * 100 / testRun.TestCases.length"
                         :name="`${testRun.SucceededCases + testRun.ConSucceededCases}/${testRun.TestCases.length}`"/>
                 </div>
