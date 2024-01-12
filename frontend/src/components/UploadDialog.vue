@@ -5,14 +5,14 @@
             </a>
             <h3>Upload Test Report</h3>
             <p>
-                To upload a single test report, zip your result folder (containing the summary.json) and upload it here.
+                To upload a single test report, zip your result folder (containing the report.json) and upload it here.
             </p>
             <br/>
             <label>
                 Report:
                 <input type="file" accept=".zip" v-on:change="(e) => files = (<HTMLInputElement>e.target).files">
             </label>
-            <p v-if="error">Error uploading file.</p>
+            <p v-if="error.length>0">Error uploading file. {{ error }}</p>
             <progress v-if="uploading" :value="progress"></progress>
             <footer>
                 <a href="" role="button" class="secondary" data-target="modal-example" @click.prevent="$emit('close')">
@@ -38,7 +38,7 @@ export default {
             progress: 0 as number | undefined,
             uploading: false,
             files: null as FileList | null,
-            error: false
+            error: ""
         }
     },
     methods: {
@@ -46,7 +46,7 @@ export default {
             if (this.files == null || this.files.length != 1) return;
 
             this.uploading = true;
-            this.error = false;
+            this.error = "";
             let formdata = new FormData();
             let file = this.files[0]
             let fileSize = file.size;
@@ -67,11 +67,15 @@ export default {
             });
             request.addEventListener('load', (e) => {
                 this.uploading = false;
-                this.$emit("close");
+                if (request.status != 200) {
+                    this.error = request.responseText;
+                } else {
+                    this.$emit("close");
+                }
             });
             request.addEventListener('error', (e) => {
                 this.uploading = false;
-                this.error = true;
+                this.error = "Error during upload.";
             })
 
             request.open('post', 'http://localhost:5001/api/v2/uploadReport');

@@ -4,6 +4,7 @@ import fileUpload from "express-fileupload";
 import { Readable } from "stream";
 import DB from '../database';
 import mongoose from "mongoose";
+import { BadRequest } from "../errors";
 
 
 export namespace UploadReportEndpoint {
@@ -26,7 +27,7 @@ export namespace UploadReportEndpoint {
       } else if (!reportEntry && summaryEntry) {
         await processOldReport(zipFile, res);
       } else {
-        res.send("No summary found")
+        return next(new BadRequest("No summary or report file found"));
         return
       }
     }
