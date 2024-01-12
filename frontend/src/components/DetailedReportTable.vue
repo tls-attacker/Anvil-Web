@@ -19,7 +19,7 @@
                                                 {{ testRun.TestId }}
                                             </RouterLink>
                                             &nbsp;
-                                            <small>({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                            <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
                                         </td>
                                         <td>
                                             <span :data-tooltip="getResultToolTip(testRun)">
@@ -68,7 +68,10 @@ export default {
             if (testRun.Score != undefined) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
-            let tags = this.$api.getMetaData(testRun.TestId).tags.join(" ").toLowerCase();
+            let tags = [];
+            if (this.$api.getMetaData(testRun.TestId) && this.$api.getMetaData(testRun.TestId).tags) {
+                tags = this.$api.getMetaData(testRun.TestId).tags.join(" ").toLowerCase();
+            }
             return tags.includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
         },
         makePrefixes() {
