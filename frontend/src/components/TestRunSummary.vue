@@ -31,7 +31,10 @@
                 <div v-if="testRun && testRun.FailedReason">
                             <strong>Failed Reason:</strong>
                             <figure><code>{{ testRun.FailedReason }}</code></figure>
-                        </div>
+                </div>
+                <div v-if="testRun && testRun.DisabledReason">
+                            <strong>Disabled Reason:</strong> {{ testRun.DisabledReason }}
+                </div>
             </main>
             <footer>
                 <progress v-if="false"></progress>
