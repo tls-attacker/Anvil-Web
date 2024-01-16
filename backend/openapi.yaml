@@ -737,6 +737,7 @@ components:
         - "PARSER_ERROR"
         - "NOT_SPECIFIED"
         - "INCOMPLETE"
+        - "TEST_SUITE_ERROR"
     TestRun:
       type: object
       properties: 

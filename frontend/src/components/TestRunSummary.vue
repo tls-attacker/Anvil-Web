@@ -4,6 +4,7 @@
                 <!--<span><strong>TLS Version:</strong> todo</span>-->
                 <span v-if="testRun.TestClass"><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
                 <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
+                <span v-if="metaDataContainer.tags"><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</span>
             </header>
             <main>
                 <div class="summary-main-flex">
@@ -14,21 +15,24 @@
                         </div>
                         <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
                         <div v-if="testRun"><strong>Result: </strong> {{ testRun.Result }}</div>
-                        <div><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</div>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
-                            <li v-for="combination of testRun.FailureInducingCombinations.slice(0, 3)">
-                                <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
-                            </li>
-                        </ul>
+                                <li v-for="combination of testRun.FailureInducingCombinations.slice(0, 3)">
+                                    <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                     <CircularProgress v-if="testRun && testRun.TestCases && testRun.TestCases.length > 0"
                         :progress="(testRun.SucceededCases + testRun.ConSucceededCases) * 100 / testRun.TestCases.length"
                         :name="`${testRun.SucceededCases + testRun.ConSucceededCases}/${testRun.TestCases.length}`"/>
                 </div>
-                </main>
+                <div v-if="testRun && testRun.FailedReason">
+                            <strong>Failed Reason:</strong>
+                            <figure><code>{{ testRun.FailedReason }}</code></figure>
+                        </div>
+            </main>
             <footer>
                 <progress v-if="false"></progress>
             </footer>

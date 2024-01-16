@@ -26,6 +26,7 @@ export function getResultSymbol(result: string) {
         case "FULLY_FAILED": return "❌";
         case "DISABLED": return "";
         case "INCOMPLETE": return "📝";
+        case "TEST_SUITE_ERROR": return "☢";
         default: return result;
     }
 }

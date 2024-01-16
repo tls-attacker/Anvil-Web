@@ -23,9 +23,9 @@ export namespace UploadReportEndpoint {
       const summaryEntry = zipFile.getEntry("summary.json")
       const reportEntry = zipFile.getEntry("report.json")
       if (!summaryEntry && reportEntry) {
-        await processNewReport(zipFile, res);
+        await processNewReport(zipFile, res, next);
       } else if (!reportEntry && summaryEntry) {
-        await processOldReport(zipFile, res);
+        await processOldReport(zipFile, res, next);
       } else {
         return next(new BadRequest("No summary or report file found"));
         return
@@ -33,14 +33,13 @@ export namespace UploadReportEndpoint {
     }
   }
 
-  async function processOldReport(zipFile: AdmZip, res: Response) {
+  async function processOldReport(zipFile: AdmZip, res: Response, next: NextFunction) {
     // todo add backwards compatability
     const summaryEntry = zipFile.getEntry("summary.json")
     let summary = JSON.parse(summaryEntry.getData().toString())
     let exists = await DB.Report.findOne({ Identifier: summary.Identifier }, { Identifier: 1 }).lean().exec();
     if (exists != null) {
-      res.send("Already exists")
-      return
+      return next(new BadRequest("Identifier already exists."))
     }
     summary.Date = new Date(summary.Date)
     summary.PartiallyFailedTests = 0;
@@ -95,14 +94,13 @@ export namespace UploadReportEndpoint {
     res.send("OK")
   }
 
-  async function processNewReport(zipFile: AdmZip, res: Response) {
+  async function processNewReport(zipFile: AdmZip, res: Response, next: NextFunction) {
     // first, search for report file
     const reportEntry = zipFile.getEntry("report.json")
     let report = JSON.parse(reportEntry.getData().toString())
     let exists = await DB.Report.findOne({ Identifier: report.Identifier }, { Identifier: 1 }).lean().exec();
     if (exists != null) {
-      res.send("Already exists")
-      return
+      return next(new BadRequest("Identifier already exists"))
     }
 
     report = new DB.Report(report)
@@ -113,12 +111,14 @@ export namespace UploadReportEndpoint {
     }
     // key log file
     const keylogfile = zipFile.getEntry("keyfile.log");
-    const uploadStream = DB.keylogfileBucket.openUploadStream("keyfile.log")
-    const readableStream = new Readable()
-    readableStream.push(keylogfile.getData())
-    readableStream.push(null)
-    readableStream.pipe(uploadStream)
-    report.KeylogFile = uploadStream.id;
+    if (keylogfile) {
+      const uploadStream = DB.keylogfileBucket.openUploadStream("keyfile.log")
+      const readableStream = new Readable()
+      readableStream.push(keylogfile.getData())
+      readableStream.push(null)
+      readableStream.pipe(uploadStream)
+      report.KeylogFile = uploadStream.id;
+    }
     
     await report.save()
 
