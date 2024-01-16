@@ -4,7 +4,7 @@
         <header class="flex-header">
             <hgroup>
                 <h1>{{ report.Identifier }}</h1>
-                <h2>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink></h2>
+                <h2>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <strong>Report Overview</strong></h2>
             </hgroup>
             <span class="spacer"></span>
             <a v-if="report.Running && report.Job" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>

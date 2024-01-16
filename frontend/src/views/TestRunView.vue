@@ -4,7 +4,7 @@
         <header class="flex-header">
             <hgroup>
                 <h1>{{ testRun.TestId }}</h1>
-                <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink></h3>
+                <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink> / <strong>Testrun Details</strong></h3>
             </hgroup>
             <span class="spacer"></span>
             <!--<a role="button" href="">Re-Run</a>-->

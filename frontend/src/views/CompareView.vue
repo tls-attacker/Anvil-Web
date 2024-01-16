@@ -2,7 +2,10 @@
     <hgroup>
         <h1>Comparing Results</h1>
         <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink>
-            <template v-if="Object.values(testRuns).length > 0"> / <a class="secondary" href="" @click.prevent="$router.push({query: {}})">Compare Overview</a></template>
+            <template v-if="Object.values(testRuns).length > 0">
+                 / <a class="secondary" href="" @click.prevent="$router.push({query: {}})">Compare Overview</a> / <strong>Compare Testrun</strong>
+            </template>
+            <template v-else> / <strong>Compare Overview</strong></template>
         </h3>
     </hgroup>
        
