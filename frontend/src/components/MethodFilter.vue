@@ -1,6 +1,6 @@
 <template>
     <div class="grid">
-        <input type="text" placeholder="Filter..." :value="filterText" @input="$emit('update:filterText', (<HTMLInputElement>$event.target).value)"/>
+        <input type="text" placeholder="Filter..." :value="filterText" @input="updateText((<HTMLInputElement>$event.target).value)"/>
         <details>
             <summary role="button">Test Result</summary>
             <div>
@@ -38,11 +38,17 @@ export default {
             let categories = this.filteredCategories
             categories[key] = value;
             this.$emit('update:filteredCategories', categories);
+            sessionStorage.setItem("methodFilter_categories", JSON.stringify(this.filteredCategories));
         },
         updateResults(key: string, value: boolean) {
             let results = this.filteredResults
             results[key] = value;
             this.$emit('update:filteredResults', results);
+            sessionStorage.setItem("methodFilter_results", JSON.stringify(this.filteredResults));
+        },
+        updateText(text: string) {
+            this.$emit('update:filterText', text);
+            sessionStorage.setItem("methodFilter_text", text);
         },
         resetCategories() {
             this.$emit('update:filteredCategories', Object.fromEntries(this.$api.getScoreCategories().map(k => [k, true])));
@@ -54,8 +60,22 @@ export default {
         }
     },
     created() {
-        this.resetCategories();
-        this.resetResults();
+        let cachedCategories = sessionStorage.getItem("methodFilter_categories");
+        if (cachedCategories != null) {
+            this.$emit('update:filteredCategories', JSON.parse(cachedCategories));
+        } else {
+            this.resetCategories();
+        }
+        let cachedResults = sessionStorage.getItem("methodFilter_results");
+        if (cachedResults != null) {
+            this.$emit('update:filteredResults', JSON.parse(cachedResults));
+        } else {
+            this.resetResults();
+        }
+        let cachedText = sessionStorage.getItem("methodFilter_text");
+        if (cachedText != null) {
+            this.$emit('update:filterText', cachedText);
+        }
     }
 
 }

@@ -2,7 +2,7 @@
     <article>
             <header>
                 <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
-                <a href="" @click.prevent="allOpen = !allOpen"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
+                <a href="" @click.prevent="changeOpen()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
             </header>
             <main>
                 <template v-for="prefix of prefixes">
@@ -84,11 +84,19 @@ export default {
                 }
             }
         },
+        changeOpen() {
+            this.allOpen = !this.allOpen;
+            sessionStorage.setItem("reportTable_allOpen", JSON.stringify(this.allOpen)); 
+        },
         getResultDisplay,
         getResultToolTip,
     },
     created() {
         this.makePrefixes();
+        let cachedOpen = sessionStorage.getItem("reportTable_allOpen");
+        if (cachedOpen != null) {
+            this.allOpen = JSON.parse(cachedOpen);
+        }
     },
 }
 </script>
