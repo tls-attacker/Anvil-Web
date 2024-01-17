@@ -646,6 +646,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AnvilJob'
+        logs:
+          type: string
     SuccessResponse:
       type: object
       properties: 

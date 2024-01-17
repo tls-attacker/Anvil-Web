@@ -37,6 +37,9 @@ export namespace WorkerEndpoint {
                 return next(new BadRequest("id not valid"));
             }
             worker.keepAlive();
+            if (req.body.logs && req.body.logs.trim().length > 0) {
+                worker.logs += req.body.logs;
+            }
             res.json(worker.fetchCommand(status));
         }
 

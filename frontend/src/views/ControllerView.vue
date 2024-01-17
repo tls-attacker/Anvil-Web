@@ -58,6 +58,10 @@
                         <span v-else>
                             No Jobs running.
                         </span>
+                        <br>
+                        <code v-if="worker.logs">
+                            {{ worker.logs }}
+                        </code>
                     </main>
                     <footer class="buttons">
                         <span v-if="worker.status == 'WORKING'" :aria-busy="true"></span>
@@ -159,5 +163,12 @@ article {
     cursor: pointer;
     --table-row-stripped-background-color: rgb(227, 227, 227);
     background-color: rgb(227, 227, 227);
+}
+
+code {
+    white-space: pre-line;
+    max-height: 10rem;
+    width: 100%;
+    overflow-x: scroll;
 }
 </style>

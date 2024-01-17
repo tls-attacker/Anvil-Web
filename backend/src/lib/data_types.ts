@@ -103,7 +103,8 @@ export interface IAnvilWorker {
     name: string,
     id: string,
     status: string,
-    jobs: IAnvilJob[]
+    jobs: IAnvilJob[],
+    logs: string
 }
 
 export interface IAnvilJob {

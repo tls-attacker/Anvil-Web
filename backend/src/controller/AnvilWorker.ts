@@ -13,6 +13,7 @@ export enum AnvilWorkerStatus {
 export class AnvilWorker {
     public readonly id: string;
     public readonly name: string;
+    public logs: string;
     public status: AnvilWorkerStatus;
     private timer: NodeJS.Timeout;
     private commands: AnvilCommand[];
@@ -25,6 +26,7 @@ export class AnvilWorker {
         this.status = AnvilWorkerStatus.IDLE;
         this.commands = [];
         this.jobs = [];
+        this.logs = "";
         this.keepAlive();
     }
 
@@ -49,7 +51,8 @@ export class AnvilWorker {
             id: this.id,
             name: this.name,
             status: this.status.toString(),
-            jobs: this.jobs.map(j => j.apiObject())
+            jobs: this.jobs.map(j => j.apiObject()),
+            logs: this.logs
         }
     }
 
