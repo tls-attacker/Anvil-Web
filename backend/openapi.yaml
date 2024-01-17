@@ -792,6 +792,7 @@ components:
       properties: 
         ParameterCombination:
           type: object
+          nullable: true
         DisplayName:
           type: string
         Result:
@@ -808,14 +809,18 @@ components:
           nullable: true
         SrcPort:
           type: integer
+          nullable: true
         DstPort:
           type: integer
+          nullable: true
         StartTimestamp:
           type: string
           format: date-time
+          nullable: true
         EndTimestamp:
           type: string
           format: date-time
+          nullable: true
         uuid:
           type: string
         Stacktrace:

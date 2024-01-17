@@ -11,7 +11,7 @@
         </header>
         <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
 
-        <article v-if="testRun.CaseCount>0">
+        <article v-if="testRun.CaseCount>0 && testRun.Result != 'TEST_SUITE_ERROR'">
             <header>
                 <details style="margin-bottom: var(--spacing);" open>
                     <summary role="button">Result:</summary>
@@ -93,7 +93,7 @@ export default {
             this.$api.getTestRun(identifier, testId).then((testRun: ITestRun) => {
                 this.testRun = testRun;
                 this.identifier = identifier;
-                if (testRun.TestCases.length > 0) {
+                if (testRun.TestCases.length > 0 && testRun.TestCases[0].ParameterCombination != null) {
                     this.allParameters = Object.keys(testRun.TestCases[0].ParameterCombination);
                     for (let parameter of this.allParameters) {
                         let firstValue = testRun.TestCases[0].ParameterCombination[parameter];
