@@ -15,8 +15,9 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v3
-    - name: DOcker meta
+    - name: Docker meta
       uses: docker/metadata-action@v5
+      id: meta
       with:
         images: ghcr.io/tls-attacker/anvil-web
     - name: Login to GitHub Container Registry
