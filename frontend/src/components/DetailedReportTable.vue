@@ -15,13 +15,27 @@
                                 <template v-for="testRun in report.TestRuns?.filter((tR: ITestRun) => tR.TestId.startsWith(prefix))">
                                     <tr v-if="filterTestRun(testRun)">
                                         <td>
-                                            <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
-                                                {{ testRun.TestId }}
-                                            </RouterLink>
-                                            &nbsp;
-                                            <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                            <details class="failed-reason" v-if="testRun.FailedReason">
+                                                <summary>
+                                                    <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
+                                                        {{ testRun.TestId }}
+                                                    </RouterLink>
+                                                    &nbsp;
+                                                    <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                </summary>
+                                                <figure>
+                                                    <code>{{ testRun.FailedReason }}</code>
+                                                </figure>
+                                            </details>
+                                            <template v-else>
+                                                <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
+                                                        {{ testRun.TestId }}
+                                                    </RouterLink>
+                                                    &nbsp;
+                                                    <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                            </template>
                                         </td>
-                                        <td>
+                                        <td style="width: 5rem;">
                                             <span :data-tooltip="getResultToolTip(testRun)">
                                                 {{ getResultDisplay(testRun) }}
                                             </span>
@@ -102,4 +116,15 @@ export default {
 </script>
 
 <style scoped>
+details.failed-reason {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+figure {
+    margin-bottom: 0;
+}
 </style>
