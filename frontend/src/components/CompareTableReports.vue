@@ -119,8 +119,19 @@ export default {
                     return true;
                 }
             })) return false;
-            let tags = this.$api.getMetaData(testId).tags.join(" ").toLowerCase();
-            return tags.includes(this.filterText.toLowerCase()) || testId.toLowerCase().includes(this.filterText.toLowerCase());
+            let tags = [];
+            if (this.$api.getMetaData(testId) && this.$api.getMetaData(testId).tags) {
+                tags = this.$api.getMetaData(testId).tags;
+            }
+            // filter exactly when wrapped in quotes
+            if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {
+                let text = this.filterText.substring(1, this.filterText.length-1);
+                return tags.includes(text) || testId == text;
+            } else {
+                let text = this.filterText.toLowerCase();
+                let joinedTags = tags.join(" ").toLowerCase();
+                return joinedTags.includes(text) || testId.toLowerCase().includes(text);
+            }
         },
         getResultDisplay,
         getResultToolTip,

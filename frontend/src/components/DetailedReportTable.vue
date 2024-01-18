@@ -5,15 +5,18 @@
                 <a href="" @click.prevent="changeOpen()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
             </header>
             <main>
-                <template v-for="prefix of prefixes">
+                <template v-for="prefix of [...prefixes, 'Hidden']">
                     <details v-show="filterPrefix(prefix)" :open="allOpen">
                         <summary>
-                            <strong>{{ prefix.startsWith("X") ? prefix : "RFC " + prefix }}</strong>
+                            <strong>{{ isNaN(parseInt(prefix)) ? prefix : "RFC " + prefix }}</strong>
                         </summary>
                         <table role="grid">
                             <tbody>
-                                <template v-for="testRun in report.TestRuns?.filter((tR: ITestRun) => tR.TestId.startsWith(prefix))">
-                                    <tr v-if="filterTestRun(testRun)">
+                                <template v-for="testRun in getTestrunsForPrefix(prefix)">
+                                    <tr v-if="filterTestRun(testRun, prefix)">
+                                        <td style="width: 2rem;">
+                                            <input type="checkbox" :checked="hiddenTestIds.includes(testRun.TestId)" @click.prevent="switchHidden(testRun.TestId)">
+                                        </td>
                                         <td>
                                             <details class="failed-reason" v-if="testRun.FailedReason">
                                                 <summary>
@@ -29,10 +32,10 @@
                                             </details>
                                             <template v-else>
                                                 <RouterLink :to="`/tests/${report.Identifier}/${testRun.TestId}`" class="contrast">
-                                                        {{ testRun.TestId }}
-                                                    </RouterLink>
-                                                    &nbsp;
-                                                    <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                    {{ testRun.TestId }}
+                                                </RouterLink>
+                                                &nbsp;
+                                                <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
                                             </template>
                                         </td>
                                         <td style="width: 5rem;">
@@ -66,27 +69,46 @@ export default {
             filteredResults: {} as {[result: string]: boolean},
             allOpen: false,
             prefixes: [] as string[],
+            hiddenTestIds: [] as string[]
         }
     },
     methods: {
         filterPrefix(prefix: string) {
+            if (prefix == "Hidden") return this.hiddenTestIds.length > 0;
             if (this.report == undefined) return false;
             if (this.report.TestRuns == undefined) return false;
 
             let results = this.report.TestRuns.filter((tR: ITestRun) => tR.TestId.startsWith(prefix));
             return results.some(this.filterTestRun);
         },
-        filterTestRun(testRun: ITestRun) {
+        getTestrunsForPrefix(prefix: string): ITestRun[] {
+            if (prefix == "Hidden") {
+                return this.report.TestRuns?.filter((tR: ITestRun) => this.hiddenTestIds.includes(tR.TestId));
+            } else {
+                return this.report.TestRuns?.filter((tR: ITestRun) => tR.TestId.startsWith(prefix));
+            }
+        },
+        filterTestRun(testRun: ITestRun, prefix: string) {
             //if (testResult.Result == TestOutcome.DISABLED) return false;
+            if (prefix != "Hidden" && this.hiddenTestIds.includes(testRun.TestId)) return false;
             if (this.filteredResults[testRun.Result] == false) return false;
             if (testRun.Score != undefined) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
             let tags = [];
             if (this.$api.getMetaData(testRun.TestId) && this.$api.getMetaData(testRun.TestId).tags) {
-                tags = this.$api.getMetaData(testRun.TestId).tags.join(" ").toLowerCase();
+                tags = this.$api.getMetaData(testRun.TestId).tags;
             }
-            return tags.includes(this.filterText.toLowerCase()) || testRun.TestId.toLowerCase().includes(this.filterText.toLowerCase());
+            // filter exactly when wrapped in quotes
+            if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {
+                let text = this.filterText.substring(1, this.filterText.length-1);
+                return tags.includes(text) || testRun.TestId == text;
+            } else {
+                let text = this.filterText.toLowerCase();
+                let joinedTags = tags.join(" ").toLowerCase();
+                return joinedTags.includes(text) || testRun.TestId.toLowerCase().includes(text);
+            }
+            
         },
         makePrefixes() {
             this.prefixes = [];
@@ -102,6 +124,14 @@ export default {
             this.allOpen = !this.allOpen;
             sessionStorage.setItem("reportTable_allOpen", JSON.stringify(this.allOpen)); 
         },
+        switchHidden(testId: string) {
+            if (this.hiddenTestIds.includes(testId)) {
+                this.hiddenTestIds.splice(this.hiddenTestIds.indexOf(testId), 1)
+            } else {
+                this.hiddenTestIds.push(testId);
+            }
+            sessionStorage.setItem("reportTable_hiddenTestIds", JSON.stringify(this.hiddenTestIds));
+        },
         getResultDisplay,
         getResultToolTip,
     },
@@ -110,6 +140,10 @@ export default {
         let cachedOpen = sessionStorage.getItem("reportTable_allOpen");
         if (cachedOpen != null) {
             this.allOpen = JSON.parse(cachedOpen);
+        }
+        let cachedHidden = sessionStorage.getItem("reportTable_hiddenTestIds");
+        if (cachedHidden != null) {
+            this.hiddenTestIds = JSON.parse(cachedHidden);
         }
     },
 }
