@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: "Docker: Build and Push Image"
 
 on:
   push:
@@ -18,11 +18,17 @@ jobs:
     - name: DOcker meta
       uses: docker/metadata-action@v5
       with:
-        images: tls-attacker/anvil-web
+        images: ghcr.io/tls-attacker/anvil-web
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Build and push
       uses: docker/build-push-action@v5
       with:
         context: .
-        push: false
+        push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
