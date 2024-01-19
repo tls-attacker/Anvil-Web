@@ -12,13 +12,17 @@
             class="bar-part disabled"
             :style="`flex: ${disabledTests}`"
             data-tooltip="Disabled Tests">{{ disabledTests }}</span>
+            <span
+            class="bar-part error"
+            :style="`flex: ${errors}`"
+            data-tooltip="Test Suite Errors">{{ errors }}</span>
     </div>
 </template>
 
 <script lang="ts">
 export default {
     name: "TestBar",
-    props: ["disabledTests", "failedTests", "succeededTests"]
+    props: ["disabledTests", "failedTests", "succeededTests", "errors"]
 }
 </script>
 
@@ -44,6 +48,10 @@ export default {
 .disabled {
     background-color: rgb(167, 167, 167);
     color: black;
+}
+.error {
+    background-color: rgb(54, 5, 5);
+    color: white;
     border-radius: 0px 5px 5px 0px;
 }
 </style>

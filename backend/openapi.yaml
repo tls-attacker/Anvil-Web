@@ -685,6 +685,9 @@ components:
         DisabledTests:
           type: integer
           example: 10
+        TestSuiteErrorTests:
+          type: integer
+          example: 10
         TotalTests:
           type: integer
           example: 10

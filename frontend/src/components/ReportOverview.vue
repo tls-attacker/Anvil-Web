@@ -10,7 +10,8 @@
                             <span>Elapsed Time: <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
                             <span>Test Cases: {{ report.TestCaseCount }}</span>
                         </div>
-                        <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.StrictlySucceededTests+report.ConceptuallySucceededTests" :failedTests="report.FullyFailedTests+report.PartiallyFailedTests"/>
+                        <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.StrictlySucceededTests+report.ConceptuallySucceededTests"
+                            :failedTests="report.FullyFailedTests+report.PartiallyFailedTests" :errors="report.TestSuiteErrorTests"/>
                         <progress v-if="report.Running"></progress>
                         <div class="buttons" style="margin-top: 10px;">
                             <RouterLink :to="`tests/${report.Identifier}`" role="button" class="outline">Details</RouterLink>

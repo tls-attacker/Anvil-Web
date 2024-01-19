@@ -20,6 +20,7 @@ export const ReportSchema = new Schema({
   ConceptuallySucceededTests: Number,
   StrictlySucceededTests: Number,
   DisabledTests: Number,
+  TestSuiteErrorTests: Number,
   TotalTests: Number,
   FinishedTests: Number,
   Score: {

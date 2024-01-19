@@ -23,7 +23,6 @@
 
 <script lang="ts">
 import type { IReport, ITestRun } from '@/lib/data_types';
-import TestBar from '@/components/TestBar.vue'
 import UploadDialog from '@/components/UploadDialog.vue';
 import DeleteReportDialog from '@/components/DeleteReportDialog.vue';
 import CircularProgress from '@/components/CircularProgress.vue';
@@ -32,7 +31,7 @@ import NewJobDialog from '@/components/NewJobDialog.vue';
 
 export default {
     name: "ReportList",
-    components: { TestBar, UploadDialog, CircularProgress, ReportOverview, DeleteReportDialog, NewJobDialog },
+    components: { UploadDialog, CircularProgress, ReportOverview, DeleteReportDialog, NewJobDialog },
     data() {
         return {
             reports: [] as IReport[],

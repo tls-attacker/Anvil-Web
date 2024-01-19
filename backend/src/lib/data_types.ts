@@ -41,6 +41,7 @@ export interface IReport extends ITimestamp {
     StrictlySucceededTests: number,
     ConceptuallySucceededTests: number,
     DisabledTests: number,
+    TestSuiteErrorTests: number,
     TotalTests: number,
     FinishedTests: number,
     TestCaseCount: number,
