@@ -2,7 +2,7 @@ import type { IAnvilJob, IAnvilWorker, IReport, ITestRun } from './lib/data_type
 import metaDataString from "@/assets/metadata.json";
 
 export module AnvilApi {
-    const baseUrl = "http://localhost:5001/api/v2/";
+    const baseUrl = import.meta.env.DEV ? "http://localhost:5001/api/v2/" : "/api/v2/";
 
     export function getIdentifiers(): Promise<string[]> {
         return getApiObject("reportIdentifiers");

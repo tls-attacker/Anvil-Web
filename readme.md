@@ -35,7 +35,7 @@ Anvil Web comes with a compose file, that has the web ui, mongodb and a TLS-Anvi
 ```
 docker compose up -d
 ```
-After starting, the web interface is acessible via http://localhost:5000/
+After starting, the web interface is acessible via http://localhost:5001/
 
 ### Docker
 Anvil Web needs a mongodb database to run.
@@ -46,15 +46,15 @@ docker run --network tlsanvil mongo
 ```
 To start anvil web using docker you can then run
 ```
-docker run -network tlsanvil -e PRODUCTION=1 -p 5000:5000 anvil-web
+docker run -network tlsanvil -e PRODUCTION=1 -p 5001:5001 anvil-web
 ```
-After starting, the web interface is acessible via http://localhost:5000/
+After starting, the web interface is acessible via http://localhost:5001/
 The backend runs on the same port.
 
 ### Manually / Development environment
 Starting the app manually will need a mongo db instance running.
 You can start the frontend and backend seperatly. The backend is started by running `npm run start`, but only if you built it beforehand. The frontend is started in develpment mode using `npm run dev`.
-The backend is started on port 5000 per default. The frontend will run on port 5173.
+The backend is started on port 5001 per default. The frontend will run on port 5173.
 
 ### Adding a worker client
 To add a worker client connected to the backend, you can run your anvil project in worker mode. As an example, here is how you would start TLS-Anvil:
