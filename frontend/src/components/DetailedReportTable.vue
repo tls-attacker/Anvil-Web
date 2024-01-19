@@ -2,12 +2,13 @@
     <article>
             <header>
                 <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
-                <a href="" @click.prevent="changeOpen()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
+                <a href="" @click.prevent="openAll()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
+                &nbsp; <a v-if="hiddenTestIds.length>0" @click.prevent="resetHidden()" href="">Reset hidden</a>
             </header>
             <main>
-                <template v-for="prefix of [...prefixes, 'Hidden']">
-                    <details v-show="filterPrefix(prefix)" :open="allOpen">
-                        <summary>
+                <template v-for="prefix of Object.keys(prefixes)">
+                    <details v-show="filterPrefix(prefix)" :open="prefixes[prefix]">
+                        <summary @click.prevent="switchOpen(prefix)">
                             <strong>{{ isNaN(parseInt(prefix)) ? prefix : "RFC " + prefix }}</strong>
                         </summary>
                         <table role="grid">
@@ -68,7 +69,7 @@ export default {
             filteredCategories: {} as {[category: string]: boolean},
             filteredResults: {} as {[result: string]: boolean},
             allOpen: false,
-            prefixes: [] as string[],
+            prefixes: {} as {[prefix: string]: boolean},
             hiddenTestIds: [] as string[]
         }
     },
@@ -111,18 +112,29 @@ export default {
             
         },
         makePrefixes() {
-            this.prefixes = [];
+            let cachedPrefixString = sessionStorage.getItem("reportTable_prefixes");
+            let cachedPrefixes = cachedPrefixString == null ? {} : JSON.parse(cachedPrefixString);
+            this.prefixes = {"Hidden": "Hidden" in cachedPrefixes ? cachedPrefixes["Hidden"] : false};
             if (this.report.TestRuns) {
                 for (let tR of this.report.TestRuns) {
-                    if (!this.prefixes.includes(tR.TestId.split("-")[0])) {
-                        this.prefixes.push(tR.TestId.split("-")[0])
+                    let prefix = tR.TestId.split("-")[0];
+                    if (!(prefix in this.prefixes)) {
+                        this.prefixes[prefix] = prefix in cachedPrefixes ? cachedPrefixes[prefix] : false;
                     }
                 }
             }
+            this.allOpen = Object.values(this.prefixes).every(p => p);
         },
-        changeOpen() {
+        openAll() {
             this.allOpen = !this.allOpen;
-            sessionStorage.setItem("reportTable_allOpen", JSON.stringify(this.allOpen)); 
+            for (let prefix in this.prefixes) {
+                this.prefixes[prefix] = this.allOpen;
+            }
+            sessionStorage.setItem("reportTable_prefixes", JSON.stringify(this.prefixes));
+        },
+        switchOpen(prefix: string) {
+            this.prefixes[prefix] = !this.prefixes[prefix];
+            sessionStorage.setItem("reportTable_prefixes", JSON.stringify(this.prefixes));
         },
         switchHidden(testId: string) {
             if (this.hiddenTestIds.includes(testId)) {
@@ -132,15 +144,15 @@ export default {
             }
             sessionStorage.setItem("reportTable_hiddenTestIds", JSON.stringify(this.hiddenTestIds));
         },
+        resetHidden() {
+            this.hiddenTestIds = [];
+            sessionStorage.setItem("reportTable_hiddenTestIds", JSON.stringify(this.hiddenTestIds));
+        },
         getResultDisplay,
         getResultToolTip,
     },
     created() {
         this.makePrefixes();
-        let cachedOpen = sessionStorage.getItem("reportTable_allOpen");
-        if (cachedOpen != null) {
-            this.allOpen = JSON.parse(cachedOpen);
-        }
         let cachedHidden = sessionStorage.getItem("reportTable_hiddenTestIds");
         if (cachedHidden != null) {
             this.hiddenTestIds = JSON.parse(cachedHidden);

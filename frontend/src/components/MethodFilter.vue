@@ -52,11 +52,13 @@ export default {
         },
         resetCategories() {
             this.$emit('update:filteredCategories', Object.fromEntries(this.$api.getScoreCategories().map(k => [k, true])));
+            sessionStorage.setItem("methodFilter_categories", JSON.stringify(this.filteredCategories));
         },
         resetResults() {
             let results = Object.fromEntries(Object.keys(TestResult).map(k => [k, true]));
             results["DISABLED"] = false;
             this.$emit('update:filteredResults', results);
+            sessionStorage.setItem("methodFilter_results", JSON.stringify(this.filteredResults));
         }
     },
     created() {
