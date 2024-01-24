@@ -1,16 +1,4 @@
 {
-  "000-000-001": {
-    "description": "Implementations that receive a KeyUpdate message prior to receiving a Finished message MUST terminate the connection with an \"unexpected_message\" alert.",
-    "severityLevels": {
-      "Handshake": 80,
-      "Interoperability": 80,
-      "Alert": 60
-    },
-    "rfc": {
-      "number": 8446,
-      "section": "4.6.3.  Key and Initialization Vector Update"
-    }
-  },
   "XLF-7iivb12njd": {
     "description": "Send a Certificate Message with a modified length value (-1)",
     "severityLevels": {
@@ -1842,7 +1830,7 @@
       "sendEmptyRecordFinished"
     ]
   },
-  "XXX-GFtKDMr9x7": {
+  "5246-GFtKDMr9x7": {
     "description": "The cipher suite list, passed from the client to the server in the ClientHello message, contains the combinations of cryptographic algorithms supported by the client in order of the client's preference (favorite choice first).",
     "severityLevels": {
       "Security": 80,
@@ -1860,7 +1848,7 @@
       "supportsMoreCiphersuitesThanAdvertised"
     ]
   },
-  "XXX-DZsWLPbTuc": {
+  "5246-DZsWLPbTuc": {
     "description": "The cipher suite list, passed from the client to the server in the ClientHello message, contains the combinations of cryptographic algorithms supported by the client in order of the client's preference (favorite choice first).",
     "severityLevels": {
       "Handshake": 60,
@@ -2941,7 +2929,7 @@
       "beginWithApplicationData"
     ]
   },
-  "XXX-FnJguFLqcc": {
+  "8446-FnJguFLqcc": {
     "description": "cipher_suites:  A list of the symmetric cipher options supported by the client, specifically the record protection algorithm (including secret key length) and a hash to be used with HKDF, in descending order of client preference.",
     "severityLevels": {
       "Security": 80,
@@ -2959,7 +2947,7 @@
       "supportsMoreCipherSuitesThanAdvertised"
     ]
   },
-  "XXX-CFyJvy1SNZ": {
+  "8446-CFyJvy1SNZ": {
     "description": "For this to work, implementations MUST correctly handle extensible fields:[...] A client sending a ClientHello MUST support all parameters advertised in it.",
     "severityLevels": {
       "Security": 80,
@@ -7791,6 +7779,151 @@
       "statemachine",
       "StateMachine",
       "sendClientHelloAfterFinishedHandshake"
+    ]
+  },
+  "6347-GeZa64E0Nt": {
+    "description": "For each received record, the receiver MUST verify that the record contains a sequence number that does not duplicate the sequence number of any other record received during the life of this session.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.1.2.6. Anti-Replay"
+    },
+    "tags": [
+      "both",
+      "dtls12",
+      "rfc6347",
+      "AntiReplay",
+      "sequenceNumberNotDuplicated"
+    ]
+  },
+  "6347-rMf9lpA6G3": {
+    "description": "If the MAC validation fails, the receiver MUST   discard the received record as invalid.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.1.2.6. Anti-Replay"
+    },
+    "tags": [
+      "both",
+      "dtls12",
+      "rfc6347",
+      "AntiReplay",
+      "invalidMAC"
+    ]
+  },
+  "6347-76Jna7IPv8": {
+    "description": "DTLS 1.2 and 1.0 clients MUST use the version solely to indicate packet formatting (which is the same in both DTLS 1.2 and 1.0) and not as part of version negotiation.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "server",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "negotiateDtls12viaRecordHeader"
+    ]
+  },
+  "6347-tT9LA2Ba7T": {
+    "description": "When responding to a HelloVerifyRequest, the client MUST use the same   parameter values (version, random, session_id, cipher_suites,   compression_method) as it did in the original ClientHello.",
+    "addToSecondRfcRef" : "4.2.1. Denial-of-Service Countermeasures -- The client MUST retransmit the ClientHello with the cookie added.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "client",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "responseToHelloVerifyRequest"
+    ]
+  },
+  "6347-z0AiXbV3Y6": {
+    "description": "The server MUST use the same   version number in the HelloVerifyRequest that it would use when   sending a ServerHello.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "server",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "sameVersionNumberServerHello"
+    ]
+  },
+  "6347-5R0A5tlkOm": {
+    "description": "In order to avoid sequence number duplication in case of multiple HelloVerifyRequests, the server MUST use the record sequence number in the ClientHello as the record sequence number in the HelloVerifyRequest.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "server",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "clientSequenceNumberInHelloVerifyRequest"
+    ]
+  },
+  "6347-56hL9Blfzp": {
+    "description": "In order to avoid sequence number duplication in   case of multiple cookie exchanges, the server MUST use the record   sequence number in the ClientHello as the record sequence number in   its initial ServerHello.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "server",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "sequenceNumberFromClientHelloInServerHello"
+    ]
+  },
+  "6347-g65TNbT3uV": {
+    "description": "The server then verifies the cookie and proceeds with the handshake only if it is valid.",
+    "severityLevels": {
+      "Handshake": 100,
+      "Interoperability": 100
+    },
+    "rfc": {
+      "number": 6347,
+      "section": "4.2.1. Denial-of-Service Countermeasures"
+    },
+    "tags": [
+      "server",
+      "dtls12",
+      "rfc6347",
+      "DoS",
+      "invalidClientHelloCookie"
     ]
   }
 }
