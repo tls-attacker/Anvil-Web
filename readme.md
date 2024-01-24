@@ -5,6 +5,10 @@ Anvil Web is a web interface for [Anvil Projects](https://github.com/tls-attacke
 Currently Anvil Web supports only the following application specific implementations of Anvil Core:
  - [TLS-Anvil](https://github.com/tls-attacker/TLS-Anvil)
 
+## Quick Start
+To run quickly run Anvil-Web to analyze a report or start a test, download the `docker-compose.yml` file from the root of this project and run `docker compose up -d`.
+After that you should be able to go to http://localhost:5001/ to see the web interface.
+
 ## Building
 ### Docker (recommanded)
 This project is easiest built by using the supplied Dockerfile.
@@ -36,6 +40,9 @@ Anvil Web comes with a compose file, that has the web ui, mongodb and a TLS-Anvi
 docker compose up -d
 ```
 After starting, the web interface is acessible via http://localhost:5001/
+
+The normal compose file grabs the pre-built image from our registry. If you want to run your locally built image use `docker-compose-dev.yml`.
+You can comment out or delete the worker client if you don't need that functionallity.
 
 ### Docker
 Anvil Web needs a mongodb database to run.

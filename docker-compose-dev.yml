@@ -18,8 +18,8 @@ services:
       - app
 
   app:
-    image: ghcr.io/tls-attacker/anvil-web:v1.0.1
-    # image: anvil-web
+    # image: ghcr.io/tls-attacker/anvil-web
+    image: anvil-web
     restart: always
     environment:
       - PRODUCTION=1
@@ -29,11 +29,9 @@ services:
       - app
 
   worker:
-    image: ghcr.io/tls-attacker/tlsanvil:v1.2.7
-    # image: tls-anvil
+    # image: ghcr.io/tls-attacker/tlsanvil
+    image: tls-anvil
     restart: always
     networks:
       - app
-    volumes:
-      - output
     command: ["worker", "-controller", "app:5001", "-name", "Docker Compose bundeled Worker"]
