@@ -38,13 +38,13 @@ export default {
             let categories = this.filteredCategories
             categories[key] = value;
             this.$emit('update:filteredCategories', categories);
-            sessionStorage.setItem("methodFilter_categories", JSON.stringify(this.filteredCategories));
+            sessionStorage.setItem("methodFilter_categories", JSON.stringify(categories));
         },
         updateResults(key: string, value: boolean) {
             let results = this.filteredResults
             results[key] = value;
             this.$emit('update:filteredResults', results);
-            sessionStorage.setItem("methodFilter_results", JSON.stringify(this.filteredResults));
+            sessionStorage.setItem("methodFilter_results", JSON.stringify(results));
         },
         updateText(text: string) {
             this.$emit('update:filterText', text);
@@ -57,7 +57,13 @@ export default {
         },
         resetResults() {
             let results = Object.fromEntries(Object.keys(TestResult).map(k => [k, true]));
-            results["DISABLED"] = false;
+            if ("results" in this.$route.query) {
+                for (let result in results) {
+                    results[result] = this.$route.query["results"]?.includes(result) as boolean;
+                }
+            } else {
+                results["DISABLED"] = false;
+            }
             this.$emit('update:filteredResults', results);
             sessionStorage.setItem("methodFilter_results", JSON.stringify(results));
         }
@@ -70,7 +76,7 @@ export default {
             this.resetCategories();
         }
         let cachedResults = sessionStorage.getItem("methodFilter_results");
-        if (cachedResults != null) {
+        if (cachedResults != null && !("results" in this.$route.query)) {
             this.$emit('update:filteredResults', JSON.parse(cachedResults));
         } else {
             this.resetResults();
@@ -78,6 +84,18 @@ export default {
         let cachedText = sessionStorage.getItem("methodFilter_text");
         if (cachedText != null) {
             this.$emit('update:filterText', cachedText);
+        }
+
+        if ("results" in this.$route.query) {
+            this.$router.replace({query: {}});
+        }
+    },
+    watch: {
+        '$route.query'() {
+            if ("results" in this.$route.query) {
+                this.resetResults();
+                this.$router.replace({query: {}});
+            }
         }
     }
 

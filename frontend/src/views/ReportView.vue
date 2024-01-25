@@ -28,7 +28,8 @@
                     </div>
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :disabledTests="report.DisabledTests"
-                    :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :errors="report.TestSuiteErrorTests"/>
+                    :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :errors="report.TestSuiteErrorTests"
+                    clickable="true"/>
                 <div v-if="report.GuidelineReports && report.GuidelineReports.length>0" style="margin-top: 20px;">
                     <strong>Guidelines:</strong>
                     <div class="grid" style="margin-top: 10px;">
