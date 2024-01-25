@@ -31,7 +31,7 @@
                             <td @click.prevent="gotoReport(job)">{{ job.id }}</td>
                             <td @click.prevent="gotoReport(job)">{{ job.workerName }}</td>
                             <td @click.prevent="gotoReport(job)">{{ job.status }}</td>
-                            <td><a href="" role="button" class="outline negative"
+                            <td><a href="" role="button" class="outline negative" :disabled="job.status=='CANCELED'?true:null"
                                     @click.prevent="cancelJob = true; selectedJob = job">Cancel</a></td>
                         </tr>
                     </tbody>
