@@ -60,7 +60,8 @@
                         </span>
                         <br>
                         <code v-if="worker.logs">
-                            {{ worker.logs }}
+                            <div>{{ worker.logs }}</div>
+                            <div id="anchor"></div>
                         </code>
                     </main>
                     <footer class="buttons">
@@ -70,7 +71,7 @@
                             <template v-if="worker.status == 'WORKING'">Queue Job</template>
                             <template v-else>New Job</template>
                         </a>
-                        <a href="" role="button" class="outline negative">Shutdown</a>
+                        <!--<a href="" role="button" class="outline negative">Shutdown</a>-->
                     </footer>
                 </article>
             </template>
@@ -170,5 +171,12 @@ code {
     max-height: 10rem;
     width: 100%;
     overflow-x: scroll;
+}
+code * {
+    overflow-anchor: none;
+}
+#anchor {
+    overflow-anchor: auto;
+    height: 1px;
 }
 </style>

@@ -29,7 +29,7 @@
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :disabledTests="report.DisabledTests"
                     :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :errors="report.TestSuiteErrorTests"/>
-                <div v-if="report.GuidelineReports" style="margin-top: 20px;">
+                <div v-if="report.GuidelineReports && report.GuidelineReports.length>0" style="margin-top: 20px;">
                     <strong>Guidelines:</strong>
                     <div class="grid" style="margin-top: 10px;">
                         <div v-for="guideline of report.GuidelineReports" class="guideline-box" @click.prevent="showGuideline = guideline">

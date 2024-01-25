@@ -8,7 +8,7 @@ import DB from '../database';
 
 export namespace ControllerEndpoint {
 
-    function validateConfig(stringConfig: string): boolean {
+    async function validateConfig(stringConfig: string): Promise<boolean> {
         let config;
         try {
             config = JSON.parse(stringConfig);
@@ -18,6 +18,11 @@ export namespace ControllerEndpoint {
 
         const idReg = /^[a-zA-Z0-9\-_:.]+$/;
         if (!idReg.test(config.identifier)) {
+            return false;
+        }
+
+        const reportsWithSameName = await DB.Report.find({Identifier: config.identifier}).select({Identifier: 1}).exec();
+        if (reportsWithSameName.length > 0) {
             return false;
         }
         
@@ -54,7 +59,7 @@ export namespace ControllerEndpoint {
             let additionalConfig = req.body.additionalConfig;
             let workerId = req.body.workerId;
 
-            if (!validateConfig(config)) {
+            if (!await validateConfig(config)) {
                 return next(new BadRequest("config validation failed"));
             }
 

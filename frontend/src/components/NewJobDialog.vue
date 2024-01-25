@@ -20,7 +20,7 @@
                     </select>
 
                     <label>Identifier:
-                        <input type="text" placeholder="example-test" v-model="config.identifier">
+                        <input type="text" placeholder="example-test" v-model="config.identifier" :aria-invalid="validateForm() ? true: false">
                     </label>
                     <label>Testmode:
                         <select v-model="config.endpointMode">
@@ -131,6 +131,7 @@ export default {
             },
             selectedWorker: this.workerId ? this.workerId : undefined,
             dlWorkers: [] as IAnvilWorker[],
+            identifiers: [] as string[]
         }
     },
     methods: {
@@ -156,11 +157,17 @@ export default {
                 });
         },
         validateForm() {
+            if (this.identifiers.includes(this.config.identifier)) {
+                return false;
+            }
             const idReg = /^[a-zA-Z0-9\-_:.]+$/;
             return idReg.test(this.config.identifier) ? null : true;
         }
     },
     created() {
+
+        this.$api.getIdentifiers().then(identifierList => this.identifiers = identifierList);
+
         if (!this.workers) {
             this.$api.getWorkerList().then(workerList => this.dlWorkers = workerList);
         }

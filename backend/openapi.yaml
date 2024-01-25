@@ -23,7 +23,7 @@ tags:
   - name: worker
     description: Used from an AnvwilWorker to communicate with the backend
 paths:
-  /report/reportIdentifiers:
+  /reportIdentifiers:
     get:
       tags:
         - report
