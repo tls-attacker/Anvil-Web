@@ -29,7 +29,7 @@
                 <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
             </tr>
             <tr v-for="(derivation, uuid) in derivations">
-                <td>{{ uuid }}</td>
+                <td>{{ (uuid as string).substring(0, 16) }}</td>
                 <td v-for="identifier in Object.keys(testRuns)">
                     <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid); selectedIdentifier = identifier" class="pointer">
                         {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
