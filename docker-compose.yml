@@ -18,7 +18,7 @@ services:
       - app
 
   app:
-    image: ghcr.io/tls-attacker/anvil-web:v1.0.1
+    image: ghcr.io/tls-attacker/anvil-web:v1.1.0
     # image: anvil-web
     restart: always
     environment:
