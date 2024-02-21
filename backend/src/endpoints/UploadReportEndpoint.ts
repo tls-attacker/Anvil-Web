@@ -91,16 +91,21 @@ export namespace UploadReportEndpoint {
       }
     }
 
-    res.send("OK")
-  }
-
-  async function processNewReport(zipFile: AdmZip, res: Response, next: NextFunction) {
+          res.send("OK")
+    }
+  
+  export async function processNewReport(zipFile: AdmZip, res?: Response, next?: NextFunction) {
     // first, search for report file
     const reportEntry = zipFile.getEntry("report.json")
     let report = JSON.parse(reportEntry.getData().toString())
     let exists = await DB.Report.findOne({ Identifier: report.Identifier }, { Identifier: 1 }).lean().exec();
     if (exists != null) {
-      return next(new BadRequest("Identifier already exists"))
+      if (next) {
+        return next(new BadRequest("Identifier already exists"));
+      } else {
+        console.log("Database is not cleard! Reusing old report.");
+        return;
+      }
     }
 
     report = new DB.Report(report)
@@ -141,7 +146,9 @@ export namespace UploadReportEndpoint {
       }
     }
 
-    res.send("OK")
+    if (res) {
+      res.send("OK");
+    }
   }
 
   const nameMap = {

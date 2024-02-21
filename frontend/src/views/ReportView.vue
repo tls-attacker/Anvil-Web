@@ -4,12 +4,15 @@
         <header class="flex-header">
             <hgroup>
                 <h1>{{ report.Identifier }}</h1>
-                <h2>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <strong>Report Overview</strong></h2>
+                <h2 v-if="!givenReport">&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <strong>Report Overview</strong></h2>
             </hgroup>
-            <span class="spacer"></span>
-            <a v-if="report.Running && report.Job" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
-            <a v-if="!report.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
-            <a v-if="!report.Running" role="button" href="" @click.prevent="showRerun = true">Re-Run</a>
+            <template v-if="!givenReport">
+                <span class="spacer"></span>
+                <a v-if="report.Running && report.Job" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
+                <a v-if="!report.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
+                <a v-if="!report.Running" role="button" href="" @click.prevent="showRerun = true">Re-Run</a>
+                <a v-if="!report.Running" role="button" :href="$api.getReportDownloadLink(report.Identifier)" download="report.html">Download</a>
+            </template>
         </header>
         <article>
             <header class="report-summary">
@@ -28,8 +31,9 @@
                     </div>
                 </template>
                 <TestBar :failedTests="report.FullyFailedTests + report.PartiallyFailedTests" :disabledTests="report.DisabledTests"
-                    :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :errors="report.TestSuiteErrorTests"/>
-                <div v-if="report.GuidelineReports" style="margin-top: 20px;">
+                    :succeededTests="report.ConceptuallySucceededTests + report.StrictlySucceededTests" :errors="report.TestSuiteErrorTests"
+                    clickable="true"/>
+                <div v-if="report.GuidelineReports && report.GuidelineReports.length>0" style="margin-top: 20px;">
                     <strong>Guidelines:</strong>
                     <div class="grid" style="margin-top: 10px;">
                         <div v-for="guideline of report.GuidelineReports" class="guideline-box" @click.prevent="showGuideline = guideline">
@@ -74,6 +78,7 @@ import SimpleReportTable from '@/components/SimpleReportTable.vue';
 export default {
     name: "ReportView",
     components: { TestBar, CircularProgress, DeleteReportDialog, CancelJobDialog, NewJobDialog, GuidelineModal, DetailedReportTable, SimpleReportTable },
+    props: ["givenReport"],
     data() {
         return {
             report: undefined as IReport | undefined,
@@ -105,7 +110,11 @@ export default {
         }
     },
     created() {
-        this.refreshReport();
+        if (this.givenReport) {
+            this.report = this.givenReport;
+        } else {
+            this.refreshReport();
+        }
     },
     unmounted() {
         clearTimeout(this.timer);

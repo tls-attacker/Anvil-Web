@@ -45,6 +45,7 @@ export class AnvilJob {
                 StrictlySucceededTests: 0,
                 DisabledTests: 0,
                 FinishedTests: 0,
+                TestSuiteErrorTests: 0,
                 TestCaseCount: 0,
                 AnvilConfig: anvilConfig.config,
                 AdditionalConfig: anvilConfig.additionalConfig});

@@ -11,11 +11,11 @@ export function getResultDisplay(testRun: ITestRun) {
 }
 
 export function getResultToolTip(testRun: ITestRun) {
-    let tooltip = `${testRun.CaseCount} cases`;
-    //if (testRun.FailedReason != null) {
-    //    tooltip += "\n" + testRun.FailedReason;
-    //}
-    return tooltip;
+    if (testRun.Result == "DISABLED") {
+        return "Disabled";
+    } else {
+        return `${testRun.CaseCount} cases`;
+    }
 }
 
 export function getResultSymbol(result: string) {
@@ -24,7 +24,7 @@ export function getResultSymbol(result: string) {
         case "CONCEPTUALLY_SUCCEEDED": return "⚠️✅";
         case "PARTIALLY_FAILED": return "⚠️❌";
         case "FULLY_FAILED": return "❌";
-        case "DISABLED": return "";
+        case "DISABLED": return "◼";
         case "INCOMPLETE": return "📝";
         case "TEST_SUITE_ERROR": return "☢";
         default: return result;

@@ -10,6 +10,8 @@ import { WorkerEndpoint } from './endpoints/WorkerEndpoint';
 import { BadRequest, InternalServerError } from './errors';
 import { ControllerEndpoint } from './endpoints/ControlEndpoint';
 import { PcapEndpoint } from './endpoints/PcapEndpoint';
+import AdmZip from "adm-zip";
+import fs from "fs";
 
 console.log("AnvilWeb starting...")
 const app = express()
@@ -75,11 +77,21 @@ if (process.env.PRODUCTION) {
 }
 
 console.log(" - establishing database connection")
-DB.connect().then(() => {
-  app.listen(5001, function () {
-    console.log('AnvilWeb started. Running on port 5001!')
-  })
-  DB.cleanUp();
+DB.connect().then(async () => {
+  if (process.argv.includes("-generate_report")) {
+    console.log (" - generating static report json");
+    await UploadReportEndpoint.processNewReport(new AdmZip("report.zip"), null, null);
+    let report = await DB.Report.findOne().lean().exec();   
+    await DB.Report.addTestRuns(report);
+    fs.writeFileSync("static_report.json", JSON.stringify(report));
+    console.log("Exiting...");
+    await DB.close();
+  } else {
+    DB.cleanUp();
+    app.listen(5001, function () {
+      console.log('AnvilWeb started. Running on port 5001!')
+    })
+  }
 }).catch((e) => {
   console.error("Startup failed!", e)
 })

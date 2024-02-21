@@ -23,7 +23,7 @@ tags:
   - name: worker
     description: Used from an AnvwilWorker to communicate with the backend
 paths:
-  /report/reportIdentifiers:
+  /reportIdentifiers:
     get:
       tags:
         - report
@@ -108,6 +108,27 @@ paths:
             application/json: 
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
+  /report/{identifier}/download:
+    get:
+      tags:
+        - report
+      summary: Download a static html report
+      description: Returns a html file containing a static version of the report.
+      operationId: getStaticReport
+      parameters: 
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/Identifier'
+      responses: 
+        '200':
+          description: successful operation
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
   /report/{identifier}/testRuns/{testId}:
     get:
       tags:

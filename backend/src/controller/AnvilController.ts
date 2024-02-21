@@ -74,6 +74,7 @@ class AnvilController {
         if (!worker) {
             console.debug(`New job[${id}] added to the pool.`)
         } else {
+            worker.jobs.push(this.jobList[id]);
             worker.queueAction({
                 command: AnvilCommands.QUEUE_RUN,
                 job: this.jobList[id].apiObject()

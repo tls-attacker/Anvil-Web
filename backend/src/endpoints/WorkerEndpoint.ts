@@ -105,6 +105,8 @@ export namespace WorkerEndpoint {
                     case TestResult.PARTIALLY_FAILED:
                         job.report.PartiallyFailedTests++;
                         break;
+                    case TestResult.TEST_SUITE_ERROR:
+                        job.report.TestSuiteErrorTests++;
                     case TestResult.DISABLED:
                     case TestResult.PARSER_ERROR:
                     case TestResult.NOT_SPECIFIED:
