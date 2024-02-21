@@ -28,10 +28,10 @@ services:
     networks:
       - app
 
-  worker:
-    # image: ghcr.io/tls-attacker/tlsanvil
-    image: tls-anvil
-    restart: always
-    networks:
-      - app
-    command: ["worker", "-controller", "app:5001", "-name", "Docker Compose bundeled Worker"]
+  #worker:
+  #  # image: ghcr.io/tls-attacker/tlsanvil
+  #  image: tls-anvil
+  #  restart: always
+  #  networks:
+  #    - app
+  #  command: ["worker", "-controller", "app:5001", "-name", "Docker Compose bundeled Worker"]

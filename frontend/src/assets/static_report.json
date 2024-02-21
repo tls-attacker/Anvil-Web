@@ -1,0 +1,51 @@
+{
+    "Identifier": "example-report",
+    "Date": "2024-02-05T10:53:34.670Z",
+    "ElapsedTime": 60,
+    "PartiallyFailedTests": 0,
+    "FullyFailedTests": 0,
+    "ConceptuallySucceededTests": 0,
+    "StrictlySucceededTests": 1,
+    "DisabledTests": 0,
+    "TestSuiteErrorTests": 0,
+    "TotalTests": 1,
+    "FinishedTests": 1,
+    "Score": {
+        "DeprecatedFeature": 100,
+        "Crypto": 100,
+        "CVE": 100,
+        "MessageStructure": 100,
+        "Alert": 100,
+        "Security": 100,
+        "RecordLayer": 100,
+        "Interoperability": 100,
+        "Handshake": 100,
+        "Certificate": 100
+    },
+    "TestCaseCount": 2901,
+    "TestEndpointType": "SERVER",
+    "Running": false,
+    "AnvilConfig": "",
+    "AdditionalConfig": "",
+    "GuidelineReports": [],
+    "createdAt": "2024-02-05T11:04:11.870Z",
+    "updatedAt": "2024-02-05T11:04:11.870Z",
+    "TestRuns": [
+        {
+            "TestMethod": "exampleMethod",
+            "TestClass": "de.rub.nds.tlstest.suite.tests.client.tls12.rfc1234.exampleTest",
+            "TestId": "1234-abcdefg",
+            "Result": "STRICTLY_SUCEEDED",
+            "HasStateWithAdditionalResultInformation": false,
+            "HasVaryingAdditionalResultInformation": false,
+            "FailedReason": null,
+            "ElapsedTime": 0,
+            "CaseCount": 0,
+            "Score": {
+                "Alert": 100,
+                "Handshake": 100
+            },
+            "FailureInducingCombinations": null
+        }
+    ]
+}
