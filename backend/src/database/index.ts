@@ -41,7 +41,10 @@ class Database {
 
   async cleanUp() {
     await this.Report.updateMany({Running: true}, {Running: false}).exec();
-    mongoose.connection.close();
+  }
+
+  async close() {
+    await mongoose.connection.close();
   }
 
   /* async addResultContainer(container: ITestRun, pcap: string, keylogfile: string): Promise<void> {

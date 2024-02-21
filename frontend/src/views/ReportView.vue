@@ -11,6 +11,7 @@
                 <a v-if="report.Running && report.Job" role="button" href="" class="negative" @click.prevent="showCancel = true">Stop Run</a>
                 <a v-if="!report.Running" role="button" class="negative" href="" @click.prevent="showDelete = true">Delete</a>
                 <a v-if="!report.Running" role="button" href="" @click.prevent="showRerun = true">Re-Run</a>
+                <a v-if="!report.Running" role="button" :href="$api.getReportDownloadLink(report.Identifier)" download="report.html">Download</a>
             </template>
         </header>
         <article>

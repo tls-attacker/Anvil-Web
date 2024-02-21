@@ -5,6 +5,8 @@ import { ITestRun, TestResult } from '../lib/data_types';
 import { ObjectId } from 'mongoose';
 import { AC } from '../controller/AnvilController';
 import { AnvilJob } from '../controller/AnvilJob';
+import { execSync } from "child_process";
+import fs from "fs";
 
 
 export namespace ReportEnpoint {
@@ -25,6 +27,7 @@ export namespace ReportEnpoint {
       this.router.route("/report/:identifier")
         .get(this.getReport.bind(this))
         .delete(this.deleteReport.bind(this))
+      this.router.get("/report/:identifier/download", this.downloadReport.bind(this));
       // get single test run from this report
       this.router.get("/report/:identifier/testRuns/:testId", this.getTestRunsForReport.bind(this))
     }
@@ -142,6 +145,29 @@ export namespace ReportEnpoint {
 
       }
       res.send(testRun)
+    }
+
+    private async downloadReport(req: Request, res: Response, next: NextFunction) {
+      if (!process.env.PRODUCTION) {
+        return next(new BadRequest("Feature disabled in development environment."));
+      }
+
+      const identifier = req.params.identifier;
+
+      let report = await DB.Report.findOne({Identifier: identifier}).lean().exec();
+        if (!report) {
+          return next(new BadRequest("invalid identifier"))
+        }
+        // add test runs
+        await DB.Report.addTestRuns(report);
+        // overlay edits
+        await DB.Report.overlayEdits(report);
+
+      fs.writeFileSync("/build/frontend/src/assets/static_report.json", JSON.stringify(report));
+      execSync("npm run generate-report", {cwd: "/build/frontend"});
+      let reportFile = fs.readFileSync("/build/frontend/dist/static_report.html");
+      res.type('application/octet-stream')
+      res.send(reportFile);
     }
   }
 }

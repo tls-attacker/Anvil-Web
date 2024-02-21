@@ -17,6 +17,10 @@ export module AnvilApi {
         return getApiObject("report/" + identifier);
     }
 
+    export function getReportDownloadLink(identifier: string): string {
+        return `${baseUrl}report/${identifier}/download`;
+    }
+
     export function deleteReport(identifier: string): Promise<{success: boolean}> {
         return new Promise((resolve, reject) => {
             fetch(baseUrl + "report/" + identifier, {method: "DELETE"})
