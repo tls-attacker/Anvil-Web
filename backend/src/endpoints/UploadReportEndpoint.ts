@@ -103,7 +103,7 @@ export namespace UploadReportEndpoint {
       if (next) {
         return next(new BadRequest("Identifier already exists"));
       } else {
-        console.log("Database is not cleard! Reusing old report.");
+        console.log("Database is not cleared! Reusing old report.");
         return;
       }
     }
