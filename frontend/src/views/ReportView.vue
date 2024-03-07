@@ -18,6 +18,7 @@
             <header class="report-summary">
                 <span><strong>Test started:</strong> {{ $api.formatDate(report.Date+"") }}</span>
                 <span><strong>Test Cases:</strong> {{ report.TestCaseCount }}</span>
+                <span><strong>Test Runs:</strong> {{ report.FinishedTests }}</span>
                 <span><strong>Elapsed Time:</strong> <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
             </header>
             <main>
