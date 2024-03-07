@@ -51,7 +51,8 @@ export interface IReport extends ITimestamp {
     Job?: IAnvilJob,
     AnvilConfig: string,
     AdditionalConfig: string,
-    GuidelineReports?: IGuidelineReport[]
+    GuidelineReports?: IGuidelineReport[],
+    TlsScannerReport: string
 }
 
 export interface ITestRunEdit {

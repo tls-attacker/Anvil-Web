@@ -114,6 +114,11 @@ export namespace UploadReportEndpoint {
     if (guidelines) {
       report.GuidelineReports = JSON.parse(guidelines.getData().toString())
     }
+    // tls scanner report
+    const tlsScannerReport = zipFile.getEntry("tls-scanner.txt");
+    if (tlsScannerReport) {
+      report.TlsScannerReport = tlsScannerReport.getData().toString();
+    }
     // key log file
     const keylogfile = zipFile.getEntry("keyfile.log");
     if (keylogfile) {

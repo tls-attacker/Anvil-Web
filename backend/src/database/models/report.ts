@@ -33,6 +33,7 @@ export const ReportSchema = new Schema({
   AnvilConfig: String,
   AdditionalConfig: String,
   GuidelineReports: [GuidelineReportSchema],
+  TlsScannerReport: String,
   KeylogFile: Types.ObjectId
 }, {
   statics: {
