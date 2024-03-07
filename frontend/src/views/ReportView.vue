@@ -48,6 +48,8 @@
                         </div>
                     </div>
                 </div>
+                <br>
+                <a v-if="report.TlsScannerReport" role="button" href="" @click.prevent="showTlsScanner = true">Show TLS Scanner Results...</a>
             </main>
             <footer>
                 <progress v-if="report.Running"></progress>
@@ -62,6 +64,7 @@
         <CancelJobDialog v-if="showCancel" @close="showCancel = false" :job="report.Job" />
         <NewJobDialog v-if="showRerun" @close="showRerun = false" :givenConfig="report.AnvilConfig" :givenAdditionalConfig="report.AdditionalConfig"/>
         <GuidelineModal :guidelineReport="showGuideline" @close="showGuideline = undefined"/>
+        <TlsScannerModal v-if="showTlsScanner" :scannerReport="report.TlsScannerReport" @close="showTlsScanner = false"/>
     </template>
 </template>
 
@@ -73,12 +76,13 @@ import CircularProgress from '@/components/CircularProgress.vue';
 import CancelJobDialog from '@/components/CancelJobDialog.vue';
 import NewJobDialog from '@/components/NewJobDialog.vue';
 import GuidelineModal from '@/components/GuidelineModal.vue';
+import TlsScannerModal from '@/components/TlsScannerModal.vue';
 import DetailedReportTable from '@/components/DetailedReportTable.vue';
 import SimpleReportTable from '@/components/SimpleReportTable.vue';
 
 export default {
     name: "ReportView",
-    components: { TestBar, CircularProgress, DeleteReportDialog, CancelJobDialog, NewJobDialog, GuidelineModal, DetailedReportTable, SimpleReportTable },
+    components: { TestBar, CircularProgress, DeleteReportDialog, CancelJobDialog, NewJobDialog, GuidelineModal, DetailedReportTable, SimpleReportTable, TlsScannerModal },
     props: ["givenReport"],
     data() {
         return {
@@ -88,6 +92,7 @@ export default {
             showRerun: false,
             timer: 0,
             showGuideline: undefined as IGuidelineReport | undefined,
+            showTlsScanner: false,
             detailedView: true
         }
     },
