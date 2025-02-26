@@ -6,7 +6,7 @@
                 Tls Scanner Report
                 </header>
                 <main>
-                    <div v-html="html"></div>
+                    <pre v-html="html"></pre>
                 </main>
             </article>
         </dialog>

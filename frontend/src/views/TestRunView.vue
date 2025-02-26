@@ -1,15 +1,17 @@
 <template>
     <article v-if="testRun === undefined" aria-busy="true"></article>
     <template v-else>
-        <header class="flex-header">
-            <hgroup>
-                <h1>{{ testRun.TestId }}</h1>
-                <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink> / <strong>Testrun Details</strong></h3>
-            </hgroup>
-            <span class="spacer"></span>
-            <!--<a role="button" href="">Re-Run</a>-->
-        </header>
-        <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
+        <div class="container">
+            <header class="flex-header">
+                <hgroup>
+                    <h1>{{ testRun.TestId }}</h1>
+                    <h3>&lt; <RouterLink to="/" class="secondary">Tests</RouterLink> / <RouterLink :to="`/tests/${identifier}`" class="secondary">{{ identifier }}</RouterLink> / <strong>Testrun Details</strong></h3>
+                </hgroup>
+                <span class="spacer"></span>
+                <!--<a role="button" href="">Re-Run</a>-->
+            </header>
+            <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
+        </div>
 
         <article v-if="testRun.CaseCount>0 && testRun.Result != 'TEST_SUITE_ERROR'">
             <header>
