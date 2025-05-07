@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@picocss/pico": "^1.5.10",
+    "ansi_up": "^6.0.2",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"
   },

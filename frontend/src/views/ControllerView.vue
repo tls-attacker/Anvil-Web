@@ -1,85 +1,87 @@
 <template>
-    <header class="flex-header">
-        <h1>Controller</h1>
-        <span class="spacer"></span>
-        <a href="" role="button" @click.prevent="newJobOpen = true">New Job</a>
-    </header>
-    <main>
-        <h2>Jobs</h2>
-        <div class="job-container">
-            <article v-if="jobList.length == 0">
-                No jobs created.
-                <br /> <br>
-                <a href="" role="button" class="outline" @click.prevent="newJobOpen = true">New Job</a>
-            </article>
-            <article v-else>
-                <table role="grid">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Identifier</th>
-                            <th>ID</th>
-                            <th>Worker</th>
-                            <th>Status</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="job in jobList" :class="{ 'job-clickable': job.identifier != 'unset' }">
-                            <td :aria-busy="job.status != 'QUEUED'" @click.prevent="gotoReport(job)"></td>
-                            <td @click.prevent="gotoReport(job)">{{ job.identifier }}</td>
-                            <td @click.prevent="gotoReport(job)">{{ job.id }}</td>
-                            <td @click.prevent="gotoReport(job)">{{ job.workerName }}</td>
-                            <td @click.prevent="gotoReport(job)">{{ job.status }}</td>
-                            <td><a href="" role="button" class="outline negative" :disabled="job.status=='CANCELED'?true:null"
-                                    @click.prevent="cancelJob = true; selectedJob = job">Cancel</a></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </article>
-        </div>
-        <h2>Worker</h2>
-        <article v-if="workerList.length == 0">
-            No worker available. Please start TLS-Anvil in worker mode.
-        </article>
-        <div class="worker-container">
-            <template v-for="worker of workerList">
-                <article>
-                    <main>
-                        <h3>{{ worker.name }}</h3>
-                        <strong>ID:</strong> {{ worker.id }} <br>
-                        <strong>Status:</strong> {{ worker.status }} <br>
-                        <strong>Jobs:</strong>
-                        <ul v-if="worker.jobs.length > 0">
-                            <li v-for="job of worker.jobs">
-                                {{ job.identifier }}
-                            </li>
-                        </ul>
-                        <span v-else>
-                            No Jobs running.
-                        </span>
-                        <br>
-                        <code v-if="worker.logs">
-                            <div>{{ worker.logs }}</div>
-                            <div id="anchor"></div>
-                        </code>
-                    </main>
-                    <footer class="buttons">
-                        <span v-if="worker.status == 'WORKING'" :aria-busy="true"></span>
-                        <a href="" role="button" class="outline"
-                            @click.prevent="selectedWorker = worker.id; newJobOpen = true">
-                            <template v-if="worker.status == 'WORKING'">Queue Job</template>
-                            <template v-else>New Job</template>
-                        </a>
-                        <!--<a href="" role="button" class="outline negative">Shutdown</a>-->
-                    </footer>
+    <div class="container">
+        <header class="flex-header">
+            <h1>Controller</h1>
+            <span class="spacer"></span>
+            <a href="" role="button" @click.prevent="newJobOpen = true">New Job</a>
+        </header>
+        <main>
+            <h2>Jobs</h2>
+            <div class="job-container">
+                <article v-if="jobList.length == 0">
+                    No jobs created.
+                    <br /> <br>
+                    <a href="" role="button" class="outline" @click.prevent="newJobOpen = true">New Job</a>
                 </article>
-            </template>
-        </div>
-    </main>
-    <NewJobDialog v-if="newJobOpen" @close="newJobOpen = false; selectedWorker = ''; refreshWorkerJobs()"
-        :workers="workerList" :workerId="selectedWorker" />
-    <CancelJobDialog v-if="cancelJob" :job="selectedJob" @close="cancelJob = false; refreshWorkerJobs()" />
+                <article v-else>
+                    <table role="grid">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Identifier</th>
+                                <th>ID</th>
+                                <th>Worker</th>
+                                <th>Status</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="job in jobList" :class="{ 'job-clickable': job.identifier != 'unset' }">
+                                <td :aria-busy="job.status != 'QUEUED'" @click.prevent="gotoReport(job)"></td>
+                                <td @click.prevent="gotoReport(job)">{{ job.identifier }}</td>
+                                <td @click.prevent="gotoReport(job)">{{ job.id }}</td>
+                                <td @click.prevent="gotoReport(job)">{{ job.workerName }}</td>
+                                <td @click.prevent="gotoReport(job)">{{ job.status }}</td>
+                                <td><a href="" role="button" class="outline negative" :disabled="job.status=='CANCELED'?true:null"
+                                        @click.prevent="cancelJob = true; selectedJob = job">Cancel</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </article>
+            </div>
+            <h2>Worker</h2>
+            <article v-if="workerList.length == 0">
+                No worker available. Please start TLS-Anvil in worker mode.
+            </article>
+            <div class="worker-container">
+                <template v-for="worker of workerList">
+                    <article>
+                        <main>
+                            <h3>{{ worker.name }}</h3>
+                            <strong>ID:</strong> {{ worker.id }} <br>
+                            <strong>Status:</strong> {{ worker.status }} <br>
+                            <strong>Jobs:</strong>
+                            <ul v-if="worker.jobs.length > 0">
+                                <li v-for="job of worker.jobs">
+                                    {{ job.identifier }}
+                                </li>
+                            </ul>
+                            <span v-else>
+                                No Jobs running.
+                            </span>
+                            <br>
+                            <code v-if="worker.logs">
+                                <div>{{ worker.logs }}</div>
+                                <div id="anchor"></div>
+                            </code>
+                        </main>
+                        <footer class="buttons">
+                            <span v-if="worker.status == 'WORKING'" :aria-busy="true"></span>
+                            <a href="" role="button" class="outline"
+                                @click.prevent="selectedWorker = worker.id; newJobOpen = true">
+                                <template v-if="worker.status == 'WORKING'">Queue Job</template>
+                                <template v-else>New Job</template>
+                            </a>
+                            <!--<a href="" role="button" class="outline negative">Shutdown</a>-->
+                        </footer>
+                    </article>
+                </template>
+            </div>
+        </main>
+        <NewJobDialog v-if="newJobOpen" @close="newJobOpen = false; selectedWorker = ''; refreshWorkerJobs()"
+            :workers="workerList" :workerId="selectedWorker" />
+        <CancelJobDialog v-if="cancelJob" :job="selectedJob" @close="cancelJob = false; refreshWorkerJobs()" />
+    </div>
 </template>
 
 <script lang="ts">

@@ -7,8 +7,8 @@
                         <h4>{{ report.Identifier }}</h4>
                         <div class="grid" style="margin-bottom: 10px;">
                             <span>Date: {{ $api.formatDate(report.Date+"") }}</span>
-                            <span>Elapsed Time: <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
-                            <span>Test Cases: {{ report.TestCaseCount }}</span>
+                            <span>Tests run: {{ report.FinishedTests }}</span>
+                            <span>Time elapsed: <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
                         </div>
                         <TestBar :disabledTests="report.DisabledTests" :succeededTests="report.StrictlySucceededTests+report.ConceptuallySucceededTests"
                             :failedTests="report.FullyFailedTests+report.PartiallyFailedTests" :errors="report.TestSuiteErrorTests"/>

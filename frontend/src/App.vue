@@ -16,7 +16,7 @@ import { RouterLink, RouterView } from 'vue-router'
   <!-- <header class="container-fluid">
     Test
   </header> -->
-  <main class="container">
+  <main class="container-fluid">
     <RouterView></RouterView>
   </main>
   <footer class="container-fluid">

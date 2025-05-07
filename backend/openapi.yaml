@@ -744,6 +744,9 @@ components:
           items:
             $ref: '#/components/schemas/GuidelineReport'
           nullable: true
+        TlsScannerReport:
+          type: string
+          nullable: true
     SeverityLevel:
       type: string
       enum:
