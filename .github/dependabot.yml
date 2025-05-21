@@ -1,12 +1,9 @@
 version: 2
 updates:
-  - package-ecosystem: "docker"
+  - package-ecosystem: "docker-compose"
     directory: "/"
     schedule:
       interval: "daily"
-    commit-message:
-      prefix: "deps"
-      include: "scope"
     open-pull-requests-limit: 5
     allow:
       - dependency-type: "all"
