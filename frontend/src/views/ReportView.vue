@@ -23,7 +23,7 @@
                     <span><strong>Elapsed Time:</strong> <template v-if="report.Running">{{ elapsedTime }}</template><template v-else>{{ $api.millisecondsToTime(report.ElapsedTime) }}</template></span>
                 </header>
                 <main>
-                    <template v-if="!report.Running && report.Score">
+                    <template v-if="!report.Running && report.Score && Object.keys(report.Score).length > 0">
                         <strong>Scores:</strong>
                         <div class="score-container">
                             <CircularProgress name="Security" :progress="report.Score['Security']"/>

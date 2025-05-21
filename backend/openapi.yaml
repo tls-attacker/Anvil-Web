@@ -726,6 +726,8 @@ components:
           enum: 
             - "SERVER"
             - "CLIENT"
+            - null
+          nullable: true
         TestRuns:
           type: array
           items:

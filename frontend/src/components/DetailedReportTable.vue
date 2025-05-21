@@ -93,7 +93,7 @@ export default {
             //if (testResult.Result == TestOutcome.DISABLED) return false;
             if (prefix != "Hidden" && this.hiddenTestIds.includes(testRun.TestId)) return false;
             if (this.filteredResults[testRun.Result] == false) return false;
-            if (testRun.Score != undefined) {
+            if (testRun.Score != undefined && Object.keys(testRun.Score).length > 0) {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
             let tags = [];
