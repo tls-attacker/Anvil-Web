@@ -1,6 +1,6 @@
 <template>
     <template v-if="testRuns && Object.values(testRuns).length>0">
-    <TestRunSummary :testId="$route.query.testId"/>
+    <TestRunSummary :testId="$route.query.testId" :metaData="(Object.values(testRuns)[0] as ITestRun).MetaData"/>
     <table role="grid">
         <thead>
             <th>Identifier</th>

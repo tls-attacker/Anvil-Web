@@ -1,5 +1,4 @@
 import type { IAnvilJob, IAnvilWorker, IReport, ITestRun } from './lib/data_types';
-import metaDataString from "@/assets/metadata.json";
 
 export module AnvilApi {
     const baseUrl = import.meta.env.DEV ? "http://localhost:5001/api/v2/" : "/api/v2/";
@@ -168,27 +167,5 @@ export module AnvilApi {
                 return `${hours}h ${min}min`
             }
         }
-    }
-
-    let metaData = metaDataString as {[key: string]: any};
-    export function getMetaData(testId: string): any {
-        if (testId in metaData) {
-            return metaData[testId];
-        } else {
-            return Object.values(metaData)[0];
-        }
-    }
-    export function getScoreCategories(): string[] {
-        let result = [] as string[]
-        for (let test of Object.values(metaData)) {
-            if (test.severityLevels) {
-                for (let c of Object.keys(test.severityLevels)) {
-                    if (!result.includes(c)) {
-                        result.push(c);
-                    }
-                }
-            }
-        }
-        return result;
     }
 }

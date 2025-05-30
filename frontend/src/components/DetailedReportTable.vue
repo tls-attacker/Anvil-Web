@@ -1,7 +1,9 @@
 <template>
     <article>
             <header>
-                <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
+                <MethodFilter
+                    :categories="Object.keys(report.Score)"
+                    v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
                 <a href="" @click.prevent="openAll()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
                 &nbsp; <a v-if="hiddenTestIds.length>0" @click.prevent="resetHidden()" href="">Reset hidden</a>
             </header>
@@ -25,7 +27,7 @@
                                                         {{ testRun.TestId }}
                                                     </RouterLink>
                                                     &nbsp;
-                                                    <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                    <small v-if="testRun.MetaData && testRun.MetaData.tags">({{ testRun.MetaData.tags.join(", ") }})</small>
                                                 </summary>
                                                 <figure>
                                                     <code>{{ testRun.FailedReason }}</code>
@@ -36,7 +38,7 @@
                                                     {{ testRun.TestId }}
                                                 </RouterLink>
                                                 &nbsp;
-                                                <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                <small v-if="testRun.MetaData && testRun.MetaData.tags">({{ testRun.MetaData.tags.join(", ") }})</small>
                                             </template>
                                         </td>
                                         <td style="width: 5rem;">
@@ -97,8 +99,8 @@ export default {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
             let tags = [];
-            if (this.$api.getMetaData(testRun.TestId) && this.$api.getMetaData(testRun.TestId).tags) {
-                tags = this.$api.getMetaData(testRun.TestId).tags;
+            if (testRun.MetaData && testRun.MetaData.tags) {
+                tags = testRun.MetaData.tags;
             }
             // filter exactly when wrapped in quotes
             if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {

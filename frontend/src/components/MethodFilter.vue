@@ -30,7 +30,7 @@ import { TestResult } from '@/lib/data_types';
 
 export default {
     name: 'MethodFilter',
-    props: ['filterText', 'filteredCategories', 'filteredResults'],
+    props: ['filterText', 'filteredCategories', 'filteredResults', 'categories'],
     emits: ['update:filterText', 'update:filteredCategories', 'update:filteredResults'],
     methods: {
         formatEnum,
@@ -51,9 +51,9 @@ export default {
             sessionStorage.setItem("methodFilter_text", text);
         },
         resetCategories() {
-            let categories = Object.fromEntries(this.$api.getScoreCategories().map(k => [k, true]));
-            this.$emit('update:filteredCategories', categories);
-            sessionStorage.setItem("methodFilter_categories", JSON.stringify(categories));
+            let categoriesMap = Object.fromEntries((this.categories as string[]).map(k => [k, true]));
+            this.$emit('update:filteredCategories', categoriesMap);
+            sessionStorage.setItem("methodFilter_categories", JSON.stringify(categoriesMap));
         },
         resetResults() {
             let results = Object.fromEntries(Object.keys(TestResult).map(k => [k, true]));

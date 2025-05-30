@@ -48,14 +48,14 @@ import CircularProgress from '@/components/CircularProgress.vue';
 export default {
     name: "TestRunSummary",
     components: { CircularProgress },
-    props: ["testId", "testRun"],
+    props: ["testId", "testRun", "metaData"],
     data() {
         return {
             metaDataContainer: undefined as any
         }
     },
     created() {
-        this.metaDataContainer = this.$api.getMetaData(this.testId);
+        this.metaDataContainer = this.testRun ? this.testRun.MetaData : this.metaData;
     }
 }
 </script>

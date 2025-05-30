@@ -1,6 +1,9 @@
 <template>
     <div>
-        <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults" />
+        <MethodFilter
+            v-if="reports.length > 0"
+            :categories="Object.keys(reports[0].Score)"
+            v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults" />
         <table v-if="reports.length > 0" role="grid">
             <thead>
                 <th>Identifier</th>
@@ -120,8 +123,9 @@ export default {
                 }
             })) return false;
             let tags = [];
-            if (this.$api.getMetaData(testId) && this.$api.getMetaData(testId).tags) {
-                tags = this.$api.getMetaData(testId).tags;
+            let testRun = this.reports[0].TestRuns.find((tR: ITestRun) => tR.TestId == testId)
+            if (testRun.MetaData && testRun.MetaData.tags) {
+                tags = testRun.MetaData.tags;
             }
             // filter exactly when wrapped in quotes
             if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {

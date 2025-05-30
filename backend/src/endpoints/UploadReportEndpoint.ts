@@ -137,6 +137,9 @@ export namespace UploadReportEndpoint {
     for (let entry of entries) {
       if (entry.entryName.endsWith("_testRun.json")) {
         let testRun = JSON.parse(entry.getData().toString())
+        if ("metadata" in testRun) {
+          testRun["MetaData"] = testRun["metadata"];
+        }
         testRun = new DB.TestRun(testRun)
         testRun.ContainerId = report._id
         // pcaps
