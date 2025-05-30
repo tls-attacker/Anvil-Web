@@ -6,12 +6,32 @@
                 Test Case Details
             </header>
             <main>
-                <p><strong>UUID: </strong>{{ testCase.uuid }}</p>
-                <p><strong>Result: </strong>{{ testCase.Result }}</p>
-                <p><strong>SrcPort: </strong>{{ testCase.SrcPort }}</p>
-                <p><strong>DstPort: </strong>{{ testCase.DstPort }}</p>
-                <p><strong>Start: </strong>{{ testCase.StartTimestamp }}</p>
-                <p><strong>End: </strong>{{ testCase.EndTimestamp }}</p>
+                <table>
+                    <tr>
+                        <td><strong>UUID: </strong></td>
+                        <td colspan=3>{{ testCase.uuid }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Result: </strong></td>
+                        <td colspan=3>{{ getResultSymbol(testCase.Result) }} {{ testCase.Result }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SrcPort: </strong></td>
+                        <td>{{ testCase.SrcPort }}</td>
+                        <td><strong>DstPort: </strong></td>
+                        <td>{{ testCase.DstPort }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Start: </strong></td>
+                        <td>{{ $api.formatDate(testCase.StartTimestamp) }}</td>
+                        <td><strong>End: </strong></td>
+                        <td>{{ $api.formatDate(testCase.EndTimestamp) }}</td>
+                    </tr>
+                </table>
+                <p v-if="testCase.Stacktrace">
+                    <strong>Stacktrace:</strong>
+                    <code>{{ testCase.Stacktrace }}</code>
+                </p>
                 <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>
                 <ul>
                     <li v-for="ari of testCase.AdditionalResultInformation"> {{ ari }}</li>
@@ -23,8 +43,8 @@
                         <li v-for="ati of testCase.AdditionalTestInformation"> {{ ati }}</li>
                     </ul>
                 </p>
-                <p>
-                    <strong>Derivations:</strong>
+                <details>
+                    <summary><strong>Derivations</strong></summary>
                     <table role="grid">
                         <thead>
                             <tr>
@@ -39,7 +59,7 @@
                             </tr>
                         </tbody>
                     </table>
-                </p>
+                </details>
                 <p>
                     <strong>Network Traffic Capture</strong> <br>
                     <pre><span v-for="line of traffic" :class="{
@@ -56,6 +76,7 @@
 </template>
 
 <script lang="ts">
+import { getResultSymbol } from '@/composables/visuals';
 export default {
     name: "TestCaseModal",
     props: ["testCase", "identifier", "testId"],
@@ -64,6 +85,9 @@ export default {
         return {
             traffic: [] as string[]
         }
+    },
+    methods: {
+        getResultSymbol
     },
     watch: {
         testCase() {
@@ -85,6 +109,10 @@ td {
 
 article {
     max-width: 1000px;
+}
+
+header {
+    margin-bottom: 0;
 }
 
 th {
