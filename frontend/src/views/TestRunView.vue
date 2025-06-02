@@ -10,7 +10,7 @@
                 <span class="spacer"></span>
                 <!--<a role="button" href="">Re-Run</a>-->
             </header>
-            <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
+            <TestRunSummary :testId="testRun.TestId" :testRun="testRun" :showResults="true"/>
         </div>
 
         <article v-if="testRun.CaseCount>0 && testRun.Result != 'TEST_SUITE_ERROR'">

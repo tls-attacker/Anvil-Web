@@ -41,7 +41,7 @@
                                                 <small v-if="testRun.MetaData && testRun.MetaData.tags">({{ testRun.MetaData.tags.join(", ") }})</small>
                                             </template>
                                         </td>
-                                        <td style="width: 5rem;">
+                                        <td style="width: 6rem;">
                                             <span :data-tooltip="getResultToolTip(testRun)">
                                                 {{ getResultSymbolsTestRun(testRun) }}
                                             </span>

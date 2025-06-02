@@ -1,45 +1,48 @@
 <template>
     <template v-if="testRuns && Object.values(testRuns).length>0">
-    <TestRunSummary :testId="$route.query.testId" :metaData="(Object.values(testRuns)[0] as ITestRun).MetaData"/>
-    <table role="grid">
-        <thead>
-            <th>Identifier</th>
-            <th v-for="identifier in Object.keys(testRuns)">
-                <RouterLink :to="`/tests/${identifier}/${$route.query.testId}`">{{ identifier.substring(0,8) }}</RouterLink>
-            </th>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Strictly Succeeded</td>
-                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].SucceededCases }}</td>
-            </tr>
-            <tr>
-                <td>Conceptually Succeeded</td>
-                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].ConSucceededCases }}</td>
-            </tr>
-            <tr>
-                <td>Fully Failed</td>
-                <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].FailedCases }}</td>
-            </tr>
-            <tr>
-                <td>Overall Result</td>
-                <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbolsTestRun(testRuns[identifier]) }}</td>
-            </tr>
-            <tr class="header" v-if="Object.keys(derivations).length > 0">
-                <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
-            </tr>
-            <tr v-for="(derivation, uuid) in derivations">
-                <td>{{ (uuid as string).substring(0, 16) }}</td>
-                <td v-for="identifier in Object.keys(testRuns)">
-                    <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid); selectedIdentifier = identifier" class="pointer">
-                        {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</template>
-<TestCaseModal :testCase="openCase" @close="openCase = undefined" :testId="$route.query.testId" :identifier="selectedIdentifier"/>
+        <div class="container">
+            <h3>{{ $route.query.testId }}</h3>
+            <TestRunSummary :testRun="Object.values(testRuns)[0]" :showResults="false"/>
+        </div>
+        <table role="grid">
+            <thead>
+                <th>Identifier</th>
+                <th v-for="identifier in Object.keys(testRuns)">
+                    <RouterLink :to="`/tests/${identifier}/${$route.query.testId}`">{{ identifier.substring(0,8) }}</RouterLink>
+                </th>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Strictly Succeeded</td>
+                    <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].SucceededCases }}</td>
+                </tr>
+                <tr>
+                    <td>Conceptually Succeeded</td>
+                    <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].ConSucceededCases }}</td>
+                </tr>
+                <tr>
+                    <td>Fully Failed</td>
+                    <td v-for="identifier in Object.keys(testRuns)">{{ testRuns[identifier].FailedCases }}</td>
+                </tr>
+                <tr>
+                    <td>Overall Result</td>
+                    <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbolsTestRun(testRuns[identifier]) }}</td>
+                </tr>
+                <tr class="header" v-if="Object.keys(derivations).length > 0">
+                    <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
+                </tr>
+                <tr v-for="(derivation, uuid) in derivations">
+                    <td>{{ (uuid as string).substring(0, 16) }}</td>
+                    <td v-for="identifier in Object.keys(testRuns)">
+                        <span @click="openCase = testRuns[identifier].TestCases.find((c: ITestCase) => c.uuid == uuid); selectedIdentifier = identifier" class="pointer">
+                            {{ getSymboldForUuid(testRuns[identifier], uuid as string) }}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+    <TestCaseModal :testCase="openCase" @close="openCase = undefined" :testId="$route.query.testId" :identifier="selectedIdentifier"/>
 </template>
 
 <script lang="ts">
@@ -116,6 +119,12 @@ export default {
 </script>
 
 <style scoped>
+    h3 {
+        margin-bottom: 0.5em;
+    }
+    article {
+        margin-top: 0;
+    }
     th, tr.header>td {
         font-weight: bold;
         background-color: rgb(209, 209, 209);

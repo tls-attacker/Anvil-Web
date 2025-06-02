@@ -187,7 +187,11 @@ export default {
     td:first-child, th:first-child {
         text-align: start;
     }
-    .header + .header {
+    /* hide empty table headers */
+    .header:has(+ .header) {
+        display: none;
+    }
+    tr:last-of-type.header {
         display: none;
     }
 </style>
