@@ -48,7 +48,7 @@
                     <tbody>
                         <template v-for="testCase of testRun.TestCases">
                             <tr v-if="filterCase(testCase)" @click="openCase = testCase">
-                                <td>{{ getResultSymbol(testCase.Result) }}</td>
+                                <td>{{ getResultSymbolsTestCase(testCase) }}</td>
                                 <td v-for="parameter of selectedParameters" :class="{'right-align': isRightAlign(testCase.ParameterCombination[parameter])}">{{ testCase.ParameterCombination[parameter] }}</td>
                             </tr>
                         </template>
@@ -66,7 +66,7 @@ import { TestResult, type ITestCase, type ITestRun } from '@/lib/data_types';
 import CircularProgress from '@/components/CircularProgress.vue';
 import TestCaseModal from '@/components/TestCaseModal.vue';
 import TestRunSummary from '@/components/TestRunSummary.vue';
-import { getResultSymbol } from '@/composables/visuals';
+import { getResultSymbolsTestCase } from '@/composables/visuals';
 import PillContainer from '@/components/PillContainer.vue';
 
 export default {
@@ -109,7 +109,7 @@ export default {
         }
     },
     methods: {
-        getResultSymbol,
+        getResultSymbolsTestCase,
         filterCase(testCase: ITestCase): boolean {
             if (testCase.Result == TestResult.STRICTLY_SUCCEEDED) {
                 return this.filter.succeeded;

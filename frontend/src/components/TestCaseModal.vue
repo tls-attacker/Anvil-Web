@@ -13,7 +13,7 @@
                     </tr>
                     <tr>
                         <td><strong>Result: </strong></td>
-                        <td colspan=3>{{ getResultSymbol(testCase.Result) }} {{ testCase.Result }}</td>
+                        <td colspan=3>{{ getResultSymbolsTestCase(testCase) }} {{ testCase.Result }}</td>
                     </tr>
                     <tr>
                         <td><strong>SrcPort: </strong></td>
@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { getResultSymbol } from '@/composables/visuals';
+import { getResultSymbolsTestCase } from '@/composables/visuals';
 export default {
     name: "TestCaseModal",
     props: ["testCase", "identifier", "testId"],
@@ -87,7 +87,7 @@ export default {
         }
     },
     methods: {
-        getResultSymbol
+        getResultSymbolsTestCase
     },
     watch: {
         testCase() {

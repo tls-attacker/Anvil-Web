@@ -23,7 +23,7 @@
             </tr>
             <tr>
                 <td>Overall Result</td>
-                <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbol(testRuns[identifier].Result) }}</td>
+                <td v-for="identifier in Object.keys(testRuns)">{{ getResultSymbolsTestRun(testRuns[identifier]) }}</td>
             </tr>
             <tr class="header" v-if="Object.keys(derivations).length > 0">
                 <td :colspan="Object.keys(testRuns).length+1">Test Cases</td>
@@ -46,7 +46,7 @@
 import { type ITestCase, type ITestRun } from '@/lib/data_types'
 import TestRunSummary from './TestRunSummary.vue'
 import TestCaseModal from './TestCaseModal.vue';
-import { getResultSymbol } from '@/composables/visuals';
+import { getResultSymbolsTestRun, getResultSymbolsTestCase } from '@/composables/visuals';
 
 export default {
     name: "CompareTableRuns",
@@ -89,9 +89,10 @@ export default {
             if (result === undefined) {
                 return "";
             }
-            return this.getResultSymbol(result.Result);
+            return this.getResultSymbolsTestCase(result);
         },
-        getResultSymbol,
+        getResultSymbolsTestRun,
+        getResultSymbolsTestCase,
         mergeCases() {
             this.derivations = {};
             for (let testRun of Object.values(this.testRuns) as ITestRun[]) {

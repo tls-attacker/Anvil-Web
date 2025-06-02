@@ -1,11 +1,21 @@
-import type { ITestRun } from "@/lib/data_types";
+import type { ITestCase, ITestRun } from "@/lib/data_types";
 
-export function getResultDisplay(testRun: ITestRun) {
+export function getResultSymbolsTestRun(testRun: ITestRun) {
     let resultSymbol = getResultSymbol(testRun.Result);
     if (testRun.HasVaryingAdditionalResultInformation) {
         resultSymbol += "⁉️";
     } else if (testRun.HasStateWithAdditionalResultInformation) {
         resultSymbol += "❗️";
+    }
+    return resultSymbol;
+}
+
+export function getResultSymbolsTestCase(testCase: ITestCase) {
+    let resultSymbol = getResultSymbol(testCase.Result);
+    if (testCase.AdditionalResultInformation) {
+        resultSymbol += "❗️";
+    } else if (testCase.AdditionalTestInformation) {
+        resultSymbol += "💬";
     }
     return resultSymbol;
 }

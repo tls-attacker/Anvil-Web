@@ -56,7 +56,7 @@
                                 :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))"
                                 @click="$router.push(`/tests/${report.Identifier}/${testId}`)"
                                 class="pointer">
-                                    {{ getResultDisplay(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
+                                    {{ getResultSymbolsTestRun(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
                                 </span>
                             </td>
                         </tr>
@@ -68,7 +68,7 @@
 </template>
 
 <script lang="ts">
-import { getResultDisplay, getResultToolTip } from '@/composables/visuals'
+import { getResultSymbolsTestRun, getResultToolTip } from '@/composables/visuals'
 import { type IReport, type ITestRun } from '@/lib/data_types'
 import MethodFilter from './MethodFilter.vue'
 
@@ -137,7 +137,7 @@ export default {
                 return joinedTags.includes(text) || testId.toLowerCase().includes(text);
             }
         },
-        getResultDisplay,
+        getResultSymbolsTestRun,
         getResultToolTip,
         makePrefixes() {
             this.prefixes = {};
