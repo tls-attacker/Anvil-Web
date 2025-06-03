@@ -31,7 +31,10 @@
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
                                 <li v-for="combination of testRun.FailureInducingCombinations.slice(0, 3)">
-                                    <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
+                                    <template v-for="(derivation, parameter) in combination">
+                                        <i>{{ parameter }}: </i>
+                                        {{ derivation }}
+                                    </template>
                                 </li>
                             </ul>
                         </div>
@@ -70,6 +73,9 @@ export default {
 </script>
 
 <style scoped>
+li {
+    font-size: medium;
+}
 table {
     margin-bottom: 0;
 }

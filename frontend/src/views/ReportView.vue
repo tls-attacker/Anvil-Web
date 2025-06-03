@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <br>
-                    <a v-if="report.TlsScannerReport" role="button" href="" @click.prevent="showTlsScanner = true">Show TLS Scanner Results...</a>
+                    <a v-if="report.TlsScannerReport" role="button" href="" @click.prevent="showTlsScanner = true">Show TLS Scanner Results</a>
                 </main>
                 <footer>
                     <progress v-if="report.Running"></progress>

@@ -3,66 +3,69 @@
             <article>
                 <header>
                 <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')"></a>
-                {{ guidelineReport.name }} Guideline Test Results
+                <h4>Guideline Test Results</h4>
+                {{ guidelineReport.name }} <a href="guidelineReport.link">(source)</a>
                 </header>
                 <main>
-                    <p><strong>Link: </strong> <a target="_blank" :href="guidelineReport.link">{{ guidelineReport.link }}</a></p>
-                    <br>
-                    <details open>
-                        <summary><strong>Violated ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == "VIOLATED").length }})</strong></summary>
-                        <table role="grid">
-                            <tbody>
-                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'VIOLATED')">
-                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
-                                    <td>❌</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
-                    <details>
-                        <summary><strong>Adhered ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'ADHERED').length }})</strong></summary>
-                        <table role="grid">
-                            <tbody>
-                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'ADHERED')">
-                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
-                                    <td>✔</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
-                    <details>
-                        <summary><strong>Check failed ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'CHECK_FAILED').length }})</strong></summary>
-                        <table role="grid">
-                            <tbody>
-                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'CHECK_FAILED')">
-                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
-                                    <td>💢</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
-                    <details>
-                        <summary><strong>Condition not met ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == 'CONDITION_NOT_MET').length }})</strong></summary>
-                        <table role="grid">
-                            <tbody>
-                                <tr v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == 'CONDITION_NOT_MET')">
-                                    <td>{{ g.checkName }} <br> <pre>{{ g.info }}</pre></td>
-                                    <td>❔</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </details>
+                    <template v-for="adherenceLevel in adherenceData">
+                        <h5>{{adherenceLevel.name}} ({{ (guidelineReport as IGuidelineReport).results.filter(g => g.adherence == adherenceLevel.enum).length }})</h5>
+                        
+                                <div class="result-row"
+                                    v-for="g in (guidelineReport as IGuidelineReport).results.filter(h => h.adherence == adherenceLevel.enum)">
+                                    <div class="icon">{{ adherenceLevel.icon }}</div>
+                                    <div>
+                                        <strong>Quote: </strong>
+                                        <blockquote>{{ g.checkName }}</blockquote>
+                                        <strong>Result:</strong> {{ adherenceLevel.name }}
+                                        <details>
+                                            <summary role="button">Details</summary>
+                                            <pre>{{ g.info }}</pre>
+                                        </details>
+                                    </div>
+                                </div>
+                        </template>
                 </main>
             </article>
         </dialog>
 </template>
 
 <script lang="ts">
+import { formatEnum } from '@/composables/visuals';
 import { type IGuideline, type IGuidelineReport } from '../lib/data_types';
 export default {
     name: "GuidelineModal",
     props: ["guidelineReport"],
     emits: ["close"],
+    data() {
+        return {
+            adherenceData: [
+                {
+                    enum: "VIOLATED",
+                    name: "Violated",
+                    icon: "❌"
+
+                },
+                {
+                    enum: "ADHERED",
+                    name: "Adhered",
+                    icon: "✔"
+
+                },    
+                {
+                    enum: "CHECK_FAILED",
+                    name: "Check Failed",
+                    icon: "💢"
+
+                },
+                {
+                    enum: "CONDITION_NOT_MET",
+                    name: "Condition Not Met",
+                    icon: "❔"
+
+                }
+            ]
+        }
+    },
     methods: {
         omitValues(guideline: any): any {
             const {_id, id, checkName, result,  ...strippedGuideline} = guideline;
@@ -76,16 +79,41 @@ export default {
 </script>
 
 <style scoped>
-td {
-    word-break: break-all;
+summary[role="button"] {
+    width: auto;
+}
+details {
+    margin-top: 5px;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+}
+.icon {
+    margin-top: 50px;
+    padding: 10px;
+}
+.result-row {
+    display: flex;
+    background-color: #f7f7f7;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+.result-row:hover {
+    display: flex;
+    background-color: aliceblue;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+blockquote {
+    margin-top: 0;
+    margin-bottom: 0;
 }
 article {
+    min-width: 200px;
     max-width: 1000px;
 }
-th {
-    font-weight: bold;
-    background-color: rgb(209, 209, 209);
-}
+
 p {
     margin-bottom: 10px;
 }
