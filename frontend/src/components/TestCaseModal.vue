@@ -32,7 +32,7 @@
                     <strong>Stacktrace:</strong>
                     <code>{{ testCase.Stacktrace }}</code>
                 </p>
-                <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>
+                <p v-if="testCase.AdditionalResultInformation"><strong>Additional Result Information: </strong>
                 <ul>
                     <li v-for="ari of testCase.AdditionalResultInformation"> {{ ari }}</li>
                 </ul>

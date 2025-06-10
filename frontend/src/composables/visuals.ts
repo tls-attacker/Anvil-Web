@@ -31,8 +31,8 @@ export function getResultToolTip(testRun: ITestRun) {
 export function getResultSymbol(result: string) {
     switch(result) {
         case "STRICTLY_SUCCEEDED": return "✅";
-        case "CONCEPTUALLY_SUCCEEDED": return "⚠️✅";
-        case "PARTIALLY_FAILED": return "⚠️❌";
+        case "CONCEPTUALLY_SUCCEEDED": return "✅⚠️";
+        case "PARTIALLY_FAILED": return "❌⚠️";
         case "FULLY_FAILED": return "❌";
         case "DISABLED": return "◼";
         case "INCOMPLETE": return "📝";
