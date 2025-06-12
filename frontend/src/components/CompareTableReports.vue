@@ -50,14 +50,16 @@
                     </tr>
                     <template v-for="testId in prefixes[prefix]">
                         <tr v-if="filterMethod(testId)">
-                            <td @click="showRun(testId)" class="pointer">{{ testId }}</td>
+                            <td>
+                                <RouterLink :to="`?testId=${testId}`">{{ testId }}</RouterLink>
+                            </td>
                             <td v-for="report in reports">
-                                <span v-if="hasTestResultFor(report, testId)"
-                                :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))"
-                                @click="$router.push(`/tests/${report.Identifier}/${testId}`)"
-                                class="pointer">
-                                    {{ getResultSymbolsTestRun(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
-                                </span>
+                                <RouterLink :to="`/tests/${report.Identifier}/${testId}`">
+                                    <span v-if="hasTestResultFor(report, testId)"
+                                    :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))">
+                                        {{ getResultSymbolsTestRun(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
+                                    </span>
+                                </RouterLink>
                             </td>
                         </tr>
                     </template>
@@ -71,6 +73,7 @@
 import { getResultSymbolsTestRun, getResultToolTip } from '@/composables/visuals'
 import { type IReport, type ITestRun } from '@/lib/data_types'
 import MethodFilter from './MethodFilter.vue'
+import { RouterLink } from 'vue-router';
 
 export default {
     name: "CompareTableReports",
@@ -116,7 +119,7 @@ export default {
                 if (!r.TestRuns) return false;
                 // @ts-ignore
                 let score = r.TestRuns.find(tR => tR.TestId == testId).Score;
-                if (score != undefined) {
+                if (score != undefined && Object.keys(score).length > 0) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);
                 } else {
                     return true;
@@ -153,9 +156,6 @@ export default {
                     }
                 }
             }
-        },
-        showRun(testId: string) {
-            this.$router.push({ query: { testId: testId } });
         },
         formatEnum(upper: string): string {
             let parts = upper.split("_");
