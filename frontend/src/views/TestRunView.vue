@@ -138,6 +138,8 @@ export default {
                 if (typeof(cA.ParameterCombination[parameter]) === "number") {
                     // @ts-ignore
                     return cA.ParameterCombination[parameter] - cB.ParameterCombination[parameter];
+                } else if (typeof(cA.ParameterCombination[parameter]) === "object") {
+                    return JSON.stringify(cA.ParameterCombination[parameter]).localeCompare(JSON.stringify(cB.ParameterCombination[parameter]));
                 } else {
                     return (""+cA.ParameterCombination[parameter]).localeCompare(""+cB.ParameterCombination[parameter])
                 }
@@ -189,6 +191,9 @@ th {
     background-color: rgb(209, 209, 209);
     max-width: 210px;
     white-space: nowrap;
+}
+td {
+    text-wrap: nowrap;
 }
 .sorting-symbol {
     display: inline-block;
