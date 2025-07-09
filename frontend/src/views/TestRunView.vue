@@ -13,7 +13,7 @@
             <TestRunSummary :testId="testRun.TestId" :testRun="testRun" :showResults="true"/>
         </div>
 
-        <article v-if="testRun.CaseCount>0 && testRun.Result != 'TEST_SUITE_ERROR'">
+        <article v-if="testRun.CaseCount>0">
             <header>
                 <details style="margin-bottom: var(--spacing);" open>
                     <summary role="button">Result:</summary>

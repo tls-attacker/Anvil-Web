@@ -51,8 +51,8 @@
                     <label>Strength:
                         <input type="number" v-model="config.strength" min="1">
                     </label>
-                    <label>Parallel Testcases:
-                        <input type="number" v-model="config.parallelTestCases" min="1">
+                    <label>Parallel Handshakes:
+                        <input type="number" v-model="additionalConfig.parallelHandshakes" min="1">
                     </label>
                     <details>
                         <summary>More settings</summary>
@@ -105,12 +105,11 @@ export default {
             error: false,
             config: {
                 connectionTimeout: "200",
-                disableTcpDump: "true",
+                disableTcpDump: "false",
                 useDTLS: "false",
                 identifier: "new_test_"+Math.floor(Math.random()*100),
                 ignoreCache: "false",
                 //networkInterface: "\\Device\\NPF_Loopback",
-                parallelTestCases: "1",
                 //parallelTests: "1",
                 restartServerAfter: "0",
                 strength: "1",
@@ -127,7 +126,8 @@ export default {
                     doNotSendSNIExtension: true,
                     sniHostname: "",
                     host: ""
-                }
+                },
+                parallelHandshakes: "1",
             },
             selectedWorker: this.workerId ? this.workerId : undefined,
             dlWorkers: [] as IAnvilWorker[],

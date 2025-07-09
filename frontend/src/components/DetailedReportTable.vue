@@ -2,7 +2,7 @@
     <article>
             <header>
                 <MethodFilter
-                    :categories="Object.keys(report.Score)"
+                    :categories="getCategories()"
                     v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
                 <a href="" @click.prevent="openAll()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
                 &nbsp; <a v-if="hiddenTestIds.length>0" @click.prevent="resetHidden()" href="">Reset hidden</a>
@@ -75,7 +75,25 @@ export default {
             hiddenTestIds: [] as string[]
         }
     },
+    watch: {
+        report() {
+            this.makePrefixes();
+        }
+    },
     methods: {
+        getCategories() {
+            let categories = [] as string[];
+            for (let run of this.report.TestRuns) {
+                if (run.Score) {
+                    for (let c of Object.keys(run.Score)) {
+                        if (categories.includes(c)) {
+                            categories.push(c);
+                        }
+                    }
+                }
+            }
+            return categories;
+        },
         filterPrefix(prefix: string) {
             if (prefix == "Hidden") return this.hiddenTestIds.length > 0;
             if (this.report == undefined) return false;
