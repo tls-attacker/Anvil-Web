@@ -46,9 +46,15 @@ export namespace ReportEnpoint {
 
       let reports;
       if (identifiers === undefined) {
-        reports = await DB.Report.find({}, detailed ? "" : "-GuidelineReports").lean().exec();
+        reports = await DB.Report.find(
+          {},
+          detailed ? "" : "-GuidelineReports -TlsScannerReport"
+        ).lean().exec();
       } else {
-        reports = await DB.Report.find({Identifier: {"$in": identifiers}}, detailed ? "" : "-GuidelineReports").lean().exec();
+        reports = await DB.Report.find(
+          {Identifier: {"$in": identifiers}},
+          detailed ? "" : "-GuidelineReports -TlsScannerReport"
+        ).lean().exec();
       }
       
       let promised = []

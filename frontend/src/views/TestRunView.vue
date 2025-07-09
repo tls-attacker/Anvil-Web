@@ -10,10 +10,10 @@
                 <span class="spacer"></span>
                 <!--<a role="button" href="">Re-Run</a>-->
             </header>
-            <TestRunSummary :testId="testRun.TestId" :testRun="testRun"/>
+            <TestRunSummary :testId="testRun.TestId" :testRun="testRun" :showResults="true"/>
         </div>
 
-        <article v-if="testRun.CaseCount>0 && testRun.Result != 'TEST_SUITE_ERROR'">
+        <article v-if="testRun.CaseCount>0">
             <header>
                 <details style="margin-bottom: var(--spacing);" open>
                     <summary role="button">Result:</summary>
@@ -48,7 +48,7 @@
                     <tbody>
                         <template v-for="testCase of testRun.TestCases">
                             <tr v-if="filterCase(testCase)" @click="openCase = testCase">
-                                <td>{{ getResultSymbol(testCase.Result) }}</td>
+                                <td>{{ getResultSymbolsTestCase(testCase) }}</td>
                                 <td v-for="parameter of selectedParameters" :class="{'right-align': isRightAlign(testCase.ParameterCombination[parameter])}">{{ testCase.ParameterCombination[parameter] }}</td>
                             </tr>
                         </template>
@@ -66,7 +66,7 @@ import { TestResult, type ITestCase, type ITestRun } from '@/lib/data_types';
 import CircularProgress from '@/components/CircularProgress.vue';
 import TestCaseModal from '@/components/TestCaseModal.vue';
 import TestRunSummary from '@/components/TestRunSummary.vue';
-import { getResultSymbol } from '@/composables/visuals';
+import { getResultSymbolsTestCase } from '@/composables/visuals';
 import PillContainer from '@/components/PillContainer.vue';
 
 export default {
@@ -109,7 +109,7 @@ export default {
         }
     },
     methods: {
-        getResultSymbol,
+        getResultSymbolsTestCase,
         filterCase(testCase: ITestCase): boolean {
             if (testCase.Result == TestResult.STRICTLY_SUCCEEDED) {
                 return this.filter.succeeded;
@@ -138,6 +138,8 @@ export default {
                 if (typeof(cA.ParameterCombination[parameter]) === "number") {
                     // @ts-ignore
                     return cA.ParameterCombination[parameter] - cB.ParameterCombination[parameter];
+                } else if (typeof(cA.ParameterCombination[parameter]) === "object") {
+                    return JSON.stringify(cA.ParameterCombination[parameter]).localeCompare(JSON.stringify(cB.ParameterCombination[parameter]));
                 } else {
                     return (""+cA.ParameterCombination[parameter]).localeCompare(""+cB.ParameterCombination[parameter])
                 }
@@ -189,6 +191,9 @@ th {
     background-color: rgb(209, 209, 209);
     max-width: 210px;
     white-space: nowrap;
+}
+td {
+    text-wrap: nowrap;
 }
 .sorting-symbol {
     display: inline-block;

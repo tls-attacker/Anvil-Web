@@ -1,7 +1,9 @@
 <template>
     <article>
             <header>
-                <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
+                <MethodFilter
+                    :categories="getCategories()"
+                    v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults"/>
                 <a href="" @click.prevent="openAll()"><template v-if="allOpen">collapse</template><template v-else>expand</template> all</a>
                 &nbsp; <a v-if="hiddenTestIds.length>0" @click.prevent="resetHidden()" href="">Reset hidden</a>
             </header>
@@ -25,7 +27,7 @@
                                                         {{ testRun.TestId }}
                                                     </RouterLink>
                                                     &nbsp;
-                                                    <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                    <small v-if="testRun.MetaData && testRun.MetaData.tags">({{ testRun.MetaData.tags.join(", ") }})</small>
                                                 </summary>
                                                 <figure>
                                                     <code>{{ testRun.FailedReason }}</code>
@@ -36,12 +38,12 @@
                                                     {{ testRun.TestId }}
                                                 </RouterLink>
                                                 &nbsp;
-                                                <small v-if="$api.getMetaData(testRun.TestId) && $api.getMetaData(testRun.TestId).tags">({{ $api.getMetaData(testRun.TestId).tags.join(", ") }})</small>
+                                                <small v-if="testRun.MetaData && testRun.MetaData.tags">({{ testRun.MetaData.tags.join(", ") }})</small>
                                             </template>
                                         </td>
-                                        <td style="width: 5rem;">
+                                        <td style="width: 6rem;">
                                             <span :data-tooltip="getResultToolTip(testRun)">
-                                                {{ getResultDisplay(testRun) }}
+                                                {{ getResultSymbolsTestRun(testRun) }}
                                             </span>
                                         </td>
                                     </tr>
@@ -55,7 +57,7 @@
 </template>
 
 <script lang="ts">
-import { getResultDisplay, getResultToolTip } from '@/composables/visuals';
+import { getResultSymbolsTestRun, getResultToolTip } from '@/composables/visuals';
 import type { ITestRun } from '@/lib/data_types';
 import MethodFilter from '@/components/MethodFilter.vue';
 
@@ -73,7 +75,25 @@ export default {
             hiddenTestIds: [] as string[]
         }
     },
+    watch: {
+        report() {
+            this.makePrefixes();
+        }
+    },
     methods: {
+        getCategories() {
+            let categories = [] as string[];
+            for (let run of this.report.TestRuns) {
+                if (run.Score) {
+                    for (let c of Object.keys(run.Score)) {
+                        if (categories.includes(c)) {
+                            categories.push(c);
+                        }
+                    }
+                }
+            }
+            return categories;
+        },
         filterPrefix(prefix: string) {
             if (prefix == "Hidden") return this.hiddenTestIds.length > 0;
             if (this.report == undefined) return false;
@@ -97,8 +117,8 @@ export default {
                 if (!Object.keys(testRun.Score).some((k) => this.filteredCategories[k])) return false;
             }
             let tags = [];
-            if (this.$api.getMetaData(testRun.TestId) && this.$api.getMetaData(testRun.TestId).tags) {
-                tags = this.$api.getMetaData(testRun.TestId).tags;
+            if (testRun.MetaData && testRun.MetaData.tags) {
+                tags = testRun.MetaData.tags;
             }
             // filter exactly when wrapped in quotes
             if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {
@@ -148,7 +168,7 @@ export default {
             this.hiddenTestIds = [];
             sessionStorage.setItem("reportTable_hiddenTestIds", JSON.stringify(this.hiddenTestIds));
         },
-        getResultDisplay,
+        getResultSymbolsTestRun,
         getResultToolTip,
     },
     created() {

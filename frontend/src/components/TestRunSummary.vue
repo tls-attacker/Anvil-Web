@@ -1,66 +1,90 @@
 <template>
-    <article v-if="metaDataContainer != undefined">
+    <article v-if="testRun.MetaData != undefined">
             <header class="run-summary" v-if="testRun">
+                <table>
                 <!--<span><strong>TLS Version:</strong> todo</span>-->
-                <span v-if="testRun.TestClass"><strong>Test Class:</strong> {{ testRun.TestClass.substring(31) }}</span>
-                <span><strong>Test Method:</strong> {{ testRun.TestMethod }}</span>
-                <span v-if="metaDataContainer.tags"><strong>Tags: </strong>{{ metaDataContainer.tags.join(", ") }}</span>
+                <tr v-if="testRun.TestClass">
+                    <td><strong>Test Class:</strong></td>
+                    <td>{{ testRun.TestClass.substring(31) }}</td>
+                </tr>
+                <tr>
+                    <td><strong>Test Method:</strong></td>
+                    <td>{{ testRun.TestMethod }}</td>
+                </tr>
+                <tr v-if="testRun.MetaData.tags">
+                    <td><strong>Tags: </strong></td>
+                    <td>{{ testRun.MetaData.tags.join(", ") }}</td>
+                </tr>
+                </table>
             </header>
             <main>
                 <div class="summary-main-flex">
                     <div>
-                        <div v-if="metaDataContainer.rfc">
-                            <span><strong>RFC:</strong> {{ metaDataContainer.rfc.number || "not set" }}</span>
-                            <span><strong> Setion:</strong> {{ metaDataContainer.rfc.section }}</span>
+                        <div v-if="testRun.MetaData.rfc">
+                            <span><strong>RFC:</strong> {{ testRun.MetaData.rfc.number || "not set" }}</span>
+                            <span><strong> Setion:</strong> {{ testRun.MetaData.rfc.section }}</span>
                         </div>
-                        <blockquote><samp>{{ metaDataContainer.description }}</samp></blockquote>
-                        <div v-if="testRun"><strong>Result: </strong> {{ testRun.Result }}</div>
+                        <strong>Quote:</strong>
+                        <blockquote><samp>{{ testRun.MetaData.description }}</samp></blockquote>
+                        <div v-if="testRun && showResults"><strong>Result: </strong> {{ getResultSymbolsTestRun(testRun) }} {{ formatEnum(testRun.Result) }}</div>
                         <div v-if="testRun && testRun.FailureInducingCombinations">
                             <strong>Failure Inducing Combinations:</strong>
                             <ul>
                                 <li v-for="combination of testRun.FailureInducingCombinations.slice(0, 3)">
-                                    <template v-for="(derivation, parameter) in combination"><strong>{{ parameter }}: </strong>{{ derivation }}<br></template>
+                                    <template v-for="(derivation, parameter) in combination">
+                                        <i>{{ parameter }}: </i>
+                                        {{ derivation }}
+                                    </template>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    <CircularProgress v-if="testRun && testRun.TestCases && testRun.TestCases.length > 0"
+                    <CircularProgress v-if="testRun && testRun.TestCases && testRun.TestCases.length > 0 && showResults"
                         :progress="(testRun.SucceededCases + testRun.ConSucceededCases) * 100 / testRun.TestCases.length"
                         :name="`${testRun.SucceededCases + testRun.ConSucceededCases}/${testRun.TestCases.length}`"/>
                 </div>
-                <div v-if="testRun && testRun.FailedReason">
+                <div v-if="testRun && testRun.FailedReason && showResults">
                             <strong>Failed Reason:</strong>
                             <figure><code>{{ testRun.FailedReason }}</code></figure>
                 </div>
-                <div v-if="testRun && testRun.DisabledReason">
+                <div v-if="testRun && testRun.DisabledReason && showResults">
                             <strong>Disabled Reason:</strong> {{ testRun.DisabledReason }}
                 </div>
             </main>
-            <footer>
-                <progress v-if="false"></progress>
+            <footer v-if="false">
+                <progress></progress>
             </footer>
         </article>
 </template>
 
 <script lang="ts">
 import CircularProgress from '@/components/CircularProgress.vue';
+import { formatEnum, getResultSymbolsTestRun } from '@/composables/visuals';
 
 export default {
     name: "TestRunSummary",
     components: { CircularProgress },
-    props: ["testId", "testRun"],
-    data() {
-        return {
-            metaDataContainer: undefined as any
-        }
-    },
-    created() {
-        this.metaDataContainer = this.$api.getMetaData(this.testId);
+    props: ["testRun", "showResults"],
+    methods: {
+        getResultSymbolsTestRun,
+        formatEnum
     }
 }
 </script>
 
 <style scoped>
+li {
+    font-size: medium;
+}
+table {
+    margin-bottom: 0;
+}
+td {
+    padding: 0;
+}
+blockquote {
+    margin: 0.2em;
+}
 .run-summary {
     display: flex;
     flex-direction: column;

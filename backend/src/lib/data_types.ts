@@ -83,7 +83,8 @@ export interface ITestRun {
     ConSucceededCases: number,
     FailedCases: number,
     Score: { [key: string]: number },
-    FailureInducingCombinations: { [key: string]: string }[]
+    FailureInducingCombinations: { [key: string]: string }[],
+    MetaData: {[key: string]: any}
 }
 
 export interface ITestCase {

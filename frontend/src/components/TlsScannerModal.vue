@@ -28,6 +28,9 @@ export default {
 </script>
 
 <style scoped>
+pre {
+    padding: 10px;
+}
 article {
     max-width: 1000px;
 }

@@ -13,7 +13,7 @@
                     </tr>
                     <tr>
                         <td><strong>Result: </strong></td>
-                        <td colspan=3>{{ getResultSymbol(testCase.Result) }} {{ testCase.Result }}</td>
+                        <td colspan=3>{{ getResultSymbolsTestCase(testCase) }} {{ formatEnum(testCase.Result) }}</td>
                     </tr>
                     <tr>
                         <td><strong>SrcPort: </strong></td>
@@ -32,7 +32,7 @@
                     <strong>Stacktrace:</strong>
                     <code>{{ testCase.Stacktrace }}</code>
                 </p>
-                <p v-if="testCase.AdditionalResultInformation"><strong>AdditionalResultInformation: </strong>
+                <p v-if="testCase.AdditionalResultInformation"><strong>Additional Result Information: </strong>
                 <ul>
                     <li v-for="ari of testCase.AdditionalResultInformation"> {{ ari }}</li>
                 </ul>
@@ -76,7 +76,7 @@
 </template>
 
 <script lang="ts">
-import { getResultSymbol } from '@/composables/visuals';
+import { formatEnum, getResultSymbolsTestCase } from '@/composables/visuals';
 export default {
     name: "TestCaseModal",
     props: ["testCase", "identifier", "testId"],
@@ -87,7 +87,8 @@ export default {
         }
     },
     methods: {
-        getResultSymbol
+        getResultSymbolsTestCase,
+        formatEnum
     },
     watch: {
         testCase() {

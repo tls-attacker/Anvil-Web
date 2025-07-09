@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { getResultDisplay, getResultToolTip } from '@/composables/visuals';
+import { getResultSymbolsTestRun, getResultToolTip } from '@/composables/visuals';
 import type { ITestRun } from '@/lib/data_types';
 import MethodFilter from '@/components/MethodFilter.vue';
 
@@ -53,7 +53,7 @@ export default {
                 }
             }
         },
-        getResultDisplay,
+        getResultSymbolsTestRun,
         getResultToolTip,
     },
     created() {

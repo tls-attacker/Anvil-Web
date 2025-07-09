@@ -1,6 +1,9 @@
 <template>
     <div>
-        <MethodFilter v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults" />
+        <MethodFilter
+            v-if="reports.length > 0"
+            :categories="Object.keys(reports[0].Score)"
+            v-model:filter-text="filterText" v-model:filtered-categories="filteredCategories" v-model:filtered-results="filteredResults" />
         <table v-if="reports.length > 0" role="grid">
             <thead>
                 <th>Identifier</th>
@@ -47,14 +50,16 @@
                     </tr>
                     <template v-for="testId in prefixes[prefix]">
                         <tr v-if="filterMethod(testId)">
-                            <td @click="showRun(testId)" class="pointer">{{ testId }}</td>
+                            <td>
+                                <RouterLink :to="`?testId=${testId}`">{{ testId }}</RouterLink>
+                            </td>
                             <td v-for="report in reports">
-                                <span v-if="hasTestResultFor(report, testId)"
-                                :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))"
-                                @click="$router.push(`/tests/${report.Identifier}/${testId}`)"
-                                class="pointer">
-                                    {{ getResultDisplay(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
-                                </span>
+                                <RouterLink :to="`/tests/${report.Identifier}/${testId}`">
+                                    <span v-if="hasTestResultFor(report, testId)"
+                                    :data-tooltip="getResultToolTip(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId))">
+                                        {{ getResultSymbolsTestRun(report.TestRuns.find((tR: ITestRun) => tR.TestId == testId)) }}
+                                    </span>
+                                </RouterLink>
                             </td>
                         </tr>
                     </template>
@@ -65,9 +70,10 @@
 </template>
 
 <script lang="ts">
-import { getResultDisplay, getResultToolTip } from '@/composables/visuals'
+import { getResultSymbolsTestRun, getResultToolTip } from '@/composables/visuals'
 import { type IReport, type ITestRun } from '@/lib/data_types'
 import MethodFilter from './MethodFilter.vue'
+import { RouterLink } from 'vue-router';
 
 export default {
     name: "CompareTableReports",
@@ -113,15 +119,16 @@ export default {
                 if (!r.TestRuns) return false;
                 // @ts-ignore
                 let score = r.TestRuns.find(tR => tR.TestId == testId).Score;
-                if (score != undefined) {
+                if (score != undefined && Object.keys(score).length > 0) {
                     return Object.keys(score).some((k) => this.filteredCategories[k]);
                 } else {
                     return true;
                 }
             })) return false;
             let tags = [];
-            if (this.$api.getMetaData(testId) && this.$api.getMetaData(testId).tags) {
-                tags = this.$api.getMetaData(testId).tags;
+            let testRun = this.reports[0].TestRuns.find((tR: ITestRun) => tR.TestId == testId)
+            if (testRun.MetaData && testRun.MetaData.tags) {
+                tags = testRun.MetaData.tags;
             }
             // filter exactly when wrapped in quotes
             if (this.filterText.startsWith('"') && this.filterText.endsWith('"')) {
@@ -133,7 +140,7 @@ export default {
                 return joinedTags.includes(text) || testId.toLowerCase().includes(text);
             }
         },
-        getResultDisplay,
+        getResultSymbolsTestRun,
         getResultToolTip,
         makePrefixes() {
             this.prefixes = {};
@@ -149,9 +156,6 @@ export default {
                     }
                 }
             }
-        },
-        showRun(testId: string) {
-            this.$router.push({ query: { testId: testId } });
         },
         formatEnum(upper: string): string {
             let parts = upper.split("_");
@@ -183,7 +187,11 @@ export default {
     td:first-child, th:first-child {
         text-align: start;
     }
-    .header + .header {
+    /* hide empty table headers */
+    .header:has(+ .header) {
+        display: none;
+    }
+    tr:last-of-type.header {
         display: none;
     }
 </style>

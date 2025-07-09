@@ -29,7 +29,10 @@ export const TestRunSchema = new Schema({
     type: Map,
     of: Number
   },
-  FailureInducingCombinations: [Schema.Types.Mixed]
+  FailureInducingCombinations: [Schema.Types.Mixed],
+  MetaData: {
+    type: Map
+  }
 }, {
   statics: {
     async overlayEdits(testRun: ITestRun & {_id: Types.ObjectId}) {

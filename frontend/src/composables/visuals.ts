@@ -1,11 +1,21 @@
-import type { ITestRun } from "@/lib/data_types";
+import type { ITestCase, ITestRun } from "@/lib/data_types";
 
-export function getResultDisplay(testRun: ITestRun) {
+export function getResultSymbolsTestRun(testRun: ITestRun) {
     let resultSymbol = getResultSymbol(testRun.Result);
     if (testRun.HasVaryingAdditionalResultInformation) {
         resultSymbol += "⁉️";
     } else if (testRun.HasStateWithAdditionalResultInformation) {
         resultSymbol += "❗️";
+    }
+    return resultSymbol;
+}
+
+export function getResultSymbolsTestCase(testCase: ITestCase) {
+    let resultSymbol = getResultSymbol(testCase.Result);
+    if (testCase.AdditionalResultInformation) {
+        resultSymbol += "❗️";
+    } else if (testCase.AdditionalTestInformation) {
+        resultSymbol += "💬";
     }
     return resultSymbol;
 }
@@ -21,8 +31,8 @@ export function getResultToolTip(testRun: ITestRun) {
 export function getResultSymbol(result: string) {
     switch(result) {
         case "STRICTLY_SUCCEEDED": return "✅";
-        case "CONCEPTUALLY_SUCCEEDED": return "⚠️✅";
-        case "PARTIALLY_FAILED": return "⚠️❌";
+        case "CONCEPTUALLY_SUCCEEDED": return "✅⚠️";
+        case "PARTIALLY_FAILED": return "❌⚠️";
         case "FULLY_FAILED": return "❌";
         case "DISABLED": return "◼";
         case "INCOMPLETE": return "📝";
