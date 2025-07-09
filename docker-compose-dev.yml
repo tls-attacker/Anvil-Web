@@ -30,7 +30,7 @@ services:
       - app
 
   worker:
-    image: ghcr.io/tls-attacker/tlsanvil:v1.3.0
+    image: ghcr.io/tls-attacker/tlsanvil:v1.4.0
 #    image: tls-anvil
     restart: always
     networks:
