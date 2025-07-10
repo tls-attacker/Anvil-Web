@@ -4,7 +4,7 @@
                 <header>
                 <a href="" aria-label="Close" class="close" @click.prevent="$emit('close')"></a>
                 <h4>Guideline Test Results</h4>
-                {{ guidelineReport.name }} <a href="guidelineReport.link">(source)</a>
+                {{ guidelineReport.name }} <a :href="guidelineReport.link">(source)</a>
                 </header>
                 <main>
                     <template v-for="adherenceLevel in adherenceData">
