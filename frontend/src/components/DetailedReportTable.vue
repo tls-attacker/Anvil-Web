@@ -86,7 +86,7 @@ export default {
             for (let run of this.report.TestRuns) {
                 if (run.Score) {
                     for (let c of Object.keys(run.Score)) {
-                        if (categories.includes(c)) {
+                        if (!categories.includes(c)) {
                             categories.push(c);
                         }
                     }
