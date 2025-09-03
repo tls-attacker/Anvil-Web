@@ -9,8 +9,8 @@ import { RouterLink, RouterView } from 'vue-router'
       <li>Anvil Web</li>
     </ul>
     <ul>
-      <li><RouterLink to="/">Tests</RouterLink></li>
-      <li><RouterLink to="/controller">Controller</RouterLink></li>
+      <li><RouterLink to="/" role="button" class="outline">Tests</RouterLink></li>
+      <li><RouterLink to="/controller" role="button" class="outline">Controller</RouterLink></li>
     </ul>
   </nav>
   <!-- <header class="container-fluid">

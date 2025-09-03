@@ -878,6 +878,9 @@ components:
       properties:
         checkName:
           type: string
+        level:
+          type: string
+          nullable: true
         adherence:
           type: string
           enum:

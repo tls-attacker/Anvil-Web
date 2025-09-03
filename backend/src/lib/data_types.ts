@@ -123,6 +123,7 @@ export interface IAnvilJob {
 
 export interface IGuideline {
     checkName: string,
+    level: string,
     adherence: string,
     hint: string,
     info: string,

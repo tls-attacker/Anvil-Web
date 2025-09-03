@@ -17,6 +17,7 @@
                                         <strong>Quote: </strong>
                                         <blockquote>{{ g.checkName }}</blockquote>
                                         <strong>Result:</strong> {{ adherenceLevel.name }}
+                                        <template v-if="g.level"><strong>Level:</strong> {{ g.level }}</template>
                                         <details>
                                             <summary role="button">Details</summary>
                                             <pre>{{ g.info }}</pre>

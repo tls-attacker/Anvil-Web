@@ -2,6 +2,7 @@ import { Schema } from "mongoose";
 
 export const GuidelineSchema = new Schema({
     checkName: String,
+    level: String,
     adherence: String,
     hint: String,
     info: String
