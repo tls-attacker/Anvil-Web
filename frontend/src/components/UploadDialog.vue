@@ -78,7 +78,8 @@ export default {
                 this.error = "Error during upload.";
             })
 
-            request.open('post', 'http://localhost:5001/api/v2/uploadReport');
+            /** TODO: migrate to $api object in the future? */
+            request.open('post', '/api/v2/uploadReport');
             request.timeout = 45000;
             request.send(formdata);
         }
