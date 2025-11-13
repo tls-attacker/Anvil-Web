@@ -134,8 +134,11 @@ export namespace UploadReportEndpoint {
 
     // test runs
     const entries = zipFile.getEntries();
+    let skipCounter = 0;
+    const testRunSavePromises: Promise<any>[] = [];
     for (let entry of entries) {
       if (entry.entryName.endsWith("_testRun.json")) {
+        console.log("parsing: " + entry.entryName);
         let testRun = JSON.parse(entry.getData().toString())
         if ("metadata" in testRun) {
           testRun["MetaData"] = testRun["metadata"];
@@ -149,10 +152,28 @@ export namespace UploadReportEndpoint {
           if (pcapEntry) {
             testCase.PcapData = pcapEntry.getData();
           }
+          // remove displayname as it is redundant information
+          testCase.DisplayName = "";
         }
-        testRun.save()
+        let size = Buffer.byteLength(JSON.stringify(testRun));
+        if (size > 16000000) {
+          console.log('testRun size (bytes):', size, "Removing pcap data and FailureInducingCombinations.");
+          testRun.FailureInducingCombinations = [];
+          testRun.TestCases.forEach((testCase: any) => {
+            testCase.PcapData = null;
+          });
+          if (Buffer.byteLength(JSON.stringify(testRun)) > 16000000) {
+            console.log(" > Too large. Skipped.")
+            skipCounter++;
+            continue;
+          }
+        }
+
+        testRunSavePromises.push(testRun.save());
       }
     }
+    await Promise.all(testRunSavePromises);
+    console.log("Done. Skipped " + skipCounter);
 
     if (res) {
       res.send("OK");

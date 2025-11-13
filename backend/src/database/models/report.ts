@@ -38,7 +38,7 @@ export const ReportSchema = new Schema({
 }, {
   statics: {
     async addTestRuns(report: IReport & {_id: Types.ObjectId}) {
-      const runs = await DB.TestRun.find({ContainerId: report._id}, "-TestCases").lean().exec();
+      const runs = await DB.TestRun.find({ContainerId: report._id}, "-TestCases -FailureInducingCombinations").lean().exec();
       report.TestRuns = runs;
       return report;
     },
