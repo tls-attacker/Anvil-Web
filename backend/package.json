@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "tsc -p src/",
-    "start": "node dist/index.js",
+    "start": "node --max-old-space-size=8192 dist/index.js",
     "generate-report": "node dist/index.js -generate_report"
   },
   "dependencies": {
