@@ -83,7 +83,6 @@ export default {
                 this.error = "Timeout reached. The file may still be processing in the background. You can close this window.";
             })
 
-            /** TODO: migrate to $api object in the future? */
             request.open('post', `${this.$api.baseUrl}uploadReport`);
             request.timeout = 180000;
             request.send(formdata);
