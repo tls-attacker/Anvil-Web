@@ -17,4 +17,4 @@ RUN cp -r /build/backend/ /app/
 RUN cp -r /build/frontend/dist/ /app/static/
 
 WORKDIR /app
-ENTRYPOINT node dist/index.js
+ENTRYPOINT ["node", "--max-old-space-size=8192", "dist/index.js"]

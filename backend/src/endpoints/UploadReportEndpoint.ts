@@ -156,8 +156,8 @@ export namespace UploadReportEndpoint {
           testCase.DisplayName = "";
         }
         let size = Buffer.byteLength(JSON.stringify(testRun));
-        console.log('testRun size (bytes):', size);
         if (size > 16000000) {
+          console.log('testRun size (bytes):', size, "Removing pcap data and FailureInducingCombinations.");
           testRun.FailureInducingCombinations = [];
           testRun.TestCases.forEach((testCase: any) => {
             testCase.PcapData = null;
